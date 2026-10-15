@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-15",
+  "version": "4.0.0-dev.0",
+  "functionalCommit": "5bb4a15215d206401efbf91ccc59f651073e5359",
+  "runtimeSourcesMatchLocalTestedTree": true,
+  "canonicalRuntimeSourcesMatchFinalGit": true,
+  "runtimeSourceFiles": 61,
+  "sourceProvenance": {
+    "lineEndingOnlyDifferencesFromGit": [
+      "protocols/vmess/advanced-buffer.js",
+      "protocols/vmess/crypto/crc32.js",
+      "protocols/vmess/crypto/hmac/hmac.js",
+      "protocols/vmess/crypto/hmac/sha256.js",
+      "protocols/vmess/crypto/hmac/utils.js",
+      "protocols/vmess/crypto/hmac/_assert.js",
+      "protocols/vmess/crypto/hmac/_sha2.js",
+      "protocols/vmess/crypto/sha3.js",
+      "protocols/vmess/replayfilter.js"
+    ],
+    "canonicalLfSources": {
+      "index.js": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905",
+      "index.mjs": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a",
+      "runtime/abortable.js": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2",
+      "runtime/datagram.js": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4",
+      "runtime/errors.js": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220",
+      "runtime/hooks.js": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1",
+      "runtime/index.js": "1c4a49c9b12d53881ede504f601eef63fb4a46bcbcd0cee538b31d2d286a7530",
+      "runtime/manager.js": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7",
+      "runtime/metrics.js": "ee80476457097a1c9a13f40ffab1e7b71810c5049345a3ade1fc6c0ba0348d55",
+      "runtime/reader.js": "3f9c5ac4ecb9df84b90e501ed0b423a66a5c09cc582f4cbb458a4de488206c89",
+      "runtime/streams.js": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730",
+      "runtime/watch.js": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c",
+      "protocols/bridge.js": "f574154c865aa5560d7193efb14ce1f79e50e451e8debf3eaacbc2992887037f",
+      "protocols/freedom.js": "4ab85357145a41eeea9c9eb02b1253148ae65f6bad7b13b40992b2634f0dca75",
+      "protocols/mux/frame.js": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99",
+      "protocols/mux/index.js": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2",
+      "protocols/socks/client.js": "76482976660948dcbcd9ac2ec89d9be2c32430962120c74699efec1ce72b10b5",
+      "protocols/socks/datagram.js": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b",
+      "protocols/socks/index.js": "0e4f159c2d35b52bf71d5f3c96c8b74209b9ac639622ff531f84c89dc3a8522b",
+      "protocols/socks/server.js": "1eaa0b1cf7228bc33ce96ee9a91f10dfd9f7fbabf55413d56145122bcbbb0938",
+      "protocols/socks/stream.js": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db",
+      "protocols/vless/index.js": "8c7cc33f31fc04263390d482d0f104791afd38654bf9f16f1d4afa5e7fad5592",
+      "protocols/vmess/account.js": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79",
+      "protocols/vmess/advanced-buffer.js": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722",
+      "protocols/vmess/aead.js": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337",
+      "protocols/vmess/client.js": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954",
+      "protocols/vmess/common.js": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa",
+      "protocols/vmess/consts.js": "b8c51607b0268d5c2a1ad34b2aee6fa9753f57171b0e04c8c7b20c9393fd5f74",
+      "protocols/vmess/crypto/crc32.js": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7",
+      "protocols/vmess/crypto/hmac/hmac.js": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132",
+      "protocols/vmess/crypto/hmac/sha256.js": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7",
+      "protocols/vmess/crypto/hmac/utils.js": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229",
+      "protocols/vmess/crypto/hmac/_assert.js": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9",
+      "protocols/vmess/crypto/hmac/_sha2.js": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde",
+      "protocols/vmess/crypto/sha3.js": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9",
+      "protocols/vmess/datagram.js": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795",
+      "protocols/vmess/index.js": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf",
+      "protocols/vmess/kdf.js": "b9087ec1f5b62e71587f98dd6031def69fedbeb95142dc17784ee184badb6e8b",
+      "protocols/vmess/replayfilter.js": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0",
+      "protocols/vmess/server.js": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d",
+      "protocols/vmess/store.js": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90",
+      "protocols/vmess/validator.js": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8",
+      "reverse/index.js": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6",
+      "transports/index.js": "0b09c90de6b140c865a5b2ffa28581e7436a4c29f6ac47f8343ae4be63d2887e",
+      "core/api.js": "262c75c43ee8ec12d7703cbd332eb5de451966633c3d9f3c6c2ce5747f0423fa",
+      "core/event.js": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb",
+      "core/localNetwork.js": "cdfe9c5c5137427cad03c636e6b7f57d4471e14d1fa090f1e8a7ea4c8103f77b",
+      "core/remoteNetwork.js": "cfbc6e001acce5e9e718e9f231dfd1b67a12dd23f408d6c9900c199e794c7218",
+      "core/storage.js": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d",
+      "core/utils.js": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa",
+      "config/index.js": "5c09e8a764e1d8bab00a775a3e67b693ae97f9bbe1151340e388351e05d95ddc",
+      "config/policy.js": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac",
+      "config/reverse.js": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07",
+      "config/v2ray.js": "e846f48a972ea4c38498eefae02be4c3062a10895f59e0ecf845e3b86c141904",
+      "dns/index.js": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b",
+      "dns/wire.js": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2",
+      "geodata/index.js": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832",
+      "routing/index.js": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b",
+      "routing/sniff.js": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3",
+      "adapters/http.js": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16",
+      "adapters/websocket.js": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd"
+    },
+    "note": "Raw benchmark records preserve the Windows checkout bytes. LF-canonical hashes verify the final Git source without rewriting the tested files."
+  },
+  "commands": [
+    "npm run check",
+    "npm run check:types",
+    "npm run format:check",
+    "npm run check:config",
+    "npm test",
+    "npm run test:tools",
+    "npm run test:interop",
+    "npm run test:package",
+    "npm run test:stability",
+    "npm run test:stability:extensions"
+  ],
+  "unitTests": 148,
+  "interoperabilityTests": 106,
+  "skippedTests": 0,
+  "realClientConfigSmoke": {
+    "ok": true,
+    "httpStatus": 200,
+    "localProxyListeners": 0,
+    "scope": "The authorized private proxy outbound only; private values are not persisted."
+  },
+  "referenceCores": {
+    "xray": {
+      "version": "24.11.5",
+      "source": "https://github.com/XTLS/Xray-core",
+      "commit": "afc7ec55062c14ae69fc67b148155faae1c31548",
+      "platform": "windows-amd64",
+      "testEnvironment": {
+        "xray.cone.disabled": "true"
+      },
+      "sha256": "ed6af84a5848bff37c691f746867d605c68ce6aa2efe25b09464905832b9b1c0"
+    },
+    "v2ray": {
+      "version": "5.14.1",
+      "source": "https://github.com/v2fly/v2ray-core",
+      "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+      "build": "Verified byte-for-byte against the official v5.14.1 release archive and its published .dgst SHA256; Custom is the official version banner",
+      "platform": "windows-amd64",
+      "sha256": "9204011a215d4411f5803ecf801c9c9fdfc8cf719c792508968662d26e2e2950"
+    }
+  },
+  "ci": {
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38694178123",
+    "conclusion": "success",
+    "commit": "5bb4a15215d206401efbf91ccc59f651073e5359",
+    "node": "24.20.0",
+    "jobs": [
+      {
+        "platform": "windows-2022",
+        "jobId": 116286777208,
+        "conclusion": "success"
+      },
+      {
+        "platform": "macos-15-intel",
+        "jobId": 116286777348,
+        "conclusion": "success"
+      },
+      {
+        "platform": "ubuntu-24.04",
+        "jobId": 116286777419,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "stage": "P9",
+      "commit": "41aebeb",
+      "feature": "unified errors and runtime metrics"
+    },
+    {
+      "stage": "P10",
+      "commit": "2b4bc95",
+      "feature": "application WebSocket",
+      "focusedTests": 6
+    },
+    {
+      "stage": "P11",
+      "commit": "8e747a8",
+      "feature": "DNS linked routing"
+    },
+    {
+      "stage": "P12",
+      "commit": "2373811",
+      "feature": "SOCKS VMess Mux XUDP reverse UDP",
+      "addedInteropTests": 32
+    },
+    {
+      "stage": "P13",
+      "commit": "63e9414",
+      "feature": "smooth configuration and credential rotation",
+      "focusedTests": 15
+    }
+  ],
+  "supplementalFixes": ["4d8fa3f", "2a68c8b", "5bb4a15"],
+  "longRuns": [
+    {
+      "kind": "tcp-reverse-regression",
+      "evidence": "docs/acceptance/p9-p13-tcp-stability-2026-10-15.json",
+      "sha256": "6eae39e5ac0b2f89c3c856cbcc5ab4cab4de55b9c2e4b4fe73f8eb788b3b0550",
+      "sourceCommit": "2a68c8bcec59874e8286331ca831962a0d5544e2",
+      "elapsedMs": 1800116,
+      "concurrentSessions": 100,
+      "iterations": 1496453,
+      "bytes": 6129471488,
+      "peak": {
+        "rss": 257155072,
+        "heap": 35736432,
+        "queue": 40960,
+        "connections": 214
+      },
+      "resourcesClosed": true
+    },
+    {
+      "kind": "tcp-udp-websocket-rotation",
+      "evidence": "docs/acceptance/p9-p13-mixed-stability-2026-10-15.json",
+      "sha256": "0e054126c2909875ce207526d1892e1a10e2e0042e0720f0f109ec71925c4fa2",
+      "sourceCommit": "2a68c8bcec59874e8286331ca831962a0d5544e2",
+      "elapsedMs": 1800458,
+      "concurrentSessions": 100,
+      "iterations": {
+        "tcp": 599091,
+        "udp": 449499,
+        "websocket": 449517
+      },
+      "bytes": 4525241856,
+      "rotations": 29,
+      "peak": {
+        "rss": 256331776,
+        "heap": 51594352,
+        "applicationQueueBytes": 61560,
+        "muxQueueBytes": 2920,
+        "generations": 4
+      },
+      "resourcesClosed": true
+    }
+  ],
+  "privacy": {
+    "ok": true,
+    "filesChecked": 145,
+    "historyBlobsChecked": 248,
+    "checked": [
+      "user IDs and UUID variants",
+      "prefix fields",
+      "remote server addresses",
+      "nonstandard remote ports",
+      "email, Host, SNI, paths"
+    ],
+    "matches": [],
+    "genericPortFields": ["outbounds[0].server[0].port"],
+    "note": "Private values remain only in memory. Staged evidence and final commit history are additionally audited before every push.",
+    "auditedAtCommit": "5bb4a15215d206401efbf91ccc59f651073e5359",
+    "privateConfigTracked": false,
+    "finalStagedAudit": {
+      "ok": true,
+      "filesChecked": 149,
+      "historyBlobsChecked": 248,
+      "checked": [
+        "user IDs and UUID variants",
+        "prefix fields",
+        "remote server addresses",
+        "nonstandard remote ports",
+        "email, Host, SNI, paths"
+      ],
+      "matches": [],
+      "genericPortFields": ["outbounds[0].server[0].port"],
+      "note": "Generic DNS/HTTP/HTTPS port numbers are public protocol constants; private endpoint identities and nonstandard ports are not allowlisted.",
+      "basis": "All staged evidence and tracked files; history through functional commit 5bb4a15. The final commit is re-audited before push."
+    }
+  },
+  "package": {
+    "files": 85,
+    "nativeRuntimeAssets": 0,
+    "actualTarballInstallation": "passed",
+    "cjsEsmExports": "passed",
+    "managerLifecycle": "passed"
+  }
+}

@@ -19,3 +19,5 @@ protocols/vmess/consts.js
 protocols/vmess/kdf.js
 protocols/vmess/replayfilter.js
 protocols/vmess/advanced-buffer.js
+docs/acceptance/p9-p13-tcp-stability-2026-10-15.json
+docs/acceptance/p9-p13-mixed-stability-2026-10-15.json

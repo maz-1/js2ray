@@ -1,0 +1,666 @@
+{
+  "started": "2026-10-15T06:38:51.968Z",
+  "node": "v24.20.0",
+  "platform": "win32",
+  "arch": "x64",
+  "machine": {
+    "cpu": "AMD Ryzen 7 9700X 8-Core Processor             ",
+    "cores": 16,
+    "memoryBytes": 66157821952
+  },
+  "durationMinutes": 30,
+  "concurrentSessions": 100,
+  "topology": "50 VLESS Mux TCP + 50 reverse TCP, 10 slow consumers, 4096 bytes each iteration",
+  "commit": "2a68c8bcec59874e8286331ca831962a0d5544e2",
+  "iterations": 1496453,
+  "bytes": 6129471488,
+  "peak": {
+    "rss": 257155072,
+    "heap": 35736432,
+    "queue": 40960,
+    "connections": 214
+  },
+  "samples": [
+    {
+      "elapsedMs": 0,
+      "rss": 77934592,
+      "heap": 10426832,
+      "queue": 0,
+      "connections": 104,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 1,
+          "active": 1,
+          "sessions": 51,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 59391,
+      "rss": 175136768,
+      "heap": 25504648,
+      "queue": 32768,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 118810,
+      "rss": 173436928,
+      "heap": 23857416,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 178248,
+      "rss": 146251776,
+      "heap": 9970592,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 237613,
+      "rss": 171872256,
+      "heap": 12028800,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 296954,
+      "rss": 181972992,
+      "heap": 17265072,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 356265,
+      "rss": 190283776,
+      "heap": 9977752,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 415529,
+      "rss": 196718592,
+      "heap": 14775360,
+      "queue": 16384,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 474846,
+      "rss": 196964352,
+      "heap": 14029776,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 534194,
+      "rss": 204738560,
+      "heap": 12271720,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 593622,
+      "rss": 208535552,
+      "heap": 14133856,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 653022,
+      "rss": 208818176,
+      "heap": 28438272,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 712331,
+      "rss": 223207424,
+      "heap": 34839672,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 771695,
+      "rss": 162983936,
+      "heap": 11492304,
+      "queue": 36864,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 831080,
+      "rss": 203628544,
+      "heap": 15619848,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 890416,
+      "rss": 225959936,
+      "heap": 14442112,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 949787,
+      "rss": 223268864,
+      "heap": 24900984,
+      "queue": 36864,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1009046,
+      "rss": 196243456,
+      "heap": 15497080,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1068391,
+      "rss": 232325120,
+      "heap": 10583936,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1127723,
+      "rss": 231575552,
+      "heap": 19100952,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1187164,
+      "rss": 228438016,
+      "heap": 16467272,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1246650,
+      "rss": 232898560,
+      "heap": 21474168,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1306041,
+      "rss": 208404480,
+      "heap": 22671696,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1365392,
+      "rss": 221327360,
+      "heap": 19746904,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1424709,
+      "rss": 242552832,
+      "heap": 16521592,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1484046,
+      "rss": 212017152,
+      "heap": 19852248,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1543438,
+      "rss": 248451072,
+      "heap": 30718352,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1602770,
+      "rss": 245035008,
+      "heap": 23954352,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1662147,
+      "rss": 249307136,
+      "heap": 22404904,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1721494,
+      "rss": 242479104,
+      "heap": 31534872,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    },
+    {
+      "elapsedMs": 1780821,
+      "rss": 204922880,
+      "heap": 16048312,
+      "queue": 40960,
+      "connections": 214,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 4,
+          "active": 4,
+          "sessions": 54,
+          "connecting": false
+        }
+      ]
+    }
+  ],
+  "passed": true,
+  "sources": {
+    "index.js": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905",
+    "index.mjs": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a",
+    "runtime/abortable.js": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2",
+    "runtime/datagram.js": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4",
+    "runtime/errors.js": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220",
+    "runtime/hooks.js": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1",
+    "runtime/index.js": "1c4a49c9b12d53881ede504f601eef63fb4a46bcbcd0cee538b31d2d286a7530",
+    "runtime/manager.js": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7",
+    "runtime/metrics.js": "ee80476457097a1c9a13f40ffab1e7b71810c5049345a3ade1fc6c0ba0348d55",
+    "runtime/reader.js": "3f9c5ac4ecb9df84b90e501ed0b423a66a5c09cc582f4cbb458a4de488206c89",
+    "runtime/streams.js": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730",
+    "runtime/watch.js": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c",
+    "protocols/bridge.js": "17afe23129a1ef2a4f2deffee6d77b41688d24c0b5f06a7b05bf0eb333def143",
+    "protocols/freedom.js": "be0ba2bcefd8ac627ccf2bbca95c8cb05b5c0726c5bdac696abb9d9dc0ae8fde",
+    "protocols/mux/frame.js": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99",
+    "protocols/mux/index.js": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2",
+    "protocols/socks/client.js": "cc67f68618f3776c67c6d5b12be59dab7a24c5d9f37d7643dfcba6f5dbe98828",
+    "protocols/socks/datagram.js": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b",
+    "protocols/socks/index.js": "1ab5a1b108c07cd7e74ee3eeb30a9550431b8680f2440cc8e9bb61a9fa84b607",
+    "protocols/socks/server.js": "d13ae480167243d4ec87e77b3172731c4e3917552e3e5b0cb6457fab97ff9767",
+    "protocols/socks/stream.js": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db",
+    "protocols/vless/index.js": "8c7cc33f31fc04263390d482d0f104791afd38654bf9f16f1d4afa5e7fad5592",
+    "protocols/vmess/account.js": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79",
+    "protocols/vmess/advanced-buffer.js": "58f4817a42815a537c535e51b7fdc012d94601c6c37e6c0129c6e4ef9cf736dc",
+    "protocols/vmess/aead.js": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337",
+    "protocols/vmess/client.js": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954",
+    "protocols/vmess/common.js": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa",
+    "protocols/vmess/consts.js": "f1a5fb36644554b2dc782117b6a9527499345928f4ea9fed23a7bb08a5e6b66e",
+    "protocols/vmess/crypto/crc32.js": "421ce60ac45393aa2c49b49d9bf5f6d171edecdfdd3ed9de9e2b55aab7b264a3",
+    "protocols/vmess/crypto/hmac/hmac.js": "75b1602a7b3302a2011151e8e2ffdef90fe0ff145c32530a239314f6ea1fc588",
+    "protocols/vmess/crypto/hmac/sha256.js": "4a32bb9e0a0db3608e09b1033718e63c07c0b70f21fe79e62b533fa1bdc4782d",
+    "protocols/vmess/crypto/hmac/utils.js": "4c46113253fa670c201da032eebf917309ae13a1315d8835d49546703691a80a",
+    "protocols/vmess/crypto/hmac/_assert.js": "e7aedfe020b21d7e2bf16d43c3b28e5a804288a9a3db495a19b7a7d7a99f438d",
+    "protocols/vmess/crypto/hmac/_sha2.js": "e4e18ec3b22283a50431559e9ecd6db459b38275b850bddc9e6cc131ae1982f8",
+    "protocols/vmess/crypto/sha3.js": "c05d78121276123d2136205819608e87d568fff2147e00245a47565dff09d6dd",
+    "protocols/vmess/datagram.js": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795",
+    "protocols/vmess/index.js": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf",
+    "protocols/vmess/kdf.js": "7f4c128d3920506801d4531bf59a8331d385a0cd433c2fde9575fbc517e1aadf",
+    "protocols/vmess/replayfilter.js": "ee77157a990c3af9acb8e0bec680b62801048cd4aa36c482bd8899e52124fd33",
+    "protocols/vmess/server.js": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d",
+    "protocols/vmess/store.js": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90",
+    "protocols/vmess/validator.js": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8",
+    "reverse/index.js": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6",
+    "transports/index.js": "0b09c90de6b140c865a5b2ffa28581e7436a4c29f6ac47f8343ae4be63d2887e",
+    "core/api.js": "a5644c5a6bb3bd486956f383a42bc7ce797935b422b4fa287757c0c5b674e8d5",
+    "core/event.js": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb",
+    "core/localNetwork.js": "82f7df5f9fb019e03a095a690ddb83186be78d4aa853b8db16eca434a292dd0d",
+    "core/remoteNetwork.js": "0f3321af69089512d82017ffe717b0cf7c2e0cc56c7d53be576d7871570289a5",
+    "core/storage.js": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d",
+    "core/utils.js": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa",
+    "config/index.js": "5c09e8a764e1d8bab00a775a3e67b693ae97f9bbe1151340e388351e05d95ddc",
+    "config/policy.js": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac",
+    "config/reverse.js": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07",
+    "config/v2ray.js": "e846f48a972ea4c38498eefae02be4c3062a10895f59e0ecf845e3b86c141904",
+    "dns/index.js": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b",
+    "dns/wire.js": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2",
+    "geodata/index.js": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832",
+    "routing/index.js": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b",
+    "routing/sniff.js": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3",
+    "adapters/http.js": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16",
+    "adapters/websocket.js": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd"
+  },
+  "configSha256": "e7c4c1377b62fd495f41b0d668831a306309105528f60d9652a085f912e86384",
+  "elapsedMs": 1800116,
+  "closed": [
+    {
+      "state": "closed",
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": [
+        {
+          "tag": "portal",
+          "role": "portal",
+          "transports": 0,
+          "active": 0,
+          "sessions": 0
+        }
+      ]
+    },
+    {
+      "state": "closed",
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": [
+        {
+          "tag": "bridge",
+          "role": "bridge",
+          "transports": 0,
+          "active": 0,
+          "sessions": 0,
+          "connecting": false
+        }
+      ]
+    }
+  ],
+  "finished": "2026-10-15T07:08:52.219Z"
+}

@@ -92,3 +92,5 @@ Private remote smoke testing is opt-in: `node scripts/smoke-private.js v2ray-con
 See [API and migration](docs/API.zh-CN.md), [compatibility and evidence](docs/IMPLEMENTATION_STATUS.zh-CN.md), and [the development plan](DEVELOPMENT_PLAN.zh-CN.md).
 
 Configuration and credential rotation uses `createRuntimeManager`. Its HTTP/Undici adapters isolate pools by generation, while old streams drain within a budget. See the [API and rotation contract](docs/API.zh-CN.md), including same-port UUID/certificate rotation and readiness probes.
+
+`npm run test:stability:extensions` runs a separate 100-session, 30-minute mix of TCP, UDP and application WS/WSS, with credential rotation every minute. [The P9–P13 acceptance record](docs/P9-P13_ACCEPTANCE.zh-CN.md) links the three-platform results, original load records and source hashes.
