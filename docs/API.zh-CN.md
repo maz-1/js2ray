@@ -58,7 +58,7 @@ DNS hosts 和服务器匹配遵循 full 优先、最长 domain 后缀其次、�
 
 `reverse.bridges` 提供虚拟入站 tag，`reverse.portals` 提供虚拟出站 tag；引用必须存在，规则顺序由配置明确决定。Bridge domain:0 规则必须先于 Bridge 本地业务规则。控制域名只用于连接识别。Bridge 主动建连，无需代理监听；Portal 业务端口需显式配置 TCP/dokodemo-door 入站。`runtime.stats.reverse` 和 `reverse` 事件分别记录角色、传输、会话及连接/活动/排空/退避状态；active 表示控制传输可用，不代表目标业务一定可达。
 
-Bridge 默认最多 4 条承载、每条最多 129 会话（含控制），断线重连从 100 ms 开始指数退避，上限 30 秒并带抖动。可配置 maxWorkers/maxSessions/reconnectMs。Portal 优先选非排空且会话数最少的承载；参考控制消息超过 256 累计会话后使其排空。传输故障会终止受影响业务，不重放应用字节。普通 outbound mux=false 不关闭 reverse 所需内部 Mux。Mux END 关闭整个会话，不能承诺等待写 EOF 后再返回响应的任意 TCP 半关闭协议；WS 同样没有 TCP 半关闭。runtime.close 会终止反代承载。
+Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建连失败从 100 ms 开始指数退避，基准上限 30 秒并加 ±20% 抖动，实际最多 36 秒；已建立承载失效由有界监视周期处理。可配置 maxWorkers/maxSessions/reconnectMs。Portal 优先选非排空且会话数最少的承载；参考控制消息超过 256 累计会话后使其排空。传输故障会终止受影响业务，不重放应用字节。普通 outbound mux=false 不关闭 reverse 所需内部 Mux。Mux END 关闭整个会话，不能承诺等待写 EOF 后再返回响应的任意 TCP 半关闭协议；WS 同样没有 TCP 半关闭。runtime.close 会终止反代承载。
 
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 

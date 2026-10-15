@@ -101,3 +101,33 @@ test('Portal restart ends affected streams and Bridge reconnects without replay'
   next.destroy();
   assert.ok(events.some((event) => event.state === 'disconnected'));
 });
+test('reverse drains a busy transport after its session budget and releases it after held business closes', async (t) => {
+  const destination = await echo(t),
+    portal = createRuntime(portalConfig(0));
+  await portal.start();
+  t.after(() => portal.close());
+  const config = bridgeConfig(portal.listenersInfo[0].address.port, destination);
+  const bridge = createRuntime(config);
+  const events = [];
+  portal.on('reverse', (event) => events.push(event));
+  await bridge.start();
+  t.after(() => bridge.close());
+  await waitFor(() => portal.stats.reverse[0].active > 0);
+  const held = await portal.dial({ host: 'service.test', port: 80, outboundTag: 'portal' });
+  held.write('held');
+  assert.equal((await readBytes(held, 4)).toString(), 'held');
+  for (let i = 0; i < 258; i++) {
+    await waitFor(() => portal.stats.reverse[0].active > 0);
+    const stream = await portal.dial({ host: 'service.test', port: 80, outboundTag: 'portal' });
+    stream.write('x');
+    assert.equal((await readBytes(stream, 1)).toString(), 'x');
+    stream.destroy();
+  }
+  await waitFor(() => events.some((event) => event.state === 'draining'));
+  await waitFor(() => portal.stats.reverse[0].active > 0);
+  held.write('after');
+  assert.equal((await readBytes(held, 5)).toString(), 'after');
+  held.destroy();
+  await waitFor(() => portal.stats.reverse[0].transports === 1);
+  assert.equal(bridge.listenersInfo.length, 0);
+});
