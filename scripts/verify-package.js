@@ -34,7 +34,7 @@ try {
     [
       npm,
       'install',
-      '--offline',
+      '--prefer-offline',
       '--ignore-scripts',
       '--omit=dev',
       '--no-audit',
@@ -57,6 +57,7 @@ try {
     const api = require('js2ray');
     const esm = await import('js2ray');
     assert.equal(typeof esm.createRuntime, 'function');
+    for (const name of ['createHttpAgent','createHttpsAgent','createUndiciConnector','createUndiciDispatcher']) assert.equal(typeof esm[name], 'function');
     assert.equal(global.log, undefined);
     const runtime = api.createRuntime({inbounds:[]});
     await runtime.start();

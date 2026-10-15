@@ -5,13 +5,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-24.04, windows-2022, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.20.0
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run check
@@ -19,4 +19,6 @@ jobs:
       - run: npm run format:check
       - run: npm run check:config
       - run: npm test
-      - run: npm pack --dry-run
+      - run: npm run test:tools
+      - run: npm run test:interop
+      - run: npm run test:package

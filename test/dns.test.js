@@ -5,6 +5,25 @@ const { createRuntime, checkConfig } = require('..');
 const { dnsServer, answer } = require('./fixtures/dns-server');
 const { query, response } = require('../dns/wire');
 const { echo, readBytes } = require('./helpers');
+test('local DoH handshake cancellation closes a peer that never sends TLS', async (t) => {
+  const net = require('node:net');
+  const sockets = new Set();
+  const server = net.createServer((socket) => {
+    sockets.add(socket);
+    socket.once('close', () => sockets.delete(socket));
+  });
+  const port = await require('./helpers').listen(server);
+  t.after(async () => {
+    for (const socket of sockets) socket.destroy();
+    await new Promise((resolve) => server.close(resolve));
+  });
+  const runtime = createRuntime({
+    dns: { timeoutMs: 30, servers: [`https+local://127.0.0.1:${port}/dns-query`] },
+  });
+  await runtime.start();
+  t.after(() => runtime.close());
+  await assert.rejects(runtime.resolve('held.test', { family: 4 }), { code: 'ERR_TIMEOUT' });
+});
 
 test('DNS wire verifies identity, question, lengths and compressed-name cycles', () => {
   const request = query('example.test', 1, 1234),

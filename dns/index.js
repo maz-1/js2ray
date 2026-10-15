@@ -176,6 +176,8 @@ class Resolver {
             const result = await Promise.allSettled(
               families.map((candidate) => this.query(server, host, candidate, active)),
             );
+            if (result.length && result.every((item) => item.status === 'rejected'))
+              throw result[0].reason;
             let records = result.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
             if (server.expect.length)
               records = records.filter((record) =>
@@ -308,6 +310,11 @@ class Resolver {
         });
         const error = (cause) => callback(cause);
         secure.once('error', error);
+        const cancelled = () =>
+          secure.destroy(failure('ERR_CANCELLED', 'DoH TLS handshake cancelled.', 'dns'));
+        signal.addEventListener('abort', cancelled, { once: true });
+        secure.once('close', () => signal.removeEventListener('abort', cancelled));
+        if (signal.aborted) cancelled();
         secure.once('secureConnect', () => {
           secure.removeListener('error', error);
           callback(null, secure);

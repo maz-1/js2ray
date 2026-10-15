@@ -10,12 +10,18 @@ for (const kind of ['v2ray', 'xray']) {
   test(`${kind}: ordered AsIs routing matches js2ray across domains, CIDRs, ports and inbound tags`, async (t) => {
     const outbounds = [];
     for (const tag of ['default', 'direct', 'proxy', 'block']) {
+      const sockets = new Set();
       const server = net.createServer((socket) => {
+        sockets.add(socket);
+        socket.once('close', () => sockets.delete(socket));
         socket.on('error', () => {});
         socket.end(tag.padEnd(8));
       });
       const port = await listen(server);
-      t.after(() => new Promise((resolve) => server.close(resolve)));
+      t.after(() => {
+        for (const socket of sockets) socket.destroy();
+        return new Promise((resolve) => server.close(resolve));
+      });
       outbounds.push({ tag, protocol: 'freedom', settings: { redirect: `127.0.0.1:${port}` } });
     }
     const routing = {

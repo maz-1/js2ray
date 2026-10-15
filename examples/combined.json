@@ -1,0 +1,131 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "reverse": {
+    "bridges": [
+      {
+        "tag": "bridge",
+        "domain": "bridge.example"
+      }
+    ]
+  },
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "192.0.2.1",
+            "port": 443,
+            "users": [
+              {
+                "id": "d342d11e-d424-4583-b36e-524ab1f0afa4",
+                "encryption": "none",
+                "security": "auto"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "proxy.example",
+          "allowInsecure": false
+        },
+        "wsSettings": {
+          "path": "/vless",
+          "host": "proxy.example",
+          "headers": {
+            "Host": "proxy.example"
+          }
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "local",
+      "protocol": "freedom",
+      "settings": {
+        "redirect": "127.0.0.1:8765"
+      }
+    },
+    {
+      "tag": "direct",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "block",
+      "protocol": "blackhole"
+    }
+  ],
+  "dns": {
+    "hosts": {
+      "dns.google": "8.8.8.8"
+    },
+    "servers": [
+      {
+        "address": "8.8.8.8",
+        "domains": ["geosite:geolocation-!cn"],
+        "expectIPs": ["geoip:!cn"]
+      },
+      "https://dns.google/dns-query"
+    ]
+  },
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": ["bridge"],
+        "domain": ["full:bridge.example"],
+        "outboundTag": "proxy"
+      },
+      {
+        "type": "field",
+        "inboundTag": ["bridge"],
+        "outboundTag": "local"
+      },
+      {
+        "domain": ["geosite:category-ads-all"],
+        "type": "field",
+        "outboundTag": "block"
+      },
+      {
+        "type": "field",
+        "domain": ["geosite:cn"],
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "ip": ["geoip:private"],
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "network": "udp",
+        "port": "443",
+        "outboundTag": "block"
+      }
+    ]
+  },
+  "geodata": {
+    "geoip": {
+      "path": "geodata/geoip.dat",
+      "version": "synthetic-v1",
+      "sha256": "10372c914d3451756145f789269246fee8cc937b1b2c28895847d9d399e21caa"
+    },
+    "geosite": {
+      "path": "geodata/geosite.dat",
+      "version": "synthetic-v1",
+      "sha256": "cf11aeac53820c8d52b56b3c1acfbe4d52dea7b8a21facbd456e98e751ea348a"
+    }
+  }
+}

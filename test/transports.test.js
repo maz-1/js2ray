@@ -6,6 +6,7 @@ const path = require('node:path');
 const net = require('node:net');
 const http = require('node:http');
 const { WebSocketServer } = require('ws');
+const { once } = require('node:events');
 const { connect, createListener } = require('../transports');
 const { listen, readBytes } = require('./helpers');
 const cert = fs.readFileSync(path.join(__dirname, 'fixtures/tls/cert.pem'), 'utf8');
@@ -169,3 +170,39 @@ test('WebSocket transport rejects text messages', async (t) => {
 });
 
 module.exports = { cert, key };
+test('WebSocket handles ping/pong, enforces message limit and completes bounded close', async (t) => {
+  const WebSocket = require('ws');
+  let accepted;
+  const listener = createListener(
+    { type: 'ws', option: { path: '/bound' } },
+    (stream) => {
+      accepted = stream;
+    },
+    { maxBufferBytes: 1024, handshakeTimeoutMs: 1000 },
+  );
+  const port = await listen(listener.server);
+  t.after(() => {
+    listener.destroy();
+    return new Promise((resolve) => listener.server.close(resolve));
+  });
+  const peer = new WebSocket(`ws://127.0.0.1:${port}/bound`);
+  peer.on('error', () => {});
+  t.after(() => peer.terminate());
+  await once(peer, 'open');
+  const pong = once(peer, 'pong');
+  peer.ping(Buffer.from('alive'));
+  assert.equal((await pong)[0].toString(), 'alive');
+  const ended = once(peer, 'close'),
+    streamClosed = once(accepted, 'close');
+  accepted.resume();
+  accepted.end();
+  await Promise.all([ended, streamClosed]);
+  assert.equal(accepted.destroyed, true);
+  const oversized = new WebSocket(`ws://127.0.0.1:${port}/bound`);
+  oversized.on('error', () => {});
+  t.after(() => oversized.terminate());
+  await once(oversized, 'open');
+  const closed = once(oversized, 'close');
+  oversized.send(Buffer.alloc(1025));
+  assert.equal((await closed)[0], 1009);
+});
