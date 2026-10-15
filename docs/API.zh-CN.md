@@ -149,7 +149,7 @@ XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；pac
 
 每个 Runtime 的每个网络配置单独持有池；不同出站、凭据、TLS 信任、DNS 上下文、Runtime 或 Manager 代次不共用池。HTTP/2 同一客户端共享一个 session，并根据对端 SETTINGS 的流容量选择客户端；maxConnections 不承诺物理 TCP 连接数硬上限。HTTP/1.1 无流多路复用，GET/流式 POST 各占连接，packet-up 的有限 POST 连接可跨逻辑会话复用；同一客户端的 agent 最多持有 `2 * maxConnections`（运行时 limits 的值，最少 2）个活跃 socket、2 个空闲 socket。无使用者的客户端 90 秒后回收，空闲资源和保活计时器不阻止进程退出；Runtime.close 关闭整个池。
 
-`runtime.metrics.xhttp` 暴露 clients/draining/active/sockets/pending，以及累计 created/retired/requests/pings/failures，不含目标或凭据。active 是逻辑连接预留数，不包含 packet-up 临时上行租约；requests 为实际创建的 HTTP 请求数，pings 为成功收到 ACK 的 PING 数，failures 为异常关闭的客户端数。验收命令为 `node --test test/xmux.test.js`、`node --test test/interop/xmux.test.js` 和 `npm run test:stability:xmux`。
+`runtime.metrics.xhttp` 暴露 clients/draining/active/sockets/pending，以及累计 created/retired/requests/pings/failures，不含目标或凭据。active 是各池的并发预留数：未分离时每条逻辑连接预留一次，分离时上下行各预留一次，因此不能直接作为用户连接数；未分离的 packet-up 临时上行租约不增加 active。requests 为实际创建的 HTTP 请求数，pings 为成功收到 ACK 的 PING 数，failures 为异常关闭的客户端数。验收命令为 `node --test test/xmux.test.js`、`node --test test/interop/xmux.test.js` 和 `npm run test:stability:xmux`。
 
 HTTP/2 由 nghttp2 原生读取 socket，不依赖 JavaScript `data` 事件判断空闲。保活使用公开的 socket.bytesRead 观测入站 DATA 和控制帧，不增加 body 消费者、不改变背压；观测周期为 min(1 秒, 保活周期/4)，实际空闲 PING 可相应延后。持续入站数据会推迟 PING，只有出站写入时不会推迟。
 

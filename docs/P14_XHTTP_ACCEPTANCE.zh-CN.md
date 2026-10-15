@@ -35,7 +35,7 @@ Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`。官方归档�
 - 关闭幂等，释放请求、逻辑会话、物理连接、HTTP/2 session 和计时器；HTTP/2 共享请求/响应只销毁一次，避开 nghttp2 回调重入。
 - HTTP/1.1 流式 POST 使用专属 `Connection: close`，避免固定 Go HTTP 服务端先消耗未结束的请求体再发送响应头造成死锁。
 - 同端口轮换路径、UUID、TLS 证书后，旧 packet-up 会话继续使用原 HTTP/2 连接并排空，新连接使用新参数。HTTP 版本或 TLS 开关改变需要新端口。
-- 故障不重放业务数据，不隐式直连；XHTTP 不承诺任意 TCP 半关闭语义。完整 XMUX、跨节点上下行分离、HTTP/3、REALITY 和浏览器指纹尚未实现，相关配置明确拒绝。
+- 故障不重放业务数据，不隐式直连；XHTTP 不承诺任意 TCP 半关闭语义。完整 XMUX 和独立上下行入口不属于 P14 初始范围，后续已分别在 [P18](P18_XMUX_ACCEPTANCE.zh-CN.md) 和 [P19](P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md) 补齐。HTTP/3 暂缓，XHTTP+REALITY 和浏览器指纹尚未实现，相关配置明确拒绝。
 
 ## 验收记录
 

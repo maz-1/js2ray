@@ -28,4 +28,4 @@ HTTP 客户端池按 Runtime、网络配置和代次隔离；异步握手前预�
 
 全量回归、两组长时、当前 HEAD 和工作区的 80 个产品源码按 UTF-8/CRLF→LF 核验一致，汇总 SHA256 为 `fbd3e69f320246067daba12c1ec7a9d98d6e0f28fa42b87969093bc326eae939`。归档下载验证 GitHub artifact digest，每份原始 JSON 原样保存并记录 rawSha256；不格式化原始记录。详细数据、逐平台日志链接、配置/脚本摘要及隐私审计见[机器可读汇总](acceptance/p18-2026-10-15.json)。
 
-三平台的 HTTP/3 信息性探测均记录 compiledWithQuic=false、`ERR_UNKNOWN_BUILTIN_MODULE`，不计作 HTTP/3 互通。实现路径和工程估计见 [HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)。HTTP/3、跨节点 downloadSettings 和 XHTTP+REALITY 仍未实现。
+三平台的 HTTP/3 信息性探测均记录 compiledWithQuic=false、`ERR_UNKNOWN_BUILTIN_MODULE`，不计作 HTTP/3 互通。实现路径和工程估计见 [HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)。独立上下行 downloadSettings 后续已在 [P19](P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md) 补齐；HTTP/3 继续暂缓，XHTTP+REALITY 尚未实现。

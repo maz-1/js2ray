@@ -1,0 +1,639 @@
+{
+  "phase": "P19",
+  "node": "v24.20.0",
+  "platform": "darwin",
+  "arch": "x64",
+  "commit": "617d2a69361d9508a13b0081ef8376f657390043",
+  "started": "2026-10-15T16:49:38.009Z",
+  "durationMinutes": 30,
+  "formalAcceptance": true,
+  "concurrentSessions": 100,
+  "rotations": 29,
+  "proxyFaults": 232,
+  "churn": 4886,
+  "iterations": 778359,
+  "bytes": 3187210280,
+  "peak": {
+    "rss": 355721216,
+    "heap": 116010808,
+    "clients": 66,
+    "sockets": 131,
+    "queueBytes": 704612
+  },
+  "latency": {
+    "count": 778359,
+    "totalMs": 81507680.2655121,
+    "maxMs": 1355.692281999858
+  },
+  "samples": [
+    {
+      "elapsedMs": 3,
+      "rss": 138612736,
+      "heap": 22457464,
+      "clients": 46,
+      "sockets": 110,
+      "queueBytes": 100,
+      "rotations": 0,
+      "churn": 0
+    },
+    {
+      "elapsedMs": 59394,
+      "rss": 243458048,
+      "heap": 35823040,
+      "clients": 55,
+      "sockets": 117,
+      "queueBytes": 110692,
+      "rotations": 0,
+      "churn": 139
+    },
+    {
+      "elapsedMs": 119319,
+      "rss": 262443008,
+      "heap": 38006904,
+      "clients": 55,
+      "sockets": 120,
+      "queueBytes": 168036,
+      "rotations": 1,
+      "churn": 237
+    },
+    {
+      "elapsedMs": 179067,
+      "rss": 278073344,
+      "heap": 31822864,
+      "clients": 56,
+      "sockets": 119,
+      "queueBytes": 102500,
+      "rotations": 2,
+      "churn": 388
+    },
+    {
+      "elapsedMs": 238473,
+      "rss": 293171200,
+      "heap": 36457216,
+      "clients": 57,
+      "sockets": 118,
+      "queueBytes": 200804,
+      "rotations": 3,
+      "churn": 568
+    },
+    {
+      "elapsedMs": 297938,
+      "rss": 295542784,
+      "heap": 31763008,
+      "clients": 62,
+      "sockets": 121,
+      "queueBytes": 86116,
+      "rotations": 4,
+      "churn": 744
+    },
+    {
+      "elapsedMs": 357364,
+      "rss": 295034880,
+      "heap": 27124936,
+      "clients": 54,
+      "sockets": 127,
+      "queueBytes": 217188,
+      "rotations": 5,
+      "churn": 904
+    },
+    {
+      "elapsedMs": 416792,
+      "rss": 295989248,
+      "heap": 41556080,
+      "clients": 54,
+      "sockets": 124,
+      "queueBytes": 278629,
+      "rotations": 6,
+      "churn": 1085
+    },
+    {
+      "elapsedMs": 476318,
+      "rss": 295247872,
+      "heap": 28615080,
+      "clients": 56,
+      "sockets": 115,
+      "queueBytes": 41060,
+      "rotations": 7,
+      "churn": 1293
+    },
+    {
+      "elapsedMs": 535567,
+      "rss": 296275968,
+      "heap": 38900632,
+      "clients": 55,
+      "sockets": 120,
+      "queueBytes": 237668,
+      "rotations": 8,
+      "churn": 1520
+    },
+    {
+      "elapsedMs": 594823,
+      "rss": 296194048,
+      "heap": 31487728,
+      "clients": 57,
+      "sockets": 123,
+      "queueBytes": 139365,
+      "rotations": 9,
+      "churn": 1730
+    },
+    {
+      "elapsedMs": 654276,
+      "rss": 296562688,
+      "heap": 45415448,
+      "clients": 63,
+      "sockets": 121,
+      "queueBytes": 315492,
+      "rotations": 10,
+      "churn": 1942
+    },
+    {
+      "elapsedMs": 713900,
+      "rss": 296509440,
+      "heap": 37557280,
+      "clients": 59,
+      "sockets": 123,
+      "queueBytes": 237668,
+      "rotations": 11,
+      "churn": 2161
+    },
+    {
+      "elapsedMs": 773290,
+      "rss": 297070592,
+      "heap": 29597176,
+      "clients": 54,
+      "sockets": 124,
+      "queueBytes": 225407,
+      "rotations": 12,
+      "churn": 2337
+    },
+    {
+      "elapsedMs": 832508,
+      "rss": 297402368,
+      "heap": 43167032,
+      "clients": 60,
+      "sockets": 119,
+      "queueBytes": 61540,
+      "rotations": 13,
+      "churn": 2560
+    },
+    {
+      "elapsedMs": 891912,
+      "rss": 298614784,
+      "heap": 33985160,
+      "clients": 61,
+      "sockets": 120,
+      "queueBytes": 57471,
+      "rotations": 14,
+      "churn": 2756
+    },
+    {
+      "elapsedMs": 951366,
+      "rss": 336289792,
+      "heap": 73875456,
+      "clients": 58,
+      "sockets": 123,
+      "queueBytes": 295012,
+      "rotations": 15,
+      "churn": 2943
+    },
+    {
+      "elapsedMs": 1010774,
+      "rss": 332013568,
+      "heap": 34663200,
+      "clients": 58,
+      "sockets": 119,
+      "queueBytes": 147556,
+      "rotations": 16,
+      "churn": 3118
+    },
+    {
+      "elapsedMs": 1070305,
+      "rss": 332308480,
+      "heap": 28000976,
+      "clients": 60,
+      "sockets": 126,
+      "queueBytes": 225380,
+      "rotations": 17,
+      "churn": 3264
+    },
+    {
+      "elapsedMs": 1129774,
+      "rss": 332685312,
+      "heap": 28966144,
+      "clients": 55,
+      "sockets": 118,
+      "queueBytes": 155748,
+      "rotations": 18,
+      "churn": 3428
+    },
+    {
+      "elapsedMs": 1189205,
+      "rss": 334028800,
+      "heap": 37136528,
+      "clients": 58,
+      "sockets": 125,
+      "queueBytes": 192639,
+      "rotations": 19,
+      "churn": 3588
+    },
+    {
+      "elapsedMs": 1249188,
+      "rss": 343003136,
+      "heap": 54231976,
+      "clients": 54,
+      "sockets": 124,
+      "queueBytes": 180351,
+      "rotations": 20,
+      "churn": 3705
+    },
+    {
+      "elapsedMs": 1308997,
+      "rss": 335163392,
+      "heap": 41238128,
+      "clients": 55,
+      "sockets": 116,
+      "queueBytes": 65636,
+      "rotations": 21,
+      "churn": 3815
+    },
+    {
+      "elapsedMs": 1368700,
+      "rss": 339288064,
+      "heap": 74408328,
+      "clients": 59,
+      "sockets": 127,
+      "queueBytes": 249956,
+      "rotations": 22,
+      "churn": 3933
+    },
+    {
+      "elapsedMs": 1427770,
+      "rss": 334520320,
+      "heap": 30155640,
+      "clients": 58,
+      "sockets": 124,
+      "queueBytes": 262244,
+      "rotations": 23,
+      "churn": 4036
+    },
+    {
+      "elapsedMs": 1487539,
+      "rss": 334495744,
+      "heap": 33372120,
+      "clients": 54,
+      "sockets": 122,
+      "queueBytes": 196708,
+      "rotations": 24,
+      "churn": 4147
+    },
+    {
+      "elapsedMs": 1547295,
+      "rss": 342892544,
+      "heap": 68841504,
+      "clients": 54,
+      "sockets": 118,
+      "queueBytes": 90213,
+      "rotations": 25,
+      "churn": 4257
+    },
+    {
+      "elapsedMs": 1607209,
+      "rss": 335253504,
+      "heap": 31315952,
+      "clients": 57,
+      "sockets": 125,
+      "queueBytes": 299108,
+      "rotations": 26,
+      "churn": 4375
+    },
+    {
+      "elapsedMs": 1667143,
+      "rss": 334671872,
+      "heap": 34971904,
+      "clients": 61,
+      "sockets": 126,
+      "queueBytes": 372836,
+      "rotations": 27,
+      "churn": 4496
+    },
+    {
+      "elapsedMs": 1726752,
+      "rss": 335081472,
+      "heap": 36923592,
+      "clients": 56,
+      "sockets": 115,
+      "queueBytes": 131172,
+      "rotations": 28,
+      "churn": 4657
+    },
+    {
+      "elapsedMs": 1786169,
+      "rss": 334909440,
+      "heap": 30560320,
+      "clients": 56,
+      "sockets": 121,
+      "queueBytes": 114788,
+      "rotations": 29,
+      "churn": 4840
+    }
+  ],
+  "passed": true,
+  "sourceNormalization": "UTF-8, CRLF to LF",
+  "sources": {
+    "adapters/http.js": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16",
+    "adapters/websocket.js": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd",
+    "cli/index.js": "c49852ea0c087a4ff117f86abeb52eedef8c3ab34046718d05842379de948b15",
+    "config/index.js": "1eeb2e41860de0105b790e96f390a40b2baf21a8e363eb143ea14a6f7c41c1bb",
+    "config/policy.js": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac",
+    "config/reality.js": "b11df41d237b8cca73d5d13e5262ba3f069a9ad8abe39fb0f7f3c69c373d4ec6",
+    "config/reverse.js": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07",
+    "config/v2ray.js": "a84d129c12aad121fb9daa80a472deed702abcbe1edb0c5592700d067febefdd",
+    "config/xhttp.js": "43df2acd0c8b4f5420201e8ad7b3407957cab454e59be1f9c408ba3e346cf26f",
+    "core/api.js": "262c75c43ee8ec12d7703cbd332eb5de451966633c3d9f3c6c2ce5747f0423fa",
+    "core/event.js": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb",
+    "core/localNetwork.js": "cdfe9c5c5137427cad03c636e6b7f57d4471e14d1fa090f1e8a7ea4c8103f77b",
+    "core/remoteNetwork.js": "cfbc6e001acce5e9e718e9f231dfd1b67a12dd23f408d6c9900c199e794c7218",
+    "core/storage.js": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d",
+    "core/utils.js": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa",
+    "dns/index.js": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b",
+    "dns/wire.js": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2",
+    "geodata/index.js": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832",
+    "index.d.ts": "11ca2858dc66e87e07dfa69b36b668134070ebede1fc20a09e4622cb98c98311",
+    "index.js": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905",
+    "index.mjs": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a",
+    "protocols/bridge.js": "f574154c865aa5560d7193efb14ce1f79e50e451e8debf3eaacbc2992887037f",
+    "protocols/freedom.js": "4ab85357145a41eeea9c9eb02b1253148ae65f6bad7b13b40992b2634f0dca75",
+    "protocols/mux/frame.js": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99",
+    "protocols/mux/index.js": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2",
+    "protocols/socks/client.js": "76482976660948dcbcd9ac2ec89d9be2c32430962120c74699efec1ce72b10b5",
+    "protocols/socks/datagram.js": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b",
+    "protocols/socks/index.js": "0e4f159c2d35b52bf71d5f3c96c8b74209b9ac639622ff531f84c89dc3a8522b",
+    "protocols/socks/server.js": "1eaa0b1cf7228bc33ce96ee9a91f10dfd9f7fbabf55413d56145122bcbbb0938",
+    "protocols/socks/stream.js": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db",
+    "protocols/vless/index.js": "8d5ade9cba2e77b9815c10af2d806569c032b44a7941a09138ec113c054dedaa",
+    "protocols/vless/vision.js": "d539168403fdb19d1b258f3fe713aa436c99144b1f75742dea267c6f64a69c83",
+    "protocols/vmess/account.js": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79",
+    "protocols/vmess/advanced-buffer.js": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722",
+    "protocols/vmess/aead.js": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337",
+    "protocols/vmess/client.js": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954",
+    "protocols/vmess/common.js": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa",
+    "protocols/vmess/consts.js": "b8c51607b0268d5c2a1ad34b2aee6fa9753f57171b0e04c8c7b20c9393fd5f74",
+    "protocols/vmess/crypto/crc32.js": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7",
+    "protocols/vmess/crypto/hmac/_assert.js": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9",
+    "protocols/vmess/crypto/hmac/_sha2.js": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde",
+    "protocols/vmess/crypto/hmac/hmac.js": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132",
+    "protocols/vmess/crypto/hmac/sha256.js": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7",
+    "protocols/vmess/crypto/hmac/utils.js": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229",
+    "protocols/vmess/crypto/sha3.js": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9",
+    "protocols/vmess/datagram.js": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795",
+    "protocols/vmess/index.js": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf",
+    "protocols/vmess/kdf.js": "b9087ec1f5b62e71587f98dd6031def69fedbeb95142dc17784ee184badb6e8b",
+    "protocols/vmess/replayfilter.js": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0",
+    "protocols/vmess/server.js": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d",
+    "protocols/vmess/store.js": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90",
+    "protocols/vmess/validator.js": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8",
+    "reverse/index.js": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6",
+    "routing/index.js": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b",
+    "routing/sniff.js": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3",
+    "runtime/abortable.js": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2",
+    "runtime/datagram.js": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4",
+    "runtime/errors.js": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220",
+    "runtime/hooks.js": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1",
+    "runtime/index.js": "78024bcc458888c2181cc8d6132d16eb56f205250a197c434896c52d509eeaef",
+    "runtime/manager.js": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7",
+    "runtime/metrics.js": "a4388ea18df0f6be8bca8b78e83b133934383f6820b71883bc5061a8e660def5",
+    "runtime/reader.js": "c0c208d8246131fc968522cd184927a593f6aeef507dd16fdd7376471dddc420",
+    "runtime/streams.js": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730",
+    "runtime/watch.js": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c",
+    "transports/inbound.js": "f66e133024629821645a8d505b0155f2c174c7dba0d1bd79d465368f5bcaf167",
+    "transports/index.js": "e6e0c6e3d3010cff0a99b7de9b991c580c87b56be91fbd30b90f69bca35822f7",
+    "transports/reality/certificate.js": "e425351bd885b040b175749502fc5eb1e0d0af80ef1e4873448cb06415615bc8",
+    "transports/reality/crypto.js": "58546e5551117dd871e6c1808cf1a29bcfe7466cf2d1ddf931cddfe70b9cddf1",
+    "transports/reality/handshake.js": "a53be79f2b537054a021baa6a17ecc23c3db9b2eb41b2f31afb4a92b273d6593",
+    "transports/reality/hello.js": "1b1772dcec4a5f33dc3705f016ebb1a7db51cce3955dbe3fe61da98f63bc644f",
+    "transports/reality/index.js": "f279f2d75a53e71ab9a1ae0638fa25caa103c4e686d3ae69321f651f183b9b92",
+    "transports/reality/stream.js": "1adab5abdea9215cff2dbc4f376ea8e459bccfd55f5ccd494d7f88bc7f581768",
+    "transports/reality/wire.js": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9",
+    "transports/vision-tls.js": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0",
+    "transports/xhttp/client.js": "773bb0a97ee474a56412c1b388833c9de0ded45bfa9cb763d10a2150929290ba",
+    "transports/xhttp/common.js": "c90048eabc1a1f1d00f931a23e0ba02be05e0b1e3a0b72c3d92aa0fa64df58a0",
+    "transports/xhttp/index.js": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3",
+    "transports/xhttp/server.js": "39fd4a40d4729c3e4b677b8f73ffe2c073991f3cff2115da1039ebb086edf0d3",
+    "transports/xhttp/xmux.js": "b15498d7d36fee914e7b4e947e5eb5279d247498b3ad9fff63b819daee89a9e7"
+  },
+  "sourceSha256": "5d13786a11049bc5783b1e475bdf0386f08be57b4bbffac565cba4a3f12e5492",
+  "harnessSha256": "a51b4b7c8f8dd3fba464f11332d3a7aaa2fc429b015a5b81ce6a713c30b5a75e",
+  "proxyHarnessSha256": "7914240a083fc85799f5192e9777bc590db13839f3f2a0b6aa4a5eb56cca4f64",
+  "profiles": [
+    {
+      "name": "xhttp-1.1-packet-up-down-1.1",
+      "count": 13,
+      "deployment": "node"
+    },
+    {
+      "name": "xhttp-1.1-packet-up-down-2",
+      "count": 13,
+      "deployment": "node"
+    },
+    {
+      "name": "xhttp-1.1-stream-up-down-1.1",
+      "count": 13,
+      "deployment": "node"
+    },
+    {
+      "name": "xhttp-1.1-stream-up-down-2",
+      "count": 13,
+      "deployment": "node"
+    },
+    {
+      "name": "xhttp-2-packet-up-down-1.1",
+      "count": 12,
+      "deployment": "caddy-2.10.0"
+    },
+    {
+      "name": "xhttp-2-packet-up-down-2",
+      "count": 12,
+      "deployment": "caddy-2.10.0"
+    },
+    {
+      "name": "xhttp-2-stream-up-down-1.1",
+      "count": 12,
+      "deployment": "caddy-2.10.0"
+    },
+    {
+      "name": "xhttp-2-stream-up-down-2",
+      "count": 12,
+      "deployment": "caddy-2.10.0"
+    }
+  ],
+  "elapsedMs": 1801026,
+  "poolCounters": {
+    "created": 18816,
+    "retired": 18469,
+    "requests": 368846,
+    "pings": 5431,
+    "failures": 0
+  },
+  "configSha256": "837de51121c8844457a111650497a552be4f30eb58a367fc42fb3fb361017a18",
+  "closedProxyProcesses": [
+    {
+      "exited": true
+    },
+    {
+      "exited": true
+    },
+    {
+      "exited": true
+    },
+    {
+      "exited": true
+    }
+  ],
+  "closed": [
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    }
+  ],
+  "finished": "2026-10-15T17:19:43.364Z"
+}

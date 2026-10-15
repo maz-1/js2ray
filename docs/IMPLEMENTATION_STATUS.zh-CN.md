@@ -87,7 +87,7 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 
 ## P19 上下行分离
 
-原生及传统 downloadSettings、独立端点/TLS/HTTP 版本/XMUX、取消与故障传播、下行 GOAWAY 和轮换隔离已实现。本地 339 项普通回归、202 项固定内核互通通过，其中新增 27 项普通专项及 32 项上下行分离参考对照；后者包含 Node 代理和固定 Caddy 2.10.0 两类部署。实际 tarball 安装检查增加分离链路；三平台完整与长时结果完成后记录于 [P19 验收](P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md)。HTTP/3 继续等待 Node.js 原生 QUIC 支持稳定。
+原生及传统 downloadSettings、独立端点/TLS/HTTP 版本/XMUX、取消与故障传播、下行 GOAWAY 和轮换隔离已实现。三平台各 339 项普通回归、202 项固定内核互通通过，其中新增 27 项普通专项及 32 项上下行分离参考对照；后者包含 Node 代理和固定 Caddy 2.10.0 两类部署。实际 tarball 安装检查增加分离链路。分离、XMUX 和混合传输三组负载在每个平台均完成 100 会话/30 分钟及 29 次轮换；分离负载每平台完成 232 次代理故障恢复，全部管理器关闭归零，Caddy 子进程退出。源码摘要、三平台作业及九份原始 JSON 见 [P19 验收](P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md) 和 [机器汇总](acceptance/p19-2026-10-16.json)。HTTP/3 继续等待 Node.js 原生 QUIC 支持稳定。
 
 ## 私有真实配置
 
