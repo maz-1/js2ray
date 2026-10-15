@@ -29,3 +29,5 @@ npm run test:stability:xhttp-split
 npm run test:stability:xmux
 npm run test:stability:transports
 ```
+
+首轮正式长时在约 330 秒失败：Node 测试代理的 HTTP/1 整请求期限仍为默认 300 秒。修正测试代理的 requestTimeout=0 后重新执行正式长时；产品入站原已关闭整请求期限，仍保留握手、取消及逻辑空闲预算。首轮失败与短跑均不作为正式通过证据。

@@ -126,6 +126,10 @@ async function proxy(t, options) {
       : secure
         ? https.createServer(identity, handler)
         : http.createServer(handler);
+  // A streaming POST is intentionally open for the connection's lifetime.
+  // Node HTTP/1 defaults to a five-minute whole-request deadline, even while
+  // bytes continue to arrive. Logical handshake/idle limits own this budget.
+  server.requestTimeout = 0;
   server.on('connection', (socket) => {
     sockets.add(socket);
     socket.on('error', () => {});
