@@ -103,6 +103,10 @@ for (const direction of ['client', 'server']) {
     await datagrams(runtime, target, 1400);
     if (direction === 'client') {
       const session = await runtime.openDatagram(target);
+      // Establish the response header and Mux session before provoking a peer
+      // rejection; an oversized first packet may close before any response.
+      await session.send(Buffer.from('established'));
+      assert.equal((await session.next()).value.data.toString(), 'established');
       const rejected = assert.rejects(session.next(), { code: 'ERR_MUX_SESSION' });
       await session.send(Buffer.alloc(8193));
       await rejected;
