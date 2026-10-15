@@ -106,6 +106,12 @@ async function runCore(t, kind, config, port) {
     if (spawnError) throw spawnError;
     if (child.exitCode !== null || child.signalCode !== null)
       throw new Error(`Reference core exited: ${log}`);
+    if (port === undefined) {
+      if (log.includes(`${kind === 'xray' ? 'Xray' : 'V2Ray'} ${references[kind].version} started`))
+        return child;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      continue;
+    }
     const alive = await new Promise((resolve) => {
       const socket = net.connect({ host: '127.0.0.1', port });
       socket.once('connect', () => {

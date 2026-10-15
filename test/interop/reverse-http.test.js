@@ -47,15 +47,11 @@ for (const kind of ['v2ray', 'xray'])
         } else {
           runtime = createRuntime(portalConfig(0));
           await runtime.start();
-          const port = await freePort(),
-            config = bridgeConfig(runtime.listenersInfo[0].address.port, {
-              host: '127.0.0.1',
-              port: originPort,
-            });
-          config.inbounds = [
-            { listen: '127.0.0.1', port, protocol: 'socks', settings: { auth: 'noauth' } },
-          ];
-          await runCore(t, kind, config, port);
+          const config = bridgeConfig(runtime.listenersInfo[0].address.port, {
+            host: '127.0.0.1',
+            port: originPort,
+          });
+          await runCore(t, kind, config);
           await waitFor(() => runtime.stats.reverse[0].active > 0);
           url = `${secure ? 'https' : 'http'}://service.test:80/stream`;
         }

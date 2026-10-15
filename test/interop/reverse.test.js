@@ -38,12 +38,8 @@ for (const kind of ['v2ray', 'xray']) {
       portal = createRuntime(portalConfig(0));
     await portal.start();
     t.after(() => portal.close());
-    const port = await freePort(),
-      config = bridgeConfig(portal.listenersInfo[0].address.port, destination);
-    config.inbounds = [
-      { port, listen: '127.0.0.1', protocol: 'socks', settings: { auth: 'noauth' } },
-    ];
-    await runCore(t, kind, config, port);
+    const config = bridgeConfig(portal.listenersInfo[0].address.port, destination);
+    await runCore(t, kind, config);
     await waitFor(() => portal.stats.reverse[0].active > 0);
     await Promise.all(
       Array.from({ length: 16 }, async (_, i) => {

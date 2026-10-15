@@ -85,10 +85,17 @@ for (const core of ['xray', 'v2ray']) {
       });
       t.after(() => runtime.close());
       await runtime.start();
-      const stream = await runtime.dial(target);
       const body = Buffer.from('official-peer\0'.repeat(10000));
-      stream.write(body);
-      assert.deepEqual(await readBytes(stream, body.length), body);
+      const targets =
+        type === 'tcp'
+          ? [target, { ...target, host: 'localhost' }, await echo(t, '::1')]
+          : [target];
+      for (const destination of targets) {
+        const stream = await runtime.dial(destination);
+        stream.write(body);
+        assert.deepEqual(await readBytes(stream, body.length), body);
+        stream.destroy();
+      }
     });
 
     test(`${core} VLESS client -> js2ray ${type} server`, { timeout: 10000 }, async (t) => {
@@ -132,9 +139,16 @@ for (const core of ['xray', 'v2ray']) {
       });
       t.after(() => client.close());
       await client.start();
-      const stream = await client.dial(target);
-      stream.write('official-client');
-      assert.equal((await readBytes(stream, 15)).toString(), 'official-client');
+      const targets =
+        type === 'tcp'
+          ? [target, { ...target, host: 'localhost' }, await echo(t, '::1')]
+          : [target];
+      for (const destination of targets) {
+        const stream = await client.dial(destination);
+        stream.write('official-client');
+        assert.equal((await readBytes(stream, 15)).toString(), 'official-client');
+        stream.destroy();
+      }
     });
   }
 
