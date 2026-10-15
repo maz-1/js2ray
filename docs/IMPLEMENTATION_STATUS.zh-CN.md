@@ -50,6 +50,8 @@ npm run test:stability
 
 ## 参考内核与范围
 
+P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38706751704)：每个平台 185 项普通回归、127 项参考互通及实际 tarball 安装；其中 XHTTP 专项 37 项、Xray 25.3.6 对照 21 项，均无跳过。HTTP/1.1、TLS HTTP/1.1、TLS HTTP/2 的三种模式分别验证两个方向；显式 h2c 的参考方向限制、源码摘要和逐平台证据见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)。
+
 - Xray 24.11.5，源码 `afc7ec55062c14ae69fc67b148155faae1c31548`。
 - XHTTP 专用 Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`，与既有基线分别锁定归档和二进制摘要。
 - V2Ray 5.14.1，源码 `1f1ff246ddebb530d8fadeb49ffd32b8617e64ec`。

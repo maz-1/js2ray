@@ -1,0 +1,401 @@
+{
+  "phase": "P14",
+  "date": "2026-10-15",
+  "node": "24.20.0",
+  "commit": "4f226980b97ac38f2dbad04bafd73eaa21b6c9de",
+  "run": {
+    "id": 38706751704,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38706751704",
+    "conclusion": "success"
+  },
+  "reference": {
+    "version": "25.3.6",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "source": "https://github.com/XTLS/Xray-core/tree/v25.3.6",
+    "platform": "windows-amd64",
+    "sha256": "a6a37bbc73a1eaa08abf0537e1d22097afa14be0d92c3ce8b8a808c16c205366"
+  },
+  "modes": ["packet-up", "stream-up", "stream-one"],
+  "httpVersions": ["1.1", "2"],
+  "xhttpLocalTests": 37,
+  "xhttpReferenceTests": 21,
+  "referenceDirections": "VLESS TCP: HTTP/1.1, TLS HTTP/1.1 and TLS HTTP/2 both directions; h2c js2ray client to Xray server",
+  "concurrency": {
+    "connections": 100,
+    "tls": true,
+    "modes": 3,
+    "httpVersions": 2,
+    "finalResourceCounters": 0
+  },
+  "jobs": [
+    {
+      "name": "regression (ubuntu-24.04)",
+      "id": 116327936791,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327936791",
+      "conclusion": "success",
+      "unit": {
+        "tests": 185,
+        "pass": 185,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 127,
+        "pass": 127,
+        "skipped": 0
+      },
+      "package": {
+        "files": 92,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    },
+    {
+      "name": "regression (windows-2022)",
+      "id": 116327937057,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327937057",
+      "conclusion": "success",
+      "unit": {
+        "tests": 185,
+        "pass": 185,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 127,
+        "pass": 127,
+        "skipped": 0
+      },
+      "package": {
+        "files": 92,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    },
+    {
+      "name": "regression (macos-15-intel)",
+      "id": 116327937170,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327937170",
+      "conclusion": "success",
+      "unit": {
+        "tests": 185,
+        "pass": 185,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 127,
+        "pass": 127,
+        "skipped": 0
+      },
+      "package": {
+        "files": 92,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    }
+  ],
+  "sourceSha256": "646ca2c575d42018b0b819968e95cfd1bc14251de36d3b3d52e1af1a04b9b744",
+  "sourceFiles": [
+    {
+      "path": "adapters/http.js",
+      "sha256": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16"
+    },
+    {
+      "path": "adapters/websocket.js",
+      "sha256": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd"
+    },
+    {
+      "path": "config/index.js",
+      "sha256": "27c8aa1921597bb2980765cb93511ed603c6ca4827aebed0e069f5f65dc121a8"
+    },
+    {
+      "path": "config/policy.js",
+      "sha256": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac"
+    },
+    {
+      "path": "config/reverse.js",
+      "sha256": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07"
+    },
+    {
+      "path": "config/v2ray.js",
+      "sha256": "8e4e0a525214c1385d3ccb4ed6aeb9ccf9b8fd3ec097f9090617bf345bb1fcb9"
+    },
+    {
+      "path": "config/xhttp.js",
+      "sha256": "df9de57c93a40273fd09c93a9d3eb30029c81fc3e56da05c3c9c82f7c43a05e4"
+    },
+    {
+      "path": "core/api.js",
+      "sha256": "a5644c5a6bb3bd486956f383a42bc7ce797935b422b4fa287757c0c5b674e8d5"
+    },
+    {
+      "path": "core/event.js",
+      "sha256": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb"
+    },
+    {
+      "path": "core/localNetwork.js",
+      "sha256": "82f7df5f9fb019e03a095a690ddb83186be78d4aa853b8db16eca434a292dd0d"
+    },
+    {
+      "path": "core/remoteNetwork.js",
+      "sha256": "0f3321af69089512d82017ffe717b0cf7c2e0cc56c7d53be576d7871570289a5"
+    },
+    {
+      "path": "core/storage.js",
+      "sha256": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d"
+    },
+    {
+      "path": "core/utils.js",
+      "sha256": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa"
+    },
+    {
+      "path": "dns/index.js",
+      "sha256": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b"
+    },
+    {
+      "path": "dns/wire.js",
+      "sha256": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2"
+    },
+    {
+      "path": "geodata/index.js",
+      "sha256": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832"
+    },
+    {
+      "path": "index.d.ts",
+      "sha256": "a5b4ea488f527bd7c4bbbe94cf56cdd53018526b88dec218aa467ea448eb293d"
+    },
+    {
+      "path": "index.js",
+      "sha256": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905"
+    },
+    {
+      "path": "index.mjs",
+      "sha256": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a"
+    },
+    {
+      "path": "protocols/bridge.js",
+      "sha256": "17afe23129a1ef2a4f2deffee6d77b41688d24c0b5f06a7b05bf0eb333def143"
+    },
+    {
+      "path": "protocols/freedom.js",
+      "sha256": "be0ba2bcefd8ac627ccf2bbca95c8cb05b5c0726c5bdac696abb9d9dc0ae8fde"
+    },
+    {
+      "path": "protocols/mux/frame.js",
+      "sha256": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99"
+    },
+    {
+      "path": "protocols/mux/index.js",
+      "sha256": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2"
+    },
+    {
+      "path": "protocols/socks/client.js",
+      "sha256": "cc67f68618f3776c67c6d5b12be59dab7a24c5d9f37d7643dfcba6f5dbe98828"
+    },
+    {
+      "path": "protocols/socks/datagram.js",
+      "sha256": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b"
+    },
+    {
+      "path": "protocols/socks/index.js",
+      "sha256": "1ab5a1b108c07cd7e74ee3eeb30a9550431b8680f2440cc8e9bb61a9fa84b607"
+    },
+    {
+      "path": "protocols/socks/server.js",
+      "sha256": "d13ae480167243d4ec87e77b3172731c4e3917552e3e5b0cb6457fab97ff9767"
+    },
+    {
+      "path": "protocols/socks/stream.js",
+      "sha256": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db"
+    },
+    {
+      "path": "protocols/vless/index.js",
+      "sha256": "8c7cc33f31fc04263390d482d0f104791afd38654bf9f16f1d4afa5e7fad5592"
+    },
+    {
+      "path": "protocols/vmess/account.js",
+      "sha256": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79"
+    },
+    {
+      "path": "protocols/vmess/advanced-buffer.js",
+      "sha256": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722"
+    },
+    {
+      "path": "protocols/vmess/aead.js",
+      "sha256": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337"
+    },
+    {
+      "path": "protocols/vmess/client.js",
+      "sha256": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954"
+    },
+    {
+      "path": "protocols/vmess/common.js",
+      "sha256": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa"
+    },
+    {
+      "path": "protocols/vmess/consts.js",
+      "sha256": "f1a5fb36644554b2dc782117b6a9527499345928f4ea9fed23a7bb08a5e6b66e"
+    },
+    {
+      "path": "protocols/vmess/crypto/crc32.js",
+      "sha256": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_assert.js",
+      "sha256": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_sha2.js",
+      "sha256": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/hmac.js",
+      "sha256": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/sha256.js",
+      "sha256": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/utils.js",
+      "sha256": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229"
+    },
+    {
+      "path": "protocols/vmess/crypto/sha3.js",
+      "sha256": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9"
+    },
+    {
+      "path": "protocols/vmess/datagram.js",
+      "sha256": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795"
+    },
+    {
+      "path": "protocols/vmess/index.js",
+      "sha256": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf"
+    },
+    {
+      "path": "protocols/vmess/kdf.js",
+      "sha256": "7f4c128d3920506801d4531bf59a8331d385a0cd433c2fde9575fbc517e1aadf"
+    },
+    {
+      "path": "protocols/vmess/replayfilter.js",
+      "sha256": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0"
+    },
+    {
+      "path": "protocols/vmess/server.js",
+      "sha256": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d"
+    },
+    {
+      "path": "protocols/vmess/store.js",
+      "sha256": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90"
+    },
+    {
+      "path": "protocols/vmess/validator.js",
+      "sha256": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8"
+    },
+    {
+      "path": "reverse/index.js",
+      "sha256": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6"
+    },
+    {
+      "path": "routing/index.js",
+      "sha256": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b"
+    },
+    {
+      "path": "routing/sniff.js",
+      "sha256": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3"
+    },
+    {
+      "path": "runtime/abortable.js",
+      "sha256": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2"
+    },
+    {
+      "path": "runtime/datagram.js",
+      "sha256": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4"
+    },
+    {
+      "path": "runtime/errors.js",
+      "sha256": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220"
+    },
+    {
+      "path": "runtime/hooks.js",
+      "sha256": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1"
+    },
+    {
+      "path": "runtime/index.js",
+      "sha256": "1c4a49c9b12d53881ede504f601eef63fb4a46bcbcd0cee538b31d2d286a7530"
+    },
+    {
+      "path": "runtime/manager.js",
+      "sha256": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7"
+    },
+    {
+      "path": "runtime/metrics.js",
+      "sha256": "ee80476457097a1c9a13f40ffab1e7b71810c5049345a3ade1fc6c0ba0348d55"
+    },
+    {
+      "path": "runtime/reader.js",
+      "sha256": "3f9c5ac4ecb9df84b90e501ed0b423a66a5c09cc582f4cbb458a4de488206c89"
+    },
+    {
+      "path": "runtime/streams.js",
+      "sha256": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730"
+    },
+    {
+      "path": "runtime/watch.js",
+      "sha256": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c"
+    },
+    {
+      "path": "transports/index.js",
+      "sha256": "6bdcdabcb7310e58e31fb5fd95a1e652385e9c272d27403fd69207e3269e9167"
+    },
+    {
+      "path": "transports/xhttp/client.js",
+      "sha256": "bfb2ecbb33a0467883835a6ec0e056c6c1b5e6afe70cfa0c7e564b91194ce027"
+    },
+    {
+      "path": "transports/xhttp/common.js",
+      "sha256": "97a64066a2178e94634f9937021702fb64350a60cb8bf6840cc5e3f7f575ee8c"
+    },
+    {
+      "path": "transports/xhttp/index.js",
+      "sha256": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3"
+    },
+    {
+      "path": "transports/xhttp/server.js",
+      "sha256": "297b99d8f4608371191a031ecf02c1208be40b8db212da8e899ea64187ae3d03"
+    }
+  ],
+  "privacy": {
+    "filesChecked": 158,
+    "historyBlobsChecked": 291,
+    "matches": 0
+  }
+}

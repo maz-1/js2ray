@@ -332,11 +332,11 @@ P9–P13 五项实现、专项及发布验收全部通过：三平台各 148 项
 - [x] 分包排序、重复/非法序号、会话与请求上限、未配对会话回收和关闭清理。
 - [x] HTTP/1.1、TLS HTTP/1.1、HTTP/2（TLS 与显式 h2c）本机测试。
 - [x] 与固定 Xray 25.3.6 的客户端/服务端双向互通；三种模式均不得跳过。
-- [ ] Windows、Linux、macOS 全量回归、互通、类型/格式/配置及 tarball 安装验收。
+- [x] Windows、Linux、macOS 全量回归、互通、类型/格式/配置及 tarball 安装验收。
 
 验收命令：`node --test test/xhttp.test.js`、`node --test test/interop/xhttp.test.js`、`npm test`、`npm run test:interop` 及现有三平台 CI。HTTP/3、REALITY、浏览器指纹、跨节点上下行分离和完整 XMUX 参数不属于本阶段；配置必须明确拒绝尚未支持的行为字段。实现和测试通过后在本节记录实际数量及证据。
 
-本机 Windows：XHTTP 专项 37/37、Xray 25.3.6 互通 21/21，完整普通回归 185/185、参考互通 127/127；100 条并发 TLS 连接涵盖三模式且关闭后资源归零。实际 tarball 已安装并通过包内 XHTTP 拨号，运行依赖仍仅 ws，无原生运行资产。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md)。三平台 CI 继续执行中。
+P14 全部验收通过：XHTTP 专项 37/37、Xray 25.3.6 对照 21/21；Windows、Linux、macOS 各 185/185 普通回归、127/127 参考互通，类型/格式/配置和实际 tarball 安装均通过。100 条并发 TLS 连接涵盖三模式且关闭后资源归零，包内 XHTTP 拨号通过，运行依赖仍仅 ws，无原生运行资产。功能提交 `4f226980b97ac38f2dbad04bafd73eaa21b6c9de` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38706751704)。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md) 和 [机器可读证据](docs/acceptance/xhttp-2026-10-15.json)。
 
 ## 11 参考资料
 

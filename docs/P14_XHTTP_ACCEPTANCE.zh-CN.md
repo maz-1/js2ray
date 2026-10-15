@@ -39,7 +39,7 @@ Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`。官方归档�
 
 ## 验收记录
 
-本机 Windows 已通过：
+本机 Windows 与 Windows/Linux/macOS 三平台 CI 均已通过（专项包含于完整测试）：
 
 | 命令                                                           | 结果                                                                                |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -49,6 +49,16 @@ Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`。官方归档�
 | `npm run test:interop`                                         | 127/127，含全部既有版本回归，无跳过                                                 |
 | `npm run check`、`npm run check:types`、`npm run check:config` | 通过                                                                                |
 
-实际 tarball 已安装并运行包内 XHTTP/VLESS 拨号和回传，验证无本地客户端代理监听器、CJS/ESM 导出及关闭清理；运行依赖仍仅 ws，无原生运行资产。Windows/Linux/macOS CI 结果将在完成后追加，未通过前不将三平台出口条件标记为完成。测试仅使用合成凭据、本地服务及合成证书；私有配置不进入测试记录、Git 或发布包。
+实际 tarball 已安装并运行包内 XHTTP/VLESS 拨号和回传，验证无本地客户端代理监听器、CJS/ESM 导出及关闭清理；运行依赖仍仅 ws，无原生运行资产。测试仅使用合成凭据、本地服务及合成证书；私有配置不进入测试记录、Git 或发布包。
+
+功能提交 `4f226980b97ac38f2dbad04bafd73eaa21b6c9de` 的 [完整 CI](https://github.com/maz-1/js2ray/actions/runs/38706751704) 全部通过：
+
+| 平台               | 普通回归 | 参考互通 | 类型/格式/配置/安装包 | 日志                                                                              |
+| ------------------ | -------- | -------- | --------------------- | --------------------------------------------------------------------------------- |
+| Windows 2022 x64   | 185/185  | 127/127  | 全部通过              | [作业](https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327937057) |
+| Ubuntu 24.04 x64   | 185/185  | 127/127  | 全部通过              | [作业](https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327936791) |
+| macOS 15 Intel x64 | 185/185  | 127/127  | 全部通过              | [作业](https://github.com/maz-1/js2ray/actions/runs/38706751704/job/116327937170) |
+
+三平台均使用 Node.js 24.20.0，全部测试零跳过。该功能提交的包为 92 个文件，安装后核心仅依赖 ws。逐平台测试数量、必要步骤状态、参考版本及 67 个产品源码/类型文件的 Git 字节摘要保存在 [机器可读证据](acceptance/xhttp-2026-10-15.json)；源码汇总 SHA256 为 `646ca2c575d42018b0b819968e95cfd1bc14251de36d3b3d52e1af1a04b9b744`。后续验收文档提交不改变这些产品源码。推送前再次对全部跟踪文件和新增历史执行私有配置审计，用户 ID、prefix、远端地址和非标准端口均零命中。
 
 协议行为参考：[固定版本配置](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/transport/internet/splithttp/config.go)、[客户端](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/transport/internet/splithttp/client.go)、[服务端](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/transport/internet/splithttp/hub.go)。
