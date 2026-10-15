@@ -195,6 +195,7 @@ async function main() {
         stats.listeners === 0 &&
         stats.reverse.every((item) => item.transports === 0),
     );
+    if (!result.passed) process.exitCode = 1;
     fs.mkdirSync(path.resolve(__dirname, '../test-results'), { recursive: true });
     const filename = path.resolve(__dirname, '../test-results/stability.json');
     fs.writeFileSync(filename, JSON.stringify(result, null, 2) + '\n');

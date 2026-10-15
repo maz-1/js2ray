@@ -27,9 +27,12 @@ function sourceEvidence() {
 }
 function verify(record, { formal = true, current = true } = {}) {
   if (
-    !record.passed ||
+    record.passed !== true ||
     (formal &&
-      (!record.formalAcceptance ||
+      (record.formalAcceptance !== true ||
+        ![record.concurrentSessions, record.durationMinutes, record.elapsedMs].every(
+          Number.isFinite,
+        ) ||
         record.concurrentSessions < 100 ||
         record.durationMinutes < 30 ||
         record.elapsedMs < 1800000))
@@ -55,8 +58,11 @@ function verify(record, { formal = true, current = true } = {}) {
       record.sourceSha256 !== expected.sourceSha256
     )
       throw Error('Acceptance product sources differ from current checkout.');
-    if (record.dependenciesSha256 && record.dependenciesSha256 !== expected.dependenciesSha256)
+    if (record.dependenciesSha256 !== expected.dependenciesSha256)
       throw Error('Acceptance dependencies differ from current checkout.');
+    const harness = { P17: 'transport', P18: 'xmux', P19: 'xmux', P20: 'policy' }[record.phase];
+    if (!harness || record.harnessSha256 !== digest(`scripts/${harness}-stability.js`))
+      throw Error('Acceptance harness differs from current checkout.');
   }
   if (record.closedProxyProcesses?.some((p) => !p.exited))
     throw Error('Acceptance proxy process remains alive.');
@@ -64,6 +70,7 @@ function verify(record, { formal = true, current = true } = {}) {
 }
 module.exports = { sha, digest, sourceEvidence, verify };
 if (require.main === module) {
+  if (process.argv.length < 3) throw Error('Pass at least one acceptance JSON record.');
   for (const file of process.argv.slice(2)) verify(JSON.parse(fs.readFileSync(file, 'utf8')));
   process.stdout.write('acceptance-evidence-ok\n');
 }

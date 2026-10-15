@@ -105,9 +105,13 @@ test('policy profiles, field aliases, indexed matchers and unknown behavior are 
     { balancers: [] },
     { rules: [{ network: 'tcp', balancerTag: 'auto' }] },
     { rules: [{ source: ['invalid'], outboundTag: 'direct' }] },
+    { rules: [{ domain: ['example'], ip: false, outboundTag: 'direct' }] },
+    { rules: [{ domain: ['example'], inboundTag: false, outboundTag: 'direct' }] },
+    { rules: [{ sourcePort: [80], outboundTag: 'direct' }] },
   ])
     assert.equal(checkConfig({ routing }).ok, false);
   assert.equal(checkConfig({ compatibility: 'latest' }).ok, false);
+  assert.equal(require('..').redact({ source: ['192.0.2.1'] }).source, '<redacted>');
 });
 
 for (const protocol of ['vmess', 'vless', 'socks'])

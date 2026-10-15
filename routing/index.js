@@ -5,6 +5,8 @@ const { DomainSet } = require('../geodata/domains');
 const { expression } = require('../geodata/regex');
 
 function ports(value) {
+  if (typeof value !== 'string' && typeof value !== 'number')
+    throw new TypeError('Expected a port number or range string.');
   const ranges = String(value)
     .split(',')
     .map((item) => {
@@ -70,7 +72,7 @@ class Router {
         return rule[field];
       };
       const conditions = [];
-      if (rule.inboundTag) {
+      if (rule.inboundTag !== undefined) {
         const tags = list('inboundTag');
         conditions.push((target) => tags.includes(target.inboundTag));
       }
@@ -148,7 +150,7 @@ class Router {
           Boolean(target.attrs && matches.every(([key, match]) => match(target.attrs[key]))),
         );
       }
-      if (rule.ip) {
+      if (rule.ip !== undefined) {
         const ips = list('ip').map((pattern) => ipMatcher(pattern, data));
         conditions.push((target) =>
           [target.routeHost ?? target.host, ...(target.routeIPs ?? [])].some(

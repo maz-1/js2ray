@@ -50,6 +50,9 @@ async function main() {
     durationMinutes: minutes,
     formalAcceptance: minutes >= 30,
     concurrentSessions: 100,
+    concurrentDatagrams: 4,
+    profiles: [],
+    latency: { count: 0, totalMs: 0, maxMs: 0 },
     rotations: 0,
     faults: 0,
     dnsChecks: 0,
@@ -160,10 +163,15 @@ async function main() {
     return value;
   }
   async function exchange(stream, payload) {
+    const began = performance.now();
     const reply = readBytes(stream, payload.length);
     stream.write(payload);
     assert.deepEqual(await within(reply), payload);
     result.iterations++;
+    const elapsed = performance.now() - began;
+    result.latency.count++;
+    result.latency.totalMs += elapsed;
+    result.latency.maxMs = Math.max(result.latency.maxMs, elapsed);
     result.bytes += payload.length;
   }
   async function connect(profile) {
@@ -238,6 +246,7 @@ async function main() {
         target: await echo(t),
       };
       profiles.push(profile);
+      result.profiles.push({ protocol, type, mux, compatibility, count: 25 });
       profile.server = createRuntimeManager(config(profile, true, profile.id), {
         maxRetiringGenerations: 32,
       });

@@ -1,10 +1,12 @@
 'use strict';
 const test = require('node:test'),
   assert = require('node:assert/strict');
-const { sourceEvidence, verify } = require('../scripts/acceptance-evidence');
+const { sourceEvidence, verify, digest } = require('../scripts/acceptance-evidence');
 test('acceptance evidence fails closed on false-green, short duration, stale sources and unreleased resources', () => {
   const good = {
     passed: true,
+    phase: 'P20',
+    harnessSha256: digest('scripts/policy-stability.js'),
     formalAcceptance: true,
     concurrentSessions: 100,
     durationMinutes: 30,
@@ -15,6 +17,10 @@ test('acceptance evidence fails closed on false-green, short duration, stale sou
   assert.equal(verify(good), true);
   for (const patch of [
     { passed: false },
+    { passed: 'true' },
+    { elapsedMs: undefined },
+    { harnessSha256: 'changed' },
+    { dependenciesSha256: undefined },
     { elapsedMs: 1799999 },
     { concurrentSessions: 99 },
     { formalAcceptance: false },

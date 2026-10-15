@@ -315,6 +315,7 @@ async function main() {
         stats.pendingDials === 0 &&
         stats.listeners === 0,
     );
+    if (!result.passed) process.exitCode = 1;
     fs.mkdirSync('test-results', { recursive: true });
     fs.writeFileSync(
       'test-results/extension-stability.json',

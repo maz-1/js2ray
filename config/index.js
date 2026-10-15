@@ -570,7 +570,7 @@ function redact(value) {
   return JSON.parse(
     JSON.stringify(value, (key, entry) => {
       if (
-        /^(id|user|userEmail|clientIp|sourceIP|sourcePort|localIP|localPort|attrs|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers|address|host|serverName|serverNames|dest|port)$/i.test(
+        /^(id|user|userEmail|clientIp|source|sourceIP|sourcePort|localIP|localPort|attrs|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers|address|host|serverName|serverNames|dest|port)$/i.test(
           key,
         ) ||
         /token|secret|authorization|cookie/i.test(key)
