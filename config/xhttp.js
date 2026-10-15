@@ -9,8 +9,65 @@ const fields = [
   'scMaxEachPostBytes',
   'scMaxBufferedPosts',
   'scStreamUpServerSecs',
+  'xmux',
 ];
+const xmuxFields = [
+  'maxConcurrency',
+  'maxConnections',
+  'cMaxReuseTimes',
+  'hMaxRequestTimes',
+  'hMaxReusableSecs',
+  'hKeepAlivePeriod',
+];
+function range(value) {
+  if (typeof value !== 'number' && typeof value !== 'string') return;
+  const match = /^(\d+)(?:-(\d+))?$/.exec(String(value));
+  if (!match) return;
+  const from = Number(match[1]),
+    to = Number(match[2] ?? match[1]);
+  if (!Number.isSafeInteger(from) || !Number.isSafeInteger(to) || from > to || to > 2147483647)
+    return;
+  return { from, to };
+}
+function xmuxSettings(input = {}) {
+  const values = Object.fromEntries(
+    xmuxFields.slice(0, -1).map((field) => [field, range(input[field] ?? 0)]),
+  );
+  const keepAlive = input.hKeepAlivePeriod ?? 0;
+  if (!keepAlive && Object.values(values).every((value) => value.to === 0)) {
+    values.maxConcurrency = { from: 16, to: 32 };
+    values.hMaxRequestTimes = { from: 600, to: 900 };
+    values.hMaxReusableSecs = { from: 1800, to: 3000 };
+  }
+  return { ...values, hKeepAlivePeriod: keepAlive };
+}
 function validate(option, add, prefix, inbound) {
+  if (option.xmux !== undefined) {
+    const value = option.xmux,
+      path = prefix + '.xmux';
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      add(path, 'Expected XMUX settings.');
+    else {
+      for (const field of Object.keys(value))
+        if (!xmuxFields.includes(field))
+          add(path + '.' + field, 'Unsupported XMUX behavior field.');
+      for (const field of xmuxFields.slice(0, -1))
+        if (value[field] !== undefined && !range(value[field]))
+          add(path + '.' + field, 'Expected an integer or inclusive range within 0–2147483647.');
+      if (
+        value.hKeepAlivePeriod !== undefined &&
+        (!Number.isSafeInteger(value.hKeepAlivePeriod) ||
+          Math.abs(value.hKeepAlivePeriod) > 2147483647)
+      )
+        add(
+          path + '.hKeepAlivePeriod',
+          'Expected an integer in seconds; negative disables HTTP/2 keepalive.',
+        );
+      if (range(value.maxConcurrency ?? 0)?.to > 0 && range(value.maxConnections ?? 0)?.to > 0)
+        add(path, 'maxConcurrency and maxConnections cannot both be positive.');
+      // Xray accepts this client policy in server configurations too; it has no wire effect there.
+    }
+  }
   if (option.host !== undefined && option.host !== '') {
     try {
       if (!new URL('http://' + option.host).hostname) throw Error();
@@ -65,4 +122,4 @@ function validate(option, add, prefix, inbound) {
   if (inbound && option.headers && Object.keys(option.headers).length)
     add(prefix + '.headers', 'XHTTP custom request headers are outbound-only.');
 }
-module.exports = { fields, validate };
+module.exports = { fields, validate, range, xmuxSettings };

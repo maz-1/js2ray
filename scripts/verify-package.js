@@ -88,7 +88,7 @@ try {
     const id = '5945fc2c-45b7-48cc-a19c-4cd28dbd6237';
     const server = api.createRuntime({inbounds:[{protocol:'vless',users:[{id}],networks:[{type:'xhttp',port:0,option:{mode:'stream-one',httpVersion:'2'}}]}]});
     await server.start();
-    const client = api.createRuntime({outbounds:[{protocol:'vless',users:[{id,encryption:'none'}],networks:[{type:'xhttp',address:'127.0.0.1',port:server.listenersInfo[0].address.port,option:{mode:'stream-one',httpVersion:'2'}}]}]});
+    const client = api.createRuntime({outbounds:[{protocol:'vless',users:[{id,encryption:'none'}],networks:[{type:'xhttp',address:'127.0.0.1',port:server.listenersInfo[0].address.port,option:{mode:'stream-one',httpVersion:'2',xmux:{maxConnections:1}}}]}]});
     await client.start();
     const stream = await client.dial({host:'127.0.0.1',port:target.address().port});
     stream.write('packed-xhttp');
@@ -96,7 +96,16 @@ try {
     for await (const chunk of stream) { chunks.push(chunk); received += chunk.length; if (received >= 12) break; }
     assert.equal(Buffer.concat(chunks).toString(), 'packed-xhttp');
     assert.equal(client.listenersInfo.length, 0);
+    assert.equal(client.metrics.xhttp.created, 1);
+    const nextStream = await client.dial({host:'127.0.0.1',port:target.address().port});
+    nextStream.write('packed-xmux');
+    const nextChunks=[]; let nextReceived=0;
+    for await (const chunk of nextStream) { nextChunks.push(chunk); nextReceived+=chunk.length; if(nextReceived>=11) break; }
+    assert.equal(Buffer.concat(nextChunks).toString(), 'packed-xmux');
+    assert.equal(client.metrics.xhttp.created, 1);
     await client.close(); await server.close();
+    assert.equal(client.metrics.xhttp.clients, 0);
+    assert.equal(client.metrics.xhttp.sockets, 0);
     await new Promise(resolve => target.close(resolve));
     const tls = require('node:tls');
     const fs = require('node:fs');

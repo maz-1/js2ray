@@ -30,6 +30,7 @@
     "test:stability": "node scripts/stability.js",
     "test:stability:extensions": "node scripts/extension-stability.js",
     "test:stability:transports": "node scripts/transport-stability.js",
+    "test:stability:xmux": "node scripts/xmux-stability.js",
     "test:tools": "node scripts/install-reference-cores.js"
   },
   "author": "seezaara",

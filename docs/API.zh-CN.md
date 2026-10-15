@@ -118,9 +118,28 @@ path 自动补末尾 `/`，查询串保留。随机 UUID 关联 packet-up/stream
 
 每条逻辑出站独占 HTTP/1 连接池或 HTTP/2 会话，关闭时释放请求、物理连接和计时器，不跨实例或配置代复用。HTTP/2 入站可在一条物理连接上承载多个逻辑会话，单个 RST_STREAM 只终止对应会话。可读端暂停会传递到 HTTP body/HTTP2 流控；顺序 packet-up 确认等待可读队列空间。队列超限返回结构化错误，不自动重试或重放业务数据。
 
-XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。故障、GOAWAY 或运行时关闭终止受影响会话。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
+XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。物理连接故障或运行时关闭终止受影响会话；P18 的 HTTP/2 GOAWAY 停止复用该客户端，已接受的流继续排空，新流及 packet-up 后续上行使用新连接。业务字节不自动重放。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
 
-传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、XHTTP 与 REALITY 的组合、完整 XMUX、跨节点 downloadSettings、XHTTP 浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、XHTTP 与 REALITY 的组合、跨节点 downloadSettings、XHTTP 浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+
+### XMUX（P18）
+
+原生 `network.option.xmux` 与传统 `xhttpSettings.xmux` / `xhttpSettings.extra.xmux` 支持固定 Xray 25.3.6 的完整六字段。它管理 XHTTP 的 HTTP 客户端复用，与协议层 Mux.Cool 分别配置；服务端接受并校验同一字段，但不会把客户端调度参数解释为入站限制。
+
+| 字段             | 语义                                                                                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| maxConcurrency   | 每个 HTTP 客户端同时承载的逻辑连接数；达到后新建客户端。范围在池创建时取值。                                                                                   |
+| maxConnections   | 先建立指定数量的可复用 HTTP 客户端，再随机选择；不能与正值 maxConcurrency 同时配置。                                                                           |
+| cMaxReuseTimes   | 每个客户端累计分配次数，含首次；达到后停止向新逻辑连接分配。packet-up 换上行客户端也占一次分配，不占逻辑并发数。                                               |
+| hMaxRequestTimes | 每个客户端累计 HTTP 请求预算；GET、POST 分别计数，packet-up 后续 POST 用尽预算后换客户端。stream-up 已预留的 GET/POST 配对完整创建，极小预算可被配对超出一次。 |
+| hMaxReusableSecs | 客户端从创建起可接受新逻辑连接及 packet-up 新 POST 的秒数；到期后已建立流继续排空。                                                                            |
+| hKeepAlivePeriod | HTTP/2 读取空闲时 PING 间隔秒数，0 使用 45 秒，负数关闭；HTTP/1.1 无 HTTP/2 PING。                                                                             |
+
+前五项接受非负整数或闭区间字符串（如 `"4-8"`），范围为 0–2147483647，0 表示不限。后三种客户端预算在每个客户端创建时分别抽样。hKeepAlivePeriod 接受绝对值不超过 2147483647 的整数，不接受范围。六项全零（包括省略或 `{}`）时使用 maxConcurrency=`"16-32"`、hMaxRequestTimes=`"600-900"`、hMaxReusableSecs=`"1800-3000"`，其余为 0；任意非零项会关闭这组三项隐式默认值。
+
+每个 Runtime 的每个网络配置单独持有池；不同出站、凭据、TLS 信任、DNS 上下文、Runtime 或 Manager 代次不共用池。HTTP/2 同一客户端共享一个 session，并根据对端 SETTINGS 的流容量选择客户端；maxConnections 不承诺物理 TCP 连接数硬上限。HTTP/1.1 无流多路复用，GET/流式 POST 各占连接，packet-up 的有限 POST 连接可跨逻辑会话复用；同一客户端的 agent 最多持有 `2 * maxConnections`（运行时 limits 的值，最少 2）个活跃 socket、2 个空闲 socket。无使用者的客户端 90 秒后回收，空闲资源和保活计时器不阻止进程退出；Runtime.close 关闭整个池。
+
+`runtime.metrics.xhttp` 暴露 clients/draining/active/sockets/pending，以及累计 created/retired/requests/pings/failures，不含目标或凭据。active 是逻辑连接预留数，不包含 packet-up 临时上行租约；requests 为实际创建的 HTTP 请求数，pings 为成功收到 ACK 的 PING 数，failures 为异常关闭的客户端数。验收命令为 `node --test test/xmux.test.js`、`node --test test/interop/xmux.test.js` 和 `npm run test:stability:xmux`。
 
 ## Vision（P15）
 

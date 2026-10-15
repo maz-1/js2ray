@@ -20,7 +20,17 @@
         "xhttpSettings": {
           "host": "cdn.example.net",
           "path": "/synthetic-xhttp",
-          "mode": "stream-up"
+          "mode": "stream-up",
+          "extra": {
+            "xmux": {
+              "maxConcurrency": "16-32",
+              "maxConnections": 0,
+              "cMaxReuseTimes": 0,
+              "hMaxRequestTimes": "600-900",
+              "hMaxReusableSecs": "1800-3000",
+              "hKeepAlivePeriod": 0
+            }
+          }
         }
       }
     }

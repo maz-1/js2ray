@@ -1,42 +1,36 @@
 'use strict';
 const http = require('node:http');
-const http2 = require('node:http2');
 const { randomUUID } = require('node:crypto');
 const { isIPv6 } = require('node:net');
 const { failure } = require('../../runtime/errors');
 const { settings, padding, transportError, XhttpStream, attachBody } = require('./common');
+const { XmuxPool } = require('./xmux');
 
 async function connect(network, limits, dial) {
   const config = settings(network.option, limits);
   const tls = config.tls;
-  const alpn =
-    config.httpVersion === '1.1'
-      ? ['http/1.1']
-      : config.httpVersion === '2'
-        ? ['h2']
-        : ['h2', 'http/1.1'];
-  const rawNetwork = {
-    ...network,
-    type: 'tcp',
-    option: { tls: tls ? { ...tls, alpn } : undefined },
-  };
-  const raw = await dial(rawNetwork, limits);
-  const version =
-    config.httpVersion === 'auto' ? (raw.alpnProtocol === 'h2' ? '2' : '1.1') : config.httpVersion;
-  if (tls && version === '2' && raw.alpnProtocol !== 'h2') {
-    raw.destroy();
-    throw failure('ERR_TRANSPORT', 'XHTTP peer did not negotiate HTTP/2.', 'transport');
+  const ownPool = !limits.xhttpPool;
+  const pool = limits.xhttpPool ?? new XmuxPool(network, limits, dial);
+  let lease;
+  try {
+    lease = await pool.acquire(limits.signal);
+  } catch (cause) {
+    if (ownPool) pool.close();
+    throw cause;
   }
+  const entry = lease.entry;
+  const version = entry.version;
   const mode = config.mode === 'auto' ? (version === '2' ? 'stream-up' : 'packet-up') : config.mode;
   const address = isIPv6(network.address) ? `[${network.address}]` : network.address;
   const authorityName = config.host ?? tls?.serverName ?? address;
   const authority = isIPv6(authorityName) ? `[${authorityName}]` : authorityName;
-  const origin = `${tls ? 'https' : 'http'}://${address}:${network.port}`;
-  const requests = new Set(),
-    sockets = new Set([raw]);
-  let first = raw,
-    agent,
-    session,
+  const requests = new Set();
+  const leases = new Set([lease]);
+  const lifetime = new AbortController();
+  const packetSignal = limits.signal
+    ? AbortSignal.any([limits.signal, lifetime.signal])
+    : lifetime.signal;
+  let packetLease = lease,
     upload,
     downstream,
     sequence = 0;
@@ -44,16 +38,29 @@ async function connect(network, limits, dial) {
     closeReason;
   const fail = (cause) => stream.destroy(transportError(cause));
   const stream = new XhttpStream(config, {
-    remoteAddress: raw.remoteAddress,
+    remoteAddress: entry.remoteAddress,
     control: (ref) => {
-      for (const socket of sockets) socket[ref ? 'ref' : 'unref']();
+      for (const value of leases) value.entry.ref(ref);
     },
     send: (data, callback) => {
       if (mode !== 'packet-up') return upload.write(data, callback);
       (async () => {
         for (let offset = 0; offset < data.length; offset += config.maxPostBytes) {
           const part = data.subarray(offset, offset + config.maxPostBytes);
-          const pending = request('POST', `${id}/${sequence++}`, part.length);
+          if (!packetLease.entry.packetReusable()) {
+            const previous = packetLease;
+            packetLease = await pool.acquire(packetSignal, false);
+            if (closed) {
+              packetLease.release();
+              throw closeReason ?? failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport');
+            }
+            leases.add(packetLease);
+            if (previous !== lease) {
+              leases.delete(previous);
+              previous.release();
+            }
+          }
+          const pending = request('POST', `${id}/${sequence++}`, part.length, packetLease.entry);
           pending.req.end(part);
           const body = await pending.response;
           await new Promise((resolve, reject) => {
@@ -92,11 +99,12 @@ async function connect(network, limits, dial) {
     dispose: (cause) => {
       closed = true;
       closeReason = cause;
+      lifetime.abort();
       limits.signal?.removeEventListener('abort', abort);
       for (const req of requests) req.destroy(cause);
-      for (const socket of sockets) socket.destroy();
-      agent?.destroy();
-      session?.destroy();
+      for (const value of leases) value.release();
+      leases.clear();
+      if (ownPool) pool.close();
     },
   });
   const abort = () =>
@@ -105,48 +113,8 @@ async function connect(network, limits, dial) {
     );
   limits.signal?.addEventListener('abort', abort, { once: true });
   const id = randomUUID();
-  if (version === '2') {
-    session = http2.connect(origin, {
-      createConnection: () => raw,
-      maxSessionMemory: 4,
-      maxHeaderListPairs: 64,
-      settings: {
-        enablePush: false,
-        maxHeaderListSize: 8192,
-        initialWindowSize: Math.min(config.maxBytes, 65535),
-      },
-    });
-    first = undefined;
-    session.on('error', fail);
-    session.on('goaway', () =>
-      fail(failure('ERR_CLOSED', 'XHTTP HTTP/2 connection received GOAWAY.', 'transport')),
-    );
-    session.once('close', () => {
-      if (!closed) fail(failure('ERR_CLOSED', 'XHTTP HTTP/2 connection closed.', 'transport'));
-    });
-  } else {
-    // Each logical connection owns its pool. No global agents, retries, or cross-generation reuse.
-    agent = new http.Agent({ keepAlive: true, maxSockets: 2, maxFreeSockets: 1 });
-    agent.createConnection = (_options, callback) => {
-      if (first) {
-        const value = first;
-        first = undefined;
-        callback(null, value);
-        return;
-      }
-      dial(rawNetwork, limits).then((socket) => {
-        if (closed) {
-          socket.destroy();
-          callback(failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport'));
-          return;
-        }
-        sockets.add(socket);
-        socket.once('close', () => sockets.delete(socket));
-        callback(null, socket);
-      }, callback);
-    };
-  }
-  function request(method, suffix, length) {
+  function request(method, suffix, length, owner = entry) {
+    if (closed) throw closeReason ?? failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport');
     const path = config.path + suffix + (config.query ? '?' + config.query : '');
     const headers = Object.fromEntries(
       Object.entries(config.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]),
@@ -160,8 +128,8 @@ async function connect(network, limits, dial) {
       headers.connection = 'close';
     if (length !== undefined) headers['content-length'] = String(length);
     const req =
-      version === '2'
-        ? session.request(
+      owner.version === '2'
+        ? owner.session.request(
             {
               ...headers,
               ':method': method,
@@ -176,10 +144,11 @@ async function connect(network, limits, dial) {
             port: network.port,
             method,
             path,
-            agent,
+            agent: owner.agent,
             headers: { ...headers, host: authority },
           });
     requests.add(req);
+    owner.countRequest(req);
     req.once('close', () => requests.delete(req));
     req.on('error', fail);
     const response = new Promise((resolve, reject) => {
@@ -201,8 +170,8 @@ async function connect(network, limits, dial) {
         finish(failure('ERR_CLOSED', 'XHTTP request closed before response headers.', 'transport')),
       );
       req.once('response', (value) => {
-        const body = version === '2' ? req : value;
-        const status = version === '2' ? value[':status'] : value.statusCode;
+        const body = owner.version === '2' ? req : value;
+        const status = owner.version === '2' ? value[':status'] : value.statusCode;
         if (status !== 200) {
           const cause = failure('ERR_TRANSPORT', 'XHTTP peer rejected the request.', 'transport');
           cause.context.status = status;
@@ -213,7 +182,7 @@ async function connect(network, limits, dial) {
     });
     // Some requests start before connect() returns; rejection must always have an owner.
     response.catch(fail);
-    if (version === '1.1') {
+    if (owner.version === '1.1') {
       if (method === 'GET') req.end();
       else req.flushHeaders();
     }

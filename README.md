@@ -29,6 +29,8 @@ Use the traditional JSON outbound in [examples/vless-wss-client.json](examples/v
 
 [examples/vless-xhttp-client.json](examples/vless-xhttp-client.json) configures XHTTP over TLS HTTP/2. All three XHTTP modes support HTTP/1.1 and HTTP/2; native `option.httpVersion` selects `1.1`, `2`, or `auto`. Explicit plaintext HTTP/2 uses prior-knowledge h2c. XHTTP has full-connection close semantics. See [the API guide](docs/API.zh-CN.md) and [XHTTP acceptance](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md) for limits and the pinned Xray interoperability matrix.
 
+XHTTP XMUX supports all six fields in the pinned Xray 25.3.6 configuration: concurrency, client count, reuse count, HTTP request budget, reusable lifetime, and HTTP/2 idle PING. Pools belong to one Runtime and configuration generation; retiring clients drain accepted streams. See [XMUX acceptance](docs/P18_XMUX_ACCEPTANCE.zh-CN.md).
+
 [examples/vless-vision-client.json](examples/vless-vision-client.json) configures `xtls-rprx-vision` over raw TCP/TLS 1.3. The pure Node.js implementation preserves buffered bytes when switching each direction to Direct; eligible inner TLS 1.3 traffic uses that path. Vision UDP uses XUDP and blocks UDP/443 unless the outbound explicitly selects `xtls-rprx-vision-udp443`. See the [Vision scope and validation](docs/P15_VISION_ACCEPTANCE.zh-CN.md).
 
 [examples/vless-reality-client.json](examples/vless-reality-client.json) configures REALITY with Vision using synthetic credentials. REALITY uses public Node.js crypto and stream APIs, mandatory server authentication, a pinned non-PQ Chrome 120 ClientHello, and a fixed TLS 1.3 cover destination on the server. See the [REALITY scope and validation](docs/P16_REALITY_ACCEPTANCE.zh-CN.md).

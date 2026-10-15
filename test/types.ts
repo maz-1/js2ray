@@ -16,6 +16,13 @@ const xhttp = createRuntime({
             httpVersion: '2',
             host: 'synthetic.test',
             xPaddingBytes: '100-200',
+            xmux: {
+              maxConcurrency: '2-4',
+              cMaxReuseTimes: 8,
+              hMaxRequestTimes: '600-900',
+              hMaxReusableSecs: 1800,
+              hKeepAlivePeriod: -1,
+            },
           },
         },
       ],

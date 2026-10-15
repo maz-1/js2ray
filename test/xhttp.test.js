@@ -111,7 +111,7 @@ test('XHTTP native/V2Ray configuration validation and unsupported behavior diagn
     { xPaddingBytes: '1000-100' },
     { scMaxBufferedPosts: 0 },
     { headers: { Referer: 'http://override/' } },
-    { xmux: {} },
+    { xmux: { unknown: 1 } },
     { downloadSettings: {} },
   ])
     assert.equal(checkConfig(native(option)).ok, false);
@@ -641,7 +641,9 @@ test('XHTTP same-port rotation retains packet sessions and replaces path, UUID a
   fresh.destroy();
   held.destroy();
   await cutover.drained;
-  await assert.rejects(oldClient.dial(target), { code: 'ERR_TLS' });
+  // An existing authenticated TLS session may be reused, but the retired path
+  // rejects new logical streams after cutover.
+  await assert.rejects(oldClient.dial(target), { code: 'ERR_TRANSPORT' });
 });
 for (const protocol of ['vless', 'vmess']) {
   test(`XHTTP transports ${protocol} and the public HTTP Agent`, async (t) => {

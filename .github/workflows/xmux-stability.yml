@@ -1,0 +1,40 @@
+name: P18 XMUX stability
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'index.*'
+      - 'runtime/**'
+      - 'transports/**'
+      - 'protocols/**'
+      - 'config/**'
+      - 'scripts/xmux-stability.js'
+      - '.github/workflows/xmux-stability.yml'
+permissions:
+  contents: read
+jobs:
+  stability:
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.20.0
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:stability:xmux
+        env:
+          JS2RAY_STABILITY_MINUTES: '30'
+          JS2RAY_ROTATION_MS: '60000'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: xmux-stability-${{ runner.os }}-x64
+          path: test-results/xmux-stability.json
+          if-no-files-found: error
+          retention-days: 30

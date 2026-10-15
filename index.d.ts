@@ -57,7 +57,16 @@ export interface Network {
     scMaxEachPostBytes?: number;
     scMaxBufferedPosts?: number;
     scStreamUpServerSecs?: number;
+    xmux?: XmuxOptions;
   };
+}
+export interface XmuxOptions {
+  maxConcurrency?: number | string;
+  maxConnections?: number | string;
+  cMaxReuseTimes?: number | string;
+  hMaxRequestTimes?: number | string;
+  hMaxReusableSecs?: number | string;
+  hKeepAlivePeriod?: number;
 }
 export interface RealityClientOptions {
   publicKey: string;
@@ -276,6 +285,18 @@ export class Runtime extends EventEmitter {
   close(options?: { drainTimeoutMs?: number }): Promise<void>;
 }
 export interface RuntimeMetrics {
+  xhttp: {
+    clients: number;
+    draining: number;
+    active: number;
+    sockets: number;
+    pending: number;
+    created: number;
+    retired: number;
+    requests: number;
+    pings: number;
+    failures: number;
+  };
   dials: number;
   succeeded: number;
   failed: number;

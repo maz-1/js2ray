@@ -385,7 +385,18 @@ P17 全部验收通过：[全量三平台 CI](https://github.com/maz-1/js2ray/ac
 
 最终文档回归另暴露共享 macOS CPU 上多个 100 并发测试文件同时争用预算的问题。CI 改为测试文件串行，保留每个用例内部的 100 真并发、默认 10 秒握手预算和全部断言；不增加产品超时。Node 测试选项必须位于文件参数之前，不能用 `npm test -- --test-concurrency=1` 冒充生效的串行设置。产品和长时负载源码不变。
 
-## 14 参考资料
+## 14 XHTTP 完整 XMUX P18（实施中）
+
+范围锁定 Xray 25.3.6 的六项 XMUX 字段，覆盖 HTTP/1.1、HTTP/2 的三模式；跨节点 downloadSettings 和 HTTP/3 单独评估，不由 XMUX 验收推断支持。
+
+- [x] 核对固定源码的六项字段、取随机范围、全零默认值、互斥规则及保活语义。
+- [x] 接入按 Runtime、网络配置及代次隔离的 HTTP 客户端池，支持并发预留、复用/请求/时长退役、packet-up 上行切换、GOAWAY 排空与关闭清理。
+- [ ] 完成参数、共享取消、流容量、异常、保活、轮换及资源清理专项测试。
+- [ ] 完成固定 Xray 25.3.6 双向互通、全量回归、实际安装包和三平台验收。
+- [ ] 完成 XMUX 长时稳定性记录、API/类型/配置样例和隐私审计。
+- [ ] 基于本机 Node 24.20.0 和官方源码评估 HTTP/3 实现路径、成本及原型出口。
+
+## 15 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

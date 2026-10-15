@@ -43,6 +43,7 @@ class Runtime extends EventEmitter {
   #reverse;
   #metrics = new Metrics();
   #transportStreams = new Set();
+  #xhttpPools = new Map();
 
   constructor(config, options = {}) {
     super();
@@ -103,6 +104,25 @@ class Runtime extends EventEmitter {
     return {
       ...this.#metrics.snapshot(),
       dns: this.#resolver.stats,
+      xhttp: [...this.#xhttpPools.values()].reduce(
+        (total, pool) => {
+          for (const [field, value] of Object.entries(pool.stats))
+            total[field] = (total[field] ?? 0) + value;
+          return total;
+        },
+        {
+          clients: 0,
+          draining: 0,
+          active: 0,
+          sockets: 0,
+          pending: 0,
+          created: 0,
+          retired: 0,
+          requests: 0,
+          pings: 0,
+          failures: 0,
+        },
+      ),
       transport: {
         streams: this.#transportStreams.size,
         readableBytes: [...this.#transportStreams].reduce(
@@ -607,6 +627,21 @@ class Runtime extends EventEmitter {
     return this.#operation(target, false);
   }
   #connect(network, options) {
+    if (network.type === 'xhttp') {
+      if (!this.#xhttpPools.has(network))
+        this.#xhttpPools.set(
+          network,
+          new (require('../transports/xhttp/xmux').XmuxPool)(
+            network,
+            {
+              ...this.#config.limits,
+              lookup: this.#resolver.bootstrapLookup,
+            },
+            connect,
+          ),
+        );
+      options = { ...options, xhttpPool: this.#xhttpPools.get(network) };
+    }
     return this.#metrics.measure('transport', async () =>
       this.#observeTransport(await connect(network, options)),
     );
@@ -988,6 +1023,7 @@ class Runtime extends EventEmitter {
       });
     }
     for (const mux of this.#muxes) mux.close();
+    for (const pool of this.#xhttpPools.values()) pool.close();
     this.#muxClients.clear();
     const streamsClosed = [...this.#streams].map(
       (stream) =>
