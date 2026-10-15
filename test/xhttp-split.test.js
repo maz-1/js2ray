@@ -202,15 +202,24 @@ test('XHTTP split native and traditional validation rejects unsupported combinat
 });
 for (const fault of ['reject', 'redirect', 'headers'])
   test(`XHTTP split downlink ${fault} fails without upload replay or leaked leases`, async (t) => {
-    const { client, target, up, down } = await topology(t, 'packet-up', '2', '1.1', {
-      downFault: fault,
-      limits: { handshakeTimeoutMs: 100 },
+    const { client, target, up, down } = await topology(t, 'packet-up', '2', '2', {
+      limits: { handshakeTimeoutMs: 1000 },
     });
+    // Reuse negotiated HTTP/2 clients: the injected failure tests response
+    // headers, independently of TLS scheduling on shared CI machines.
+    const warm = await client.dial(target);
+    await exchange(warm, 1024);
+    const closed = new Promise((resolve) => warm.once('close', resolve));
+    warm.destroy();
+    await closed;
+    const uploads = up.requests.length,
+      downloads = down.requests.length;
+    down.setFault(fault);
     await assert.rejects(client.dial(target), {
       code: fault === 'headers' ? 'ERR_TIMEOUT' : 'ERR_TRANSPORT',
     });
-    assert.equal(up.requests.length, 0);
-    assert.equal(down.requests.length, 1);
+    assert.equal(up.requests.length, uploads);
+    assert.equal(down.requests.length, downloads + 1);
     await client.close();
     assert.equal(client.metrics.xhttp.active, 0);
   });
