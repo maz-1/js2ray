@@ -29,7 +29,7 @@
 
 首轮运行时基线采用 Node.js 24，其他 Node.js 主版本在 CI 验证后再列入正式支持矩阵。
 
-后续独立扩展项包括 XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，P16 扩展 REALITY 及 Vision 组合，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
+后续独立扩展项包括 XHTTP 的 HTTP/3/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，P16 扩展 REALITY 及 Vision 组合，P18 补齐 XMUX 六字段，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
 ## 2 历史源码基线与当时的优先修复项
 
@@ -394,7 +394,7 @@ P17 全部验收通过：[全量三平台 CI](https://github.com/maz-1/js2ray/ac
 - [x] 完成参数、共享取消、ref/unref 隔离、流容量、异常、保活、轮换及资源清理 34 项专项测试；本地 12 项新增固定内核双向互通、实际安装包检查通过。
 - [ ] 完成固定 Xray 25.3.6 双向互通、全量回归、实际安装包和三平台验收。
 - [ ] 完成 XMUX 长时稳定性记录、API/类型/配置样例和隐私审计。
-- [ ] 基于本机 Node 24.20.0 和官方源码评估 HTTP/3 实现路径、成本及原型出口。
+- [x] 基于本机 Node 24.20.0 和官方源码评估 HTTP/3 实现路径、成本及原型出口，见 [HTTP/3 可行性评估](docs/HTTP3_FEASIBILITY.zh-CN.md)。当前二进制未编译 QUIC；定制 Node 实验 API 路径需独立原型，不标记 HTTP/3 支持。CI 增加三平台信息性能力探测。
 
 ## 15 参考资料
 

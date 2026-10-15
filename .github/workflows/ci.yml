@@ -25,3 +25,5 @@ jobs:
       - run: npm run test:tools
       - run: npm run test:interop
       - run: npm run test:package
+      - name: Record HTTP3 runtime capability (informational)
+        run: node scripts/probe-http3.js

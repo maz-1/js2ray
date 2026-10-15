@@ -69,7 +69,7 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 - 普通 Mux 支持 VLESS TCP/UDP，reverse 支持 TCP/UDP；SOCKS5、VMess、VLESS、Freedom 均提供独立数据报接口。XUDP 接受/发送每包地址，但不承诺断开承载后保留 NAT 身份。
 - V2Ray 5.14.1 的传统 UDP 对照只承诺至 2046 字节，其参考实现会拆分/丢弃较大数据报。不能外推为该内核的大数据报支持。
 - 正式 VMess 回归使用 alterId=0；保留旧非零 alterId 实现作为未列入固定参考矩阵的能力。为避免 nonce 重用，每方向最多 65536 个加密块，达到后失败。
-- XHTTP 支持 HTTP/1.1、HTTP/2 的 packet-up、stream-up、stream-one，范围与验收见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)。HTTP/3、REALITY、完整 XMUX、浏览器指纹及跨节点上下行分离不在本阶段。
+- XHTTP 支持 HTTP/1.1、HTTP/2 的 packet-up、stream-up、stream-one，初始范围见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)，P18 补齐固定 Xray 25.3.6 的六项 XMUX 控制。HTTP/3、XHTTP+REALITY、浏览器指纹及跨节点上下行分离仍未实现。
 - Vision 支持原始 TCP/TLS 1.3 的双向 Direct、普通流量和内层 TLS 1.2、XUDP、同端口凭据/证书轮换；[三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194) 各 209 项普通回归、135 项参考互通、实际 tarball 验证均通过。API 边界、8 项原型、16 项专项、8 项参考互通及 100 并发 Direct 证据见 [P15](P15_VISION_ACCEPTANCE.zh-CN.md)。
 - REALITY 支持 VLESS 原始 TCP、空 flow 与 Vision、固定非 PQ Chrome 120 模板、未认证流量转发和同端口密钥/short ID/用户/dest 轮换。[三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38719238453) 各 236 项普通回归、156 项参考互通与实际 tarball 验证全部通过；新增 27 项普通专项和 21 项固定 Xray 对照（含 4 项原型）、100 并发双向 Direct 均通过，范围和摘要见 [P16](P16_REALITY_ACCEPTANCE.zh-CN.md)。
 - VMess 嗅探、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
@@ -78,6 +78,10 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 ## P17 验收加固
 
 P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、两种 cover 布局/三套件及固定 Go TLS cover 对照、部署前 check-cover、原生配置/密钥及已删除历史秘密审计；短负载发现并修复 WSS/XHTTP 的 TCP/TLS/HTTP2 超时移交问题。[三平台完整回归](https://github.com/maz-1/js2ray/actions/runs/38733773509) 各 275 项普通测试、158 项参考互通与实际安装包检查均通过；[三平台长时验收](https://github.com/maz-1/js2ray/actions/runs/38733509036) 分别完成 100 会话/30 分钟、29 次全端点轮换与 cover 故障恢复，关闭后资源归零。39 项新增普通专项、2 项新增参考对照、逐平台原始 JSON 和 79 个产品源码摘要见 [P17](P17_ACCEPTANCE.zh-CN.md)。
+
+## P18 XMUX
+
+六字段参数、共享客户端池、请求/复用/时长退役、packet-up 上行切换、GOAWAY 排空、HTTP/2 FIN 清理和 ref/unref 隔离已实现。新增 34 项普通专项、12 项严格 TLS 双向参考互通、安装包池复用检查和 100 会话/30 分钟专用长时脚本；三平台完整证据在 [P18](P18_XMUX_ACCEPTANCE.zh-CN.md) 更新。[HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)记录当前 Node 二进制能力、定制运行时和纯 JS QUIC 路线的难度；HTTP/3 未实现。
 
 ## 私有真实配置
 
