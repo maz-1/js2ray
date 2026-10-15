@@ -3,8 +3,8 @@
   "node": "v24.20.0",
   "platform": "darwin",
   "arch": "x64",
-  "started": "2026-10-15T18:56:29.786Z",
-  "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+  "started": "2026-10-15T20:09:45.889Z",
+  "commit": "e5d580a0b30f9e29d6dacd80177200a17ed72a5b",
   "durationMinutes": 30,
   "formalAcceptance": true,
   "concurrentSessions": 100,
@@ -53,21 +53,21 @@
   },
   "rotations": 29,
   "coverFaults": 29,
-  "iterations": 1278484,
-  "bytes": 5236670464,
+  "iterations": 1275115,
+  "bytes": 5222871040,
   "latency": {
-    "count": 1278484,
-    "totalMs": 23832527.69479086,
-    "maxMs": 4258.814543,
+    "count": 1275115,
+    "totalMs": 24397077.74992724,
+    "maxMs": 933.0259469999583,
     "histogram": [
-      15212,
-      621778,
-      386678,
-      166201,
-      18633,
-      69133,
-      707,
-      142
+      9487,
+      566507,
+      398509,
+      209024,
+      20246,
+      70883,
+      459,
+      0
     ],
     "boundsMs": [
       1,
@@ -81,19 +81,19 @@
     ]
   },
   "peak": {
-    "rss": 296247296,
-    "heap": 47179288,
-    "applicationQueueBytes": 344064,
-    "transportQueueBytes": 205120,
+    "rss": 297332736,
+    "heap": 48496136,
+    "applicationQueueBytes": 348160,
+    "transportQueueBytes": 192774,
     "muxQueueBytes": 0,
     "pendingInbound": 3,
     "generations": 37
   },
   "samples": [
     {
-      "elapsedMs": 3,
-      "rss": 101060608,
-      "heap": 19156560,
+      "elapsedMs": 2,
+      "rss": 101707776,
+      "heap": 21674184,
       "applicationQueueBytes": 0,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
@@ -102,10 +102,10 @@
       "coverFaults": 0
     },
     {
-      "elapsedMs": 59259,
-      "rss": 169431040,
-      "heap": 18881568,
-      "applicationQueueBytes": 36864,
+      "elapsedMs": 59626,
+      "rss": 155013120,
+      "heap": 22162128,
+      "applicationQueueBytes": 0,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 18,
@@ -113,65 +113,65 @@
       "coverFaults": 0
     },
     {
-      "elapsedMs": 118826,
-      "rss": 178810880,
-      "heap": 23869696,
-      "applicationQueueBytes": 28672,
-      "transportQueueBytes": 28702,
-      "pendingInbound": 2,
+      "elapsedMs": 118837,
+      "rss": 167268352,
+      "heap": 25416872,
+      "applicationQueueBytes": 32768,
+      "transportQueueBytes": 30,
+      "pendingInbound": 0,
       "generations": 36,
       "rotations": 1,
       "coverFaults": 1
     },
     {
-      "elapsedMs": 177843,
-      "rss": 186458112,
-      "heap": 20868144,
-      "applicationQueueBytes": 8192,
-      "transportQueueBytes": 4126,
+      "elapsedMs": 178533,
+      "rss": 177999872,
+      "heap": 23662592,
+      "applicationQueueBytes": 36864,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 2,
       "coverFaults": 2
     },
     {
-      "elapsedMs": 237319,
-      "rss": 191561728,
-      "heap": 19893856,
-      "applicationQueueBytes": 32768,
-      "transportQueueBytes": 30,
+      "elapsedMs": 237972,
+      "rss": 189382656,
+      "heap": 24964640,
+      "applicationQueueBytes": 28672,
+      "transportQueueBytes": 20510,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 3,
       "coverFaults": 3
     },
     {
-      "elapsedMs": 296584,
-      "rss": 200949760,
-      "heap": 21219288,
-      "applicationQueueBytes": 167936,
-      "transportQueueBytes": 81950,
+      "elapsedMs": 297189,
+      "rss": 191635456,
+      "heap": 23696232,
+      "applicationQueueBytes": 40960,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 4,
       "coverFaults": 4
     },
     {
-      "elapsedMs": 355767,
-      "rss": 208654336,
-      "heap": 25544904,
-      "applicationQueueBytes": 53248,
-      "transportQueueBytes": 12318,
+      "elapsedMs": 356604,
+      "rss": 202899456,
+      "heap": 33933000,
+      "applicationQueueBytes": 36864,
+      "transportQueueBytes": 4126,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 5,
       "coverFaults": 5
     },
     {
-      "elapsedMs": 414841,
-      "rss": 211861504,
-      "heap": 22809176,
-      "applicationQueueBytes": 32768,
+      "elapsedMs": 415960,
+      "rss": 206393344,
+      "heap": 22109632,
+      "applicationQueueBytes": 0,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -179,21 +179,21 @@
       "coverFaults": 6
     },
     {
-      "elapsedMs": 474103,
-      "rss": 218238976,
-      "heap": 33399120,
-      "applicationQueueBytes": 28672,
-      "transportQueueBytes": 30,
-      "pendingInbound": 0,
+      "elapsedMs": 475553,
+      "rss": 217059328,
+      "heap": 21443960,
+      "applicationQueueBytes": 126976,
+      "transportQueueBytes": 139584,
+      "pendingInbound": 1,
       "generations": 36,
       "rotations": 7,
       "coverFaults": 7
     },
     {
-      "elapsedMs": 533280,
-      "rss": 214171648,
-      "heap": 21571312,
-      "applicationQueueBytes": 36864,
+      "elapsedMs": 534691,
+      "rss": 220626944,
+      "heap": 23615240,
+      "applicationQueueBytes": 4096,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -201,21 +201,21 @@
       "coverFaults": 8
     },
     {
-      "elapsedMs": 592396,
-      "rss": 220135424,
-      "heap": 24375176,
-      "applicationQueueBytes": 36864,
-      "transportQueueBytes": 8222,
+      "elapsedMs": 593785,
+      "rss": 229965824,
+      "heap": 26084584,
+      "applicationQueueBytes": 28672,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 9,
       "coverFaults": 9
     },
     {
-      "elapsedMs": 651436,
-      "rss": 222302208,
-      "heap": 23988072,
-      "applicationQueueBytes": 28672,
+      "elapsedMs": 652832,
+      "rss": 234622976,
+      "heap": 26336192,
+      "applicationQueueBytes": 16384,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -223,21 +223,21 @@
       "coverFaults": 10
     },
     {
-      "elapsedMs": 710505,
-      "rss": 223436800,
-      "heap": 26056392,
-      "applicationQueueBytes": 28672,
-      "transportQueueBytes": 4126,
+      "elapsedMs": 711899,
+      "rss": 244092928,
+      "heap": 29163168,
+      "applicationQueueBytes": 20480,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 11,
       "coverFaults": 11
     },
     {
-      "elapsedMs": 769540,
-      "rss": 246337536,
-      "heap": 27702648,
-      "applicationQueueBytes": 32768,
+      "elapsedMs": 771025,
+      "rss": 242704384,
+      "heap": 24725608,
+      "applicationQueueBytes": 28672,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -245,10 +245,10 @@
       "coverFaults": 12
     },
     {
-      "elapsedMs": 828603,
-      "rss": 251797504,
-      "heap": 28912216,
-      "applicationQueueBytes": 8192,
+      "elapsedMs": 830089,
+      "rss": 245600256,
+      "heap": 28405768,
+      "applicationQueueBytes": 20480,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -256,10 +256,10 @@
       "coverFaults": 13
     },
     {
-      "elapsedMs": 887641,
-      "rss": 246927360,
-      "heap": 27500024,
-      "applicationQueueBytes": 28672,
+      "elapsedMs": 889153,
+      "rss": 246284288,
+      "heap": 29473264,
+      "applicationQueueBytes": 36864,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -267,10 +267,10 @@
       "coverFaults": 14
     },
     {
-      "elapsedMs": 946685,
-      "rss": 245313536,
-      "heap": 22752048,
-      "applicationQueueBytes": 32768,
+      "elapsedMs": 948205,
+      "rss": 252125184,
+      "heap": 26689792,
+      "applicationQueueBytes": 8192,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -278,21 +278,21 @@
       "coverFaults": 15
     },
     {
-      "elapsedMs": 1005726,
-      "rss": 255062016,
-      "heap": 26797240,
-      "applicationQueueBytes": 28672,
-      "transportQueueBytes": 12318,
+      "elapsedMs": 1007241,
+      "rss": 254234624,
+      "heap": 23601936,
+      "applicationQueueBytes": 36864,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 16,
       "coverFaults": 16
     },
     {
-      "elapsedMs": 1064765,
-      "rss": 271069184,
-      "heap": 28340360,
-      "applicationQueueBytes": 28672,
+      "elapsedMs": 1066287,
+      "rss": 256741376,
+      "heap": 28113792,
+      "applicationQueueBytes": 8192,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -300,21 +300,21 @@
       "coverFaults": 17
     },
     {
-      "elapsedMs": 1123810,
-      "rss": 267079680,
-      "heap": 35648672,
-      "applicationQueueBytes": 40960,
-      "transportQueueBytes": 28702,
+      "elapsedMs": 1125318,
+      "rss": 271712256,
+      "heap": 28806768,
+      "applicationQueueBytes": 36864,
+      "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 18,
       "coverFaults": 18
     },
     {
-      "elapsedMs": 1182858,
-      "rss": 265510912,
-      "heap": 30035120,
-      "applicationQueueBytes": 40960,
+      "elapsedMs": 1184365,
+      "rss": 270123008,
+      "heap": 25733344,
+      "applicationQueueBytes": 16384,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -322,10 +322,10 @@
       "coverFaults": 19
     },
     {
-      "elapsedMs": 1241887,
-      "rss": 266969088,
-      "heap": 28564488,
-      "applicationQueueBytes": 32768,
+      "elapsedMs": 1243416,
+      "rss": 274149376,
+      "heap": 25329040,
+      "applicationQueueBytes": 20480,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -333,21 +333,21 @@
       "coverFaults": 20
     },
     {
-      "elapsedMs": 1301067,
-      "rss": 271720448,
-      "heap": 28379160,
-      "applicationQueueBytes": 4096,
-      "transportQueueBytes": 30,
+      "elapsedMs": 1302452,
+      "rss": 284762112,
+      "heap": 26695664,
+      "applicationQueueBytes": 28672,
+      "transportQueueBytes": 24606,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 21,
       "coverFaults": 21
     },
     {
-      "elapsedMs": 1360130,
-      "rss": 283545600,
-      "heap": 36102024,
-      "applicationQueueBytes": 40960,
+      "elapsedMs": 1361514,
+      "rss": 287301632,
+      "heap": 29584096,
+      "applicationQueueBytes": 8192,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -355,10 +355,10 @@
       "coverFaults": 22
     },
     {
-      "elapsedMs": 1419172,
-      "rss": 279269376,
-      "heap": 24983696,
-      "applicationQueueBytes": 28672,
+      "elapsedMs": 1420550,
+      "rss": 286965760,
+      "heap": 24828792,
+      "applicationQueueBytes": 8192,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -366,10 +366,10 @@
       "coverFaults": 23
     },
     {
-      "elapsedMs": 1478222,
-      "rss": 282865664,
-      "heap": 29486592,
-      "applicationQueueBytes": 12288,
+      "elapsedMs": 1479623,
+      "rss": 288526336,
+      "heap": 30339992,
+      "applicationQueueBytes": 8192,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -377,10 +377,10 @@
       "coverFaults": 24
     },
     {
-      "elapsedMs": 1537281,
-      "rss": 285433856,
-      "heap": 28843880,
-      "applicationQueueBytes": 8192,
+      "elapsedMs": 1538671,
+      "rss": 287662080,
+      "heap": 24664952,
+      "applicationQueueBytes": 28672,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -388,21 +388,21 @@
       "coverFaults": 25
     },
     {
-      "elapsedMs": 1596324,
-      "rss": 285753344,
-      "heap": 29582296,
-      "applicationQueueBytes": 32768,
-      "transportQueueBytes": 30,
+      "elapsedMs": 1597741,
+      "rss": 289718272,
+      "heap": 31007552,
+      "applicationQueueBytes": 73728,
+      "transportQueueBytes": 41222,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 26,
       "coverFaults": 26
     },
     {
-      "elapsedMs": 1655373,
-      "rss": 287244288,
-      "heap": 32489312,
-      "applicationQueueBytes": 32768,
+      "elapsedMs": 1656919,
+      "rss": 289419264,
+      "heap": 29753560,
+      "applicationQueueBytes": 36864,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -410,10 +410,10 @@
       "coverFaults": 27
     },
     {
-      "elapsedMs": 1714404,
-      "rss": 285171712,
-      "heap": 28623960,
-      "applicationQueueBytes": 16384,
+      "elapsedMs": 1716134,
+      "rss": 289521664,
+      "heap": 29276848,
+      "applicationQueueBytes": 12288,
       "transportQueueBytes": 30,
       "pendingInbound": 0,
       "generations": 36,
@@ -421,11 +421,11 @@
       "coverFaults": 28
     },
     {
-      "elapsedMs": 1773510,
-      "rss": 290537472,
-      "heap": 31843096,
-      "applicationQueueBytes": 40960,
-      "transportQueueBytes": 30,
+      "elapsedMs": 1775163,
+      "rss": 289431552,
+      "heap": 28384848,
+      "applicationQueueBytes": 24576,
+      "transportQueueBytes": 12318,
       "pendingInbound": 0,
       "generations": 36,
       "rotations": 29,
@@ -513,13 +513,13 @@
     "transports/reality/stream.js": "9e13e6eaa5ff09d9f96086f4fc980c6839ea87f5162c2115290eb51ce43b1873",
     "transports/reality/wire.js": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9",
     "transports/vision-tls.js": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0",
-    "transports/xhttp/client.js": "dc12c2f0c5c63023e211dfe4bb2781251774bee8c232b0c645a1a25184d765cd",
+    "transports/xhttp/client.js": "a973fbd67546d75029fee1b866a02756862734536ea7fa3fe38d74c2583bead1",
     "transports/xhttp/common.js": "c90048eabc1a1f1d00f931a23e0ba02be05e0b1e3a0b72c3d92aa0fa64df58a0",
     "transports/xhttp/index.js": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3",
-    "transports/xhttp/server.js": "28bcab905fa7e0a82e86a3375a99a6ad28e9361710a6f5dd3cffefc8c4fe697e",
-    "transports/xhttp/xmux.js": "b15498d7d36fee914e7b4e947e5eb5279d247498b3ad9fff63b819daee89a9e7"
+    "transports/xhttp/server.js": "b7110d869916039abfed131634297d7bb3c04fb18603e24145e75b66f5c9d713",
+    "transports/xhttp/xmux.js": "8d93d8ba6a964da32e91175c6df61e877d9737a4160e3981527cd5b5ddaadd92"
   },
-  "sourceSha256": "0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08",
+  "sourceSha256": "f765dbc3c712e19a79f372858a12e6361ab74ad6192cecc84e47af97e752213f",
   "dependenciesSha256": "7afc4a38b198dd8a26e007c9cea9eccb5516f7e2dc5ccf3ea992e55fc73a86f6",
   "packageSha256": "3754bd4590eadbd73ef3257f60eee3508c5e456e4469fc8bd318581ab2faa49a",
   "harnessSha256": "e637b32f9894342ce284cd817930aecce99eb573f44b0a0fa63553179a9b6c66",
@@ -550,7 +550,7 @@
   "rotationStates": [
     {
       "round": 1,
-      "elapsedMs": 60548,
+      "elapsedMs": 60484,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -559,10 +559,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 7,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -577,10 +577,10 @@
               "generation": 2,
               "retiring": false,
               "inbound": {
-                "accepted": 3,
+                "accepted": 2,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 3,
+                "succeeded": 2,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -1006,7 +1006,7 @@
     },
     {
       "round": 2,
-      "elapsedMs": 121778,
+      "elapsedMs": 121010,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -1015,10 +1015,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -1034,7 +1034,7 @@
               "retiring": false,
               "inbound": {
                 "accepted": 6,
-                "active": 3,
+                "active": 2,
                 "pending": 0,
                 "succeeded": 6,
                 "failed": 0,
@@ -1462,7 +1462,7 @@
     },
     {
       "round": 3,
-      "elapsedMs": 180380,
+      "elapsedMs": 180383,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -1471,10 +1471,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -1489,10 +1489,10 @@
               "generation": 4,
               "retiring": false,
               "inbound": {
-                "accepted": 3,
+                "accepted": 2,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 3,
+                "succeeded": 2,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -1918,7 +1918,7 @@
     },
     {
       "round": 4,
-      "elapsedMs": 240320,
+      "elapsedMs": 240390,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -1927,10 +1927,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -1945,10 +1945,10 @@
               "generation": 5,
               "retiring": false,
               "inbound": {
-                "accepted": 3,
+                "accepted": 2,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 3,
+                "succeeded": 2,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -2374,7 +2374,7 @@
     },
     {
       "round": 5,
-      "elapsedMs": 300417,
+      "elapsedMs": 300553,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -2383,10 +2383,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -2830,7 +2830,7 @@
     },
     {
       "round": 6,
-      "elapsedMs": 360243,
+      "elapsedMs": 360459,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -2839,10 +2839,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -2857,10 +2857,10 @@
               "generation": 7,
               "retiring": false,
               "inbound": {
-                "accepted": 2,
+                "accepted": 5,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 2,
+                "succeeded": 5,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -3286,7 +3286,7 @@
     },
     {
       "round": 7,
-      "elapsedMs": 421358,
+      "elapsedMs": 421565,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -3295,10 +3295,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -3313,10 +3313,10 @@
               "generation": 8,
               "retiring": false,
               "inbound": {
-                "accepted": 7,
+                "accepted": 4,
                 "active": 2,
                 "pending": 0,
-                "succeeded": 7,
+                "succeeded": 4,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -3742,7 +3742,7 @@
     },
     {
       "round": 8,
-      "elapsedMs": 481416,
+      "elapsedMs": 480328,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -3751,10 +3751,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -3769,10 +3769,10 @@
               "generation": 9,
               "retiring": false,
               "inbound": {
-                "accepted": 9,
+                "accepted": 3,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 9,
+                "succeeded": 3,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -4198,7 +4198,7 @@
     },
     {
       "round": 9,
-      "elapsedMs": 540521,
+      "elapsedMs": 540270,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -4207,10 +4207,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -4225,10 +4225,10 @@
               "generation": 10,
               "retiring": false,
               "inbound": {
-                "accepted": 3,
+                "accepted": 2,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 3,
+                "succeeded": 2,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -4654,7 +4654,7 @@
     },
     {
       "round": 10,
-      "elapsedMs": 600178,
+      "elapsedMs": 600378,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -4663,10 +4663,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -5110,7 +5110,7 @@
     },
     {
       "round": 11,
-      "elapsedMs": 660194,
+      "elapsedMs": 660247,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -5119,10 +5119,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -5566,7 +5566,7 @@
     },
     {
       "round": 12,
-      "elapsedMs": 720285,
+      "elapsedMs": 720344,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -5575,10 +5575,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -6022,7 +6022,7 @@
     },
     {
       "round": 13,
-      "elapsedMs": 780172,
+      "elapsedMs": 780378,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -6031,10 +6031,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -6049,10 +6049,10 @@
               "generation": 14,
               "retiring": false,
               "inbound": {
-                "accepted": 2,
+                "accepted": 3,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 2,
+                "succeeded": 3,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -6478,7 +6478,7 @@
     },
     {
       "round": 14,
-      "elapsedMs": 840221,
+      "elapsedMs": 840296,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -6487,10 +6487,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -6934,7 +6934,7 @@
     },
     {
       "round": 15,
-      "elapsedMs": 900286,
+      "elapsedMs": 900388,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -6943,10 +6943,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -7390,7 +7390,7 @@
     },
     {
       "round": 16,
-      "elapsedMs": 960228,
+      "elapsedMs": 960301,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -7399,10 +7399,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -7846,7 +7846,7 @@
     },
     {
       "round": 17,
-      "elapsedMs": 1020212,
+      "elapsedMs": 1020276,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -7855,10 +7855,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -8302,7 +8302,7 @@
     },
     {
       "round": 18,
-      "elapsedMs": 1080259,
+      "elapsedMs": 1080265,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -8311,10 +8311,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -8758,7 +8758,7 @@
     },
     {
       "round": 19,
-      "elapsedMs": 1140174,
+      "elapsedMs": 1140352,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -8767,10 +8767,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -9214,7 +9214,7 @@
     },
     {
       "round": 20,
-      "elapsedMs": 1200252,
+      "elapsedMs": 1200214,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -9223,10 +9223,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -9670,7 +9670,7 @@
     },
     {
       "round": 21,
-      "elapsedMs": 1260152,
+      "elapsedMs": 1260407,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -9679,10 +9679,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -10126,7 +10126,7 @@
     },
     {
       "round": 22,
-      "elapsedMs": 1320150,
+      "elapsedMs": 1320319,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -10135,10 +10135,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -10582,7 +10582,7 @@
     },
     {
       "round": 23,
-      "elapsedMs": 1380221,
+      "elapsedMs": 1380314,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -10591,10 +10591,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -11038,7 +11038,7 @@
     },
     {
       "round": 24,
-      "elapsedMs": 1440170,
+      "elapsedMs": 1440289,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -11047,10 +11047,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -11494,7 +11494,7 @@
     },
     {
       "round": 25,
-      "elapsedMs": 1500194,
+      "elapsedMs": 1500239,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -11503,10 +11503,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -11950,7 +11950,7 @@
     },
     {
       "round": 26,
-      "elapsedMs": 1560194,
+      "elapsedMs": 1560383,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -11959,10 +11959,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -12406,7 +12406,7 @@
     },
     {
       "round": 27,
-      "elapsedMs": 1620154,
+      "elapsedMs": 1620508,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -12415,10 +12415,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -12433,10 +12433,10 @@
               "generation": 28,
               "retiring": false,
               "inbound": {
-                "accepted": 2,
+                "accepted": 3,
                 "active": 1,
                 "pending": 0,
-                "succeeded": 2,
+                "succeeded": 3,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -12583,10 +12583,10 @@
               "generation": 28,
               "retiring": false,
               "inbound": {
-                "accepted": 1,
-                "active": 1,
+                "accepted": 2,
+                "active": 2,
                 "pending": 0,
-                "succeeded": 1,
+                "succeeded": 2,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -12862,7 +12862,7 @@
     },
     {
       "round": 28,
-      "elapsedMs": 1680298,
+      "elapsedMs": 1680216,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -12871,10 +12871,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -13318,7 +13318,7 @@
     },
     {
       "round": 29,
-      "elapsedMs": 1740258,
+      "elapsedMs": 1740207,
       "profiles": [
         {
           "name": "xhttp-1.1-packet-up",
@@ -13327,10 +13327,10 @@
               "generation": 1,
               "retiring": true,
               "inbound": {
-                "accepted": 54,
+                "accepted": 119,
                 "active": 5,
                 "pending": 0,
-                "succeeded": 54,
+                "succeeded": 119,
                 "failed": 0,
                 "rejected": 0,
                 "cancelled": 0,
@@ -13773,8 +13773,8 @@
       ]
     }
   ],
-  "elapsedMs": 1800270,
-  "configSha256": "da22429a885227efd454819530e209ba262efa83e3d97bceaf16af4514feef62",
+  "elapsedMs": 1800311,
+  "configSha256": "5ccb487a55ddaf3ad0a9bd12cdef500472f5a19b3b31c1e5df0609ac23483257",
   "finalMetrics": [
     {
       "name": "xhttp-1.1-packet-up",
@@ -13786,8 +13786,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 244817955,
-            "bytesWritten": 244817955,
+            "bytesRead": 244351011,
+            "bytesWritten": 244351011,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -13797,15 +13797,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 44.26190100000002,
-                "minMs": 2.497022999999899,
-                "maxMs": 30.201862000000006
+                "totalMs": 42.25098500000007,
+                "minMs": 1.604943999999989,
+                "maxMs": 32.48315500000001
               },
               "dial": {
                 "count": 5,
-                "totalMs": 139.91356199999984,
-                "minMs": 14.265246999999988,
-                "maxMs": 48.478684999999984
+                "totalMs": 91.56010000000003,
+                "minMs": 9.001605999999981,
+                "maxMs": 48.610851000000025
               }
             },
             "reverseEvents": {},
@@ -13839,9 +13839,9 @@
               "active": 5,
               "sockets": 7,
               "pending": 0,
-              "created": 80,
-              "retired": 79,
-              "requests": 59785,
+              "created": 79,
+              "retired": 78,
+              "requests": 59671,
               "pings": 0,
               "failures": 0
             },
@@ -13877,15 +13877,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 9.80413500010036,
-                "minMs": 9.80413500010036,
-                "maxMs": 9.80413500010036
+                "totalMs": 7.4690119998995215,
+                "minMs": 7.4690119998995215,
+                "maxMs": 7.4690119998995215
               },
               "dial": {
                 "count": 1,
-                "totalMs": 18.18778200005181,
-                "minMs": 18.18778200005181,
-                "maxMs": 18.18778200005181
+                "totalMs": 13.331101999850944,
+                "minMs": 13.331101999850944,
+                "maxMs": 13.331101999850944
               }
             },
             "reverseEvents": {},
@@ -13948,8 +13948,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 244817955,
-            "bytesWritten": 244817955,
+            "bytesRead": 244351011,
+            "bytesWritten": 244351011,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -13959,23 +13959,23 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 22.251485000000002,
-                "minMs": 2.20030399999996,
-                "maxMs": 7.763087000000041
+                "totalMs": 17.44671499999987,
+                "minMs": 1.5734079999999722,
+                "maxMs": 7.706957999999986
               },
               "dial": {
                 "count": 5,
-                "totalMs": 23.16685599999994,
-                "minMs": 2.4118799999999965,
-                "maxMs": 7.893145000000004
+                "totalMs": 18.337431000000038,
+                "minMs": 1.6877230000000054,
+                "maxMs": 7.87967100000003
               }
             },
             "reverseEvents": {},
             "inbound": {
-              "accepted": 54,
+              "accepted": 119,
               "active": 5,
               "pending": 0,
-              "succeeded": 54,
+              "succeeded": 119,
               "failed": 0,
               "rejected": 0,
               "cancelled": 0,
@@ -14039,23 +14039,23 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.8928389998618513,
-                "minMs": 0.8928389998618513,
-                "maxMs": 0.8928389998618513
+                "totalMs": 0.6449180000927299,
+                "minMs": 0.6449180000927299,
+                "maxMs": 0.6449180000927299
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.9811810001265258,
-                "minMs": 0.9811810001265258,
-                "maxMs": 0.9811810001265258
+                "totalMs": 0.729388999985531,
+                "minMs": 0.729388999985531,
+                "maxMs": 0.729388999985531
               }
             },
             "reverseEvents": {},
             "inbound": {
-              "accepted": 62,
+              "accepted": 12,
               "active": 2,
               "pending": 0,
-              "succeeded": 62,
+              "succeeded": 12,
               "failed": 0,
               "rejected": 0,
               "cancelled": 0,
@@ -14113,8 +14113,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 279224355,
-            "bytesWritten": 279224355,
+            "bytesRead": 278528035,
+            "bytesWritten": 278528035,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14124,15 +14124,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 80.52230100000008,
-                "minMs": 11.93446700000004,
-                "maxMs": 21.87771399999997
+                "totalMs": 72.28439100000003,
+                "minMs": 10.194316000000015,
+                "maxMs": 22.41957100000002
               },
               "dial": {
                 "count": 5,
-                "totalMs": 92.18269799999996,
-                "minMs": 14.043338999999946,
-                "maxMs": 24.185337000000004
+                "totalMs": 80.42242499999998,
+                "minMs": 10.547815999999955,
+                "maxMs": 24.401294000000007
               }
             },
             "reverseEvents": {},
@@ -14204,15 +14204,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 12.330643000081182,
-                "minMs": 12.330643000081182,
-                "maxMs": 12.330643000081182
+                "totalMs": 12.060617000097409,
+                "minMs": 12.060617000097409,
+                "maxMs": 12.060617000097409
               },
               "dial": {
                 "count": 1,
-                "totalMs": 20.79919599997811,
-                "minMs": 20.79919599997811,
-                "maxMs": 20.79919599997811
+                "totalMs": 15.083940000040457,
+                "minMs": 15.083940000040457,
+                "maxMs": 15.083940000040457
               }
             },
             "reverseEvents": {},
@@ -14275,8 +14275,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 279224355,
-            "bytesWritten": 279224355,
+            "bytesRead": 278528035,
+            "bytesWritten": 278528035,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14286,15 +14286,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 16.15199800000005,
-                "minMs": 2.2378230000000485,
-                "maxMs": 4.434259999999995
+                "totalMs": 11.981485999999961,
+                "minMs": 1.24708899999996,
+                "maxMs": 2.961742999999956
               },
               "dial": {
                 "count": 5,
-                "totalMs": 16.755324999999857,
-                "minMs": 2.3565060000000813,
-                "maxMs": 4.565011999999911
+                "totalMs": 12.629539999999963,
+                "minMs": 1.354362999999978,
+                "maxMs": 3.0891240000000266
               }
             },
             "reverseEvents": {},
@@ -14366,15 +14366,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 11.166376000037417,
-                "minMs": 11.166376000037417,
-                "maxMs": 11.166376000037417
+                "totalMs": 2.2128779999911785,
+                "minMs": 2.2128779999911785,
+                "maxMs": 2.2128779999911785
               },
               "dial": {
                 "count": 1,
-                "totalMs": 11.246762000024319,
-                "minMs": 11.246762000024319,
-                "maxMs": 11.246762000024319
+                "totalMs": 2.2680010001640767,
+                "minMs": 2.2680010001640767,
+                "maxMs": 2.2680010001640767
               }
             },
             "reverseEvents": {},
@@ -14440,8 +14440,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 245764131,
-            "bytesWritten": 245764131,
+            "bytesRead": 245248035,
+            "bytesWritten": 245248035,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14451,15 +14451,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 48.16983300000015,
-                "minMs": 7.6736980000000585,
-                "maxMs": 11.068364000000088
+                "totalMs": 38.01757300000003,
+                "minMs": 6.259025000000065,
+                "maxMs": 8.767333000000008
               },
               "dial": {
                 "count": 5,
-                "totalMs": 50.18755999999996,
-                "minMs": 7.900541999999973,
-                "maxMs": 11.534627
+                "totalMs": 39.65481099999988,
+                "minMs": 6.537482999999952,
+                "maxMs": 9.05309299999999
               }
             },
             "reverseEvents": {},
@@ -14531,15 +14531,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 15.235871999990195,
-                "minMs": 15.235871999990195,
-                "maxMs": 15.235871999990195
+                "totalMs": 7.536779999965802,
+                "minMs": 7.536779999965802,
+                "maxMs": 7.536779999965802
               },
               "dial": {
                 "count": 1,
-                "totalMs": 15.466682000085711,
-                "minMs": 15.466682000085711,
-                "maxMs": 15.466682000085711
+                "totalMs": 8.010770000051707,
+                "minMs": 8.010770000051707,
+                "maxMs": 8.010770000051707
               }
             },
             "reverseEvents": {},
@@ -14602,8 +14602,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 245764131,
-            "bytesWritten": 245764131,
+            "bytesRead": 245248035,
+            "bytesWritten": 245248035,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14613,15 +14613,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 9.286347999999975,
-                "minMs": 1.5543910000000096,
-                "maxMs": 2.31885299999999
+                "totalMs": 11.614629000000036,
+                "minMs": 1.6960970000000088,
+                "maxMs": 4.0496839999999565
               },
               "dial": {
                 "count": 5,
-                "totalMs": 9.706531000000155,
-                "minMs": 1.6222280000000637,
-                "maxMs": 2.3952350000000706
+                "totalMs": 12.05913499999997,
+                "minMs": 1.778744999999958,
+                "maxMs": 4.13604399999997
               }
             },
             "reverseEvents": {},
@@ -14695,15 +14695,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.34423799999058247,
-                "minMs": 0.34423799999058247,
-                "maxMs": 0.34423799999058247
+                "totalMs": 1.0365379999857396,
+                "minMs": 1.0365379999857396,
+                "maxMs": 1.0365379999857396
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.40770499990321696,
-                "minMs": 0.40770499990321696,
-                "maxMs": 0.40770499990321696
+                "totalMs": 1.082139000063762,
+                "minMs": 1.082139000063762,
+                "maxMs": 1.082139000063762
               }
             },
             "reverseEvents": {},
@@ -14769,8 +14769,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 274489379,
-            "bytesWritten": 274489379,
+            "bytesRead": 272969763,
+            "bytesWritten": 272969763,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14780,15 +14780,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 23.348082999999974,
-                "minMs": 1.250840999999923,
-                "maxMs": 17.255296000000044
+                "totalMs": 27.34231099999988,
+                "minMs": 1.758420000000001,
+                "maxMs": 19.900303999999892
               },
               "dial": {
                 "count": 5,
-                "totalMs": 34.88719999999978,
-                "minMs": 3.386855999999966,
-                "maxMs": 20.94255899999996
+                "totalMs": 42.316445000000044,
+                "minMs": 4.240368000000103,
+                "maxMs": 25.007213999999976
               }
             },
             "reverseEvents": {},
@@ -14822,9 +14822,9 @@
               "active": 5,
               "sockets": 2,
               "pending": 0,
-              "created": 90,
-              "retired": 89,
-              "requests": 67029,
+              "created": 89,
+              "retired": 88,
+              "requests": 66658,
               "pings": 0,
               "failures": 0
             },
@@ -14860,15 +14860,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 16.87626799987629,
-                "minMs": 16.87626799987629,
-                "maxMs": 16.87626799987629
+                "totalMs": 13.626985999988392,
+                "minMs": 13.626985999988392,
+                "maxMs": 13.626985999988392
               },
               "dial": {
                 "count": 1,
-                "totalMs": 18.294162000063807,
-                "minMs": 18.294162000063807,
-                "maxMs": 18.294162000063807
+                "totalMs": 14.951934000011533,
+                "minMs": 14.951934000011533,
+                "maxMs": 14.951934000011533
               }
             },
             "reverseEvents": {},
@@ -14931,8 +14931,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 274489379,
-            "bytesWritten": 274489379,
+            "bytesRead": 272969763,
+            "bytesWritten": 272969763,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -14942,15 +14942,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 9.765239999999949,
-                "minMs": 0.5865420000000086,
-                "maxMs": 4.8103589999999485
+                "totalMs": 12.72687099999996,
+                "minMs": 0.7902669999999716,
+                "maxMs": 6.90458799999999
               },
               "dial": {
                 "count": 5,
-                "totalMs": 10.200021000000106,
-                "minMs": 0.6692530000000261,
-                "maxMs": 4.886088000000086
+                "totalMs": 13.298659000000043,
+                "minMs": 0.9111380000000509,
+                "maxMs": 7.014864999999986
               }
             },
             "reverseEvents": {},
@@ -15022,15 +15022,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.7768670001532882,
-                "minMs": 0.7768670001532882,
-                "maxMs": 0.7768670001532882
+                "totalMs": 0.7823880000505596,
+                "minMs": 0.7823880000505596,
+                "maxMs": 0.7823880000505596
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.8447710000909865,
-                "minMs": 0.8447710000909865,
-                "maxMs": 0.8447710000909865
+                "totalMs": 0.8507940000854433,
+                "minMs": 0.8507940000854433,
+                "maxMs": 0.8507940000854433
               }
             },
             "reverseEvents": {},
@@ -15096,8 +15096,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 242524195,
-            "bytesWritten": 242524195,
+            "bytesRead": 241500195,
+            "bytesWritten": 241500195,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -15107,15 +15107,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 17.045438999999874,
-                "minMs": 1.2946050000000469,
-                "maxMs": 7.35297300000002
+                "totalMs": 16.736086999999998,
+                "minMs": 1.785906999999952,
+                "maxMs": 9.13808199999994
               },
               "dial": {
                 "count": 5,
-                "totalMs": 19.24890700000003,
-                "minMs": 1.6698900000000094,
-                "maxMs": 7.760759000000007
+                "totalMs": 19.48703999999998,
+                "minMs": 2.3900829999998905,
+                "maxMs": 9.594507000000021
               }
             },
             "reverseEvents": {},
@@ -15187,15 +15187,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 17.954114999854937,
-                "minMs": 17.954114999854937,
-                "maxMs": 17.954114999854937
+                "totalMs": 13.33760099997744,
+                "minMs": 13.33760099997744,
+                "maxMs": 13.33760099997744
               },
               "dial": {
                 "count": 1,
-                "totalMs": 18.461100000189617,
-                "minMs": 18.461100000189617,
-                "maxMs": 18.461100000189617
+                "totalMs": 14.263035000069067,
+                "minMs": 14.263035000069067,
+                "maxMs": 14.263035000069067
               }
             },
             "reverseEvents": {},
@@ -15258,8 +15258,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 242524195,
-            "bytesWritten": 242524195,
+            "bytesRead": 241500195,
+            "bytesWritten": 241500195,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -15269,15 +15269,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 9.538225000000125,
-                "minMs": 0.9044780000000401,
-                "maxMs": 4.883374000000003
+                "totalMs": 7.106811999999991,
+                "minMs": 1.239851999999928,
+                "maxMs": 1.6546240000000125
               },
               "dial": {
                 "count": 5,
-                "totalMs": 9.869316000000026,
-                "minMs": 0.9521740000000136,
-                "maxMs": 4.9375290000000405
+                "totalMs": 7.537611999999967,
+                "minMs": 1.3765249999999014,
+                "maxMs": 1.7162369999999783
               }
             },
             "reverseEvents": {},
@@ -15349,15 +15349,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.9558370001614094,
-                "minMs": 0.9558370001614094,
-                "maxMs": 0.9558370001614094
+                "totalMs": 0.6255489999894053,
+                "minMs": 0.6255489999894053,
+                "maxMs": 0.6255489999894053
               },
               "dial": {
                 "count": 1,
-                "totalMs": 1.0261859998572618,
-                "minMs": 1.0261859998572618,
-                "maxMs": 1.0261859998572618
+                "totalMs": 0.6856730000581592,
+                "minMs": 0.6856730000581592,
+                "maxMs": 0.6856730000581592
               }
             },
             "reverseEvents": {},
@@ -15423,8 +15423,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 275021859,
-            "bytesWritten": 275021859,
+            "bytesRead": 273715235,
+            "bytesWritten": 273715235,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -15434,15 +15434,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 15.916306999999847,
-                "minMs": 1.1465289999999868,
-                "maxMs": 10.211018999999965
+                "totalMs": 14.23551000000009,
+                "minMs": 1.4638869999999997,
+                "maxMs": 7.787553000000003
               },
               "dial": {
                 "count": 5,
-                "totalMs": 18.08054400000003,
-                "minMs": 1.5189289999999573,
-                "maxMs": 10.626157000000035
+                "totalMs": 16.28612899999996,
+                "minMs": 1.903413999999998,
+                "maxMs": 8.280014999999935
               }
             },
             "reverseEvents": {},
@@ -15514,15 +15514,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 6.728144000051543,
-                "minMs": 6.728144000051543,
-                "maxMs": 6.728144000051543
+                "totalMs": 14.000346000073478,
+                "minMs": 14.000346000073478,
+                "maxMs": 14.000346000073478
               },
               "dial": {
                 "count": 1,
-                "totalMs": 6.9546350000891834,
-                "minMs": 6.9546350000891834,
-                "maxMs": 6.9546350000891834
+                "totalMs": 14.192046000156552,
+                "minMs": 14.192046000156552,
+                "maxMs": 14.192046000156552
               }
             },
             "reverseEvents": {},
@@ -15585,8 +15585,8 @@
             "dials": 5,
             "succeeded": 5,
             "failed": 0,
-            "bytesRead": 275021859,
-            "bytesWritten": 275021859,
+            "bytesRead": 273715235,
+            "bytesWritten": 273715235,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -15596,15 +15596,15 @@
             "timings": {
               "transport": {
                 "count": 5,
-                "totalMs": 7.614312000000041,
-                "minMs": 0.7583210000000236,
-                "maxMs": 3.972095000000081
+                "totalMs": 11.95372400000008,
+                "minMs": 0.9181219999999257,
+                "maxMs": 8.08552700000007
               },
               "dial": {
                 "count": 5,
-                "totalMs": 8.008940000000052,
-                "minMs": 0.8236769999999751,
-                "maxMs": 4.055335000000014
+                "totalMs": 12.40660899999989,
+                "minMs": 0.9859519999999975,
+                "maxMs": 8.20511799999997
               }
             },
             "reverseEvents": {},
@@ -15678,15 +15678,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.2830240000039339,
-                "minMs": 0.2830240000039339,
-                "maxMs": 0.2830240000039339
+                "totalMs": 0.41839600005187094,
+                "minMs": 0.41839600005187094,
+                "maxMs": 0.41839600005187094
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.3390500000678003,
-                "minMs": 0.3390500000678003,
-                "maxMs": 0.3390500000678003
+                "totalMs": 0.4719670000486076,
+                "minMs": 0.4719670000486076,
+                "maxMs": 0.4719670000486076
               }
             },
             "reverseEvents": {},
@@ -15752,8 +15752,8 @@
             "dials": 30,
             "succeeded": 30,
             "failed": 0,
-            "bytesRead": 1582294621,
-            "bytesWritten": 1582258586,
+            "bytesRead": 1578653056,
+            "bytesWritten": 1578617021,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 30,
@@ -15763,15 +15763,15 @@
             "timings": {
               "transport": {
                 "count": 30,
-                "totalMs": 305.85107900000037,
-                "minMs": 4.826346000000058,
-                "maxMs": 50.26562600000011
+                "totalMs": 224.27481600000056,
+                "minMs": 5.094947999999931,
+                "maxMs": 17.75179300000002
               },
               "dial": {
                 "count": 30,
-                "totalMs": 394.88795300000004,
-                "minMs": 6.172870000000103,
-                "maxMs": 78.83577600000012
+                "totalMs": 286.80209099999956,
+                "minMs": 6.175152999999909,
+                "maxMs": 21.532410000000027
               }
             },
             "reverseEvents": {},
@@ -15843,15 +15843,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 6.391571000218391,
-                "minMs": 6.391571000218391,
-                "maxMs": 6.391571000218391
+                "totalMs": 9.369872000068426,
+                "minMs": 9.369872000068426,
+                "maxMs": 9.369872000068426
               },
               "dial": {
                 "count": 1,
-                "totalMs": 7.888487000018358,
-                "minMs": 7.888487000018358,
-                "maxMs": 7.888487000018358
+                "totalMs": 11.42701099999249,
+                "minMs": 11.42701099999249,
+                "maxMs": 11.42701099999249
               }
             },
             "reverseEvents": {},
@@ -15914,8 +15914,8 @@
             "dials": 30,
             "succeeded": 30,
             "failed": 0,
-            "bytesRead": 1582294621,
-            "bytesWritten": 1582258586,
+            "bytesRead": 1578653056,
+            "bytesWritten": 1578617021,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 30,
@@ -15925,15 +15925,15 @@
             "timings": {
               "transport": {
                 "count": 30,
-                "totalMs": 64.04046599999947,
-                "minMs": 0.4785349999999653,
-                "maxMs": 27.702733999999964
+                "totalMs": 32.54714700000022,
+                "minMs": 0.5865769999999202,
+                "maxMs": 3.2930390000000216
               },
               "dial": {
                 "count": 30,
-                "totalMs": 67.87085200000013,
-                "minMs": 0.5508820000000014,
-                "maxMs": 27.93063200000006
+                "totalMs": 36.16424899999993,
+                "minMs": 0.6784440000000131,
+                "maxMs": 3.4368449999999484
               }
             },
             "reverseEvents": {},
@@ -16005,15 +16005,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.7378940000198781,
-                "minMs": 0.7378940000198781,
-                "maxMs": 0.7378940000198781
+                "totalMs": 1.4852089998312294,
+                "minMs": 1.4852089998312294,
+                "maxMs": 1.4852089998312294
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.7969140000641346,
-                "minMs": 0.7969140000641346,
-                "maxMs": 0.7969140000641346
+                "totalMs": 1.539193999953568,
+                "minMs": 1.539193999953568,
+                "maxMs": 1.539193999953568
               }
             },
             "reverseEvents": {},
@@ -16079,8 +16079,8 @@
             "dials": 31,
             "succeeded": 30,
             "failed": 1,
-            "bytesRead": 1582299017,
-            "bytesWritten": 1582262982,
+            "bytesRead": 1578768556,
+            "bytesWritten": 1578732521,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 30,
@@ -16092,15 +16092,15 @@
             "timings": {
               "transport": {
                 "count": 31,
-                "totalMs": 675.0191820000009,
-                "minMs": 8.174843000000692,
-                "maxMs": 86.38493400000016
+                "totalMs": 398.1323280000047,
+                "minMs": 8.785067000004346,
+                "maxMs": 23.54107699999986
               },
               "dial": {
                 "count": 31,
-                "totalMs": 702.8414529999948,
-                "minMs": 8.591350999995484,
-                "maxMs": 86.6807429999999
+                "totalMs": 411.2463600000001,
+                "minMs": 9.08388500000001,
+                "maxMs": 24.223883999999998
               }
             },
             "reverseEvents": {},
@@ -16172,15 +16172,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 18.884348000166938,
-                "minMs": 18.884348000166938,
-                "maxMs": 18.884348000166938
+                "totalMs": 10.61689699999988,
+                "minMs": 10.61689699999988,
+                "maxMs": 10.61689699999988
               },
               "dial": {
                 "count": 1,
-                "totalMs": 19.222471000161022,
-                "minMs": 19.222471000161022,
-                "maxMs": 19.222471000161022
+                "totalMs": 10.866060000145808,
+                "minMs": 10.866060000145808,
+                "maxMs": 10.866060000145808
               }
             },
             "reverseEvents": {},
@@ -16243,8 +16243,8 @@
             "dials": 30,
             "succeeded": 30,
             "failed": 0,
-            "bytesRead": 1582299017,
-            "bytesWritten": 1582262982,
+            "bytesRead": 1578768556,
+            "bytesWritten": 1578732521,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 30,
@@ -16256,15 +16256,15 @@
             "timings": {
               "transport": {
                 "count": 30,
-                "totalMs": 129.7144040000005,
-                "minMs": 0.5523250000001099,
-                "maxMs": 57.91187400000035
+                "totalMs": 38.455873999999994,
+                "minMs": 0.6334039999999277,
+                "maxMs": 6.593850999999859
               },
               "dial": {
                 "count": 30,
-                "totalMs": 133.78711700000008,
-                "minMs": 0.6064269999999397,
-                "maxMs": 58.00400400000035
+                "totalMs": 41.49400300000025,
+                "minMs": 0.6988929999999982,
+                "maxMs": 6.812421000000086
               }
             },
             "reverseEvents": {},
@@ -16336,15 +16336,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 7.545445999829099,
-                "minMs": 7.545445999829099,
-                "maxMs": 7.545445999829099
+                "totalMs": 2.685457000043243,
+                "minMs": 2.685457000043243,
+                "maxMs": 2.685457000043243
               },
               "dial": {
                 "count": 1,
-                "totalMs": 7.649344000034034,
-                "minMs": 7.649344000034034,
-                "maxMs": 7.649344000034034
+                "totalMs": 2.7420950001105666,
+                "minMs": 2.7420950001105666,
+                "maxMs": 2.7420950001105666
               }
             },
             "reverseEvents": {},
@@ -16410,8 +16410,8 @@
             "dials": 10,
             "succeeded": 10,
             "failed": 0,
-            "bytesRead": 525131846,
-            "bytesWritten": 525131846,
+            "bytesRead": 524001350,
+            "bytesWritten": 524001350,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -16421,15 +16421,15 @@
             "timings": {
               "transport": {
                 "count": 10,
-                "totalMs": 144.8583080000003,
-                "minMs": 10.40380499999992,
-                "maxMs": 21.720510000000104
+                "totalMs": 139.35451100000046,
+                "minMs": 11.620281000000205,
+                "maxMs": 17.565552000000025
               },
               "dial": {
                 "count": 10,
-                "totalMs": 148.23558999999977,
-                "minMs": 10.629582000000028,
-                "maxMs": 22.210041999999703
+                "totalMs": 143.1642999999999,
+                "minMs": 11.942223000000013,
+                "maxMs": 17.96580700000004
               }
             },
             "reverseEvents": {},
@@ -16501,15 +16501,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 13.984455999918282,
-                "minMs": 13.984455999918282,
-                "maxMs": 13.984455999918282
+                "totalMs": 19.192586000077426,
+                "minMs": 19.192586000077426,
+                "maxMs": 19.192586000077426
               },
               "dial": {
                 "count": 1,
-                "totalMs": 14.193250000011176,
-                "minMs": 14.193250000011176,
-                "maxMs": 14.193250000011176
+                "totalMs": 19.395344000076875,
+                "minMs": 19.395344000076875,
+                "maxMs": 19.395344000076875
               }
             },
             "reverseEvents": {},
@@ -16572,8 +16572,8 @@
             "dials": 10,
             "succeeded": 10,
             "failed": 0,
-            "bytesRead": 525131846,
-            "bytesWritten": 525131846,
+            "bytesRead": 524001350,
+            "bytesWritten": 524001350,
             "datagramsRead": 0,
             "datagramsWritten": 0,
             "visionSessions": 0,
@@ -16583,15 +16583,15 @@
             "timings": {
               "transport": {
                 "count": 10,
-                "totalMs": 54.92352800000117,
-                "minMs": 1.3907360000002882,
-                "maxMs": 34.255281999999625
+                "totalMs": 51.604209999999966,
+                "minMs": 1.6932469999999284,
+                "maxMs": 31.858749999999873
               },
               "dial": {
                 "count": 10,
-                "totalMs": 55.71295600000076,
-                "minMs": 1.4357500000000982,
-                "maxMs": 34.347557999999935
+                "totalMs": 52.49717600000031,
+                "minMs": 1.758354000000054,
+                "maxMs": 31.95330200000012
               }
             },
             "reverseEvents": {},
@@ -16665,15 +16665,15 @@
             "timings": {
               "transport": {
                 "count": 1,
-                "totalMs": 0.8574069999158382,
-                "minMs": 0.8574069999158382,
-                "maxMs": 0.8574069999158382
+                "totalMs": 2.680477000074461,
+                "minMs": 2.680477000074461,
+                "maxMs": 2.680477000074461
               },
               "dial": {
                 "count": 1,
-                "totalMs": 0.9112090000417084,
-                "minMs": 0.9112090000417084,
-                "maxMs": 0.9112090000417084
+                "totalMs": 2.7739550000987947,
+                "minMs": 2.7739550000987947,
+                "maxMs": 2.7739550000987947
               }
             },
             "reverseEvents": {},
@@ -16894,5 +16894,5 @@
       "reverse": []
     }
   ],
-  "finished": "2026-10-15T19:26:33.555Z"
+  "finished": "2026-10-15T20:39:48.542Z"
 }

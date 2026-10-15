@@ -43,7 +43,7 @@ hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为
 
 专项命令：`node --test --test-concurrency=1 test/policy-compat.test.js test/dns-compat.test.js`；固定对照：`node --test --test-concurrency=1 test/interop/policy-compat.test.js`。完整验收使用全量 CI 和 `npm run test:stability:policy`，后者 100 个持续 TCP 业务会话、另 4 个持续 UDP 会话、30 分钟、DNS/缓存/超时回退、每分钟凭据轮换和新连接，并记录源码/依赖/脚本/配置摘要、延迟、内存、队列及清理结果。短跑不能计作正式验收。P17/P18/P19 长时负载因共享产品变化继续全量重跑。
 
-验收状态：最终产品的三平台 375 项普通/228 项固定内核互通及原生进程门禁已通过，12 项正式长时按修正后源码重跑中。下方旧源码结果保留为历史记录，不计作当前版本完成。
+验收状态：最终源码的三平台全量、固定内核、原生进程门禁及 12 项正式长时全部通过。
 
 中间回归曾在本机和 Linux 固定 Xray 的 TLS HTTP/2 packet-up 路径出现超时。已以真实 HTTP/2 流构造确定性时序：空确认的 EOF 先于异步续体恢复，旧代码只等未来 end 事件导致误超时。修复后接受已完成响应，提前关闭仍失败，所有监听器/计时器统一清理；不更改原有预算。失败运行 38788191414 不作为通过证据。
 
@@ -53,18 +53,18 @@ hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为
 
 新增 [Linux 原生生命周期门禁](https://github.com/maz-1/js2ray/actions/runs/38799630151)：正常测试子进程连续 12 轮，每轮 41 项全部通过并正常退出；另用 Valgrind 执行同 41 项，非法内存访问 0。内存诊断保留普通断言，使用较长诊断预算适应解释执行，常规回归仍为原有 15 秒预算。门禁只上传测试文本和内存报告，不上传可能含环境凭据的原始 core。
 
-## 上一轮历史验收（等待最终源码结果替换）
+## 正式验收结果
 
-P20 全部验收通过：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。
+P20 全部验收通过：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38799630236) 每平台 375 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38799630327)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38799630318)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38799630175) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38799630359) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `f765dbc3c712e19a79f372858a12e6361ab74ad6192cecc84e47af97e752213f`；全量、原生门禁与长时作业的产品源码一致，全量与长时的依赖、包清单及负载脚本逐文件一致。
 
-全量提交：`53859c5a23720b78c048f36da09bce3b2015cc6c`；长时负载提交：`30056fa833a6c3fddcbc8c994d59d734ae4c941b`。两者后续差异仅在测试和文档，已逐文件核对产品及负载脚本。参考内核固定为 V2Ray 5.14.1、Xray 25.3.6，并保留旧 Xray 24.11.5 回归。
+全量与长时负载提交：`e5d580a0b30f9e29d6dacd80177200a17ed72a5b`。参考内核固定为 V2Ray 5.14.1、Xray 25.3.6，保留旧 Xray 24.11.5 回归。原生门禁另通过 12 轮各 41 项正常测试进程和同等断言的 Valgrind 非法访问检查；它不替代长时 RSS/队列门槛。
 
-| 平台    | 路由/DNS                                                                          | 上下行分离                                                                            | XMUX                                                                            | 混合传输                                                                             |
-| ------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Windows | [1800620 ms / 1453394 次](acceptance/p20-policy-stability-win32-2026-10-16.json)  | [1800634 ms / 1101522 次](acceptance/p20-xhttp-split-stability-win32-2026-10-16.json) | [1800592 ms / 1201069 次](acceptance/p20-xmux-stability-win32-2026-10-16.json)  | [1800304 ms / 1145220 次](acceptance/p20-transport-stability-win32-2026-10-16.json)  |
-| Linux   | [1800315 ms / 1773714 次](acceptance/p20-policy-stability-linux-2026-10-16.json)  | [1800620 ms / 1353592 次](acceptance/p20-xhttp-split-stability-linux-2026-10-16.json) | [1800315 ms / 1395939 次](acceptance/p20-xmux-stability-linux-2026-10-16.json)  | [1800262 ms / 1377203 次](acceptance/p20-transport-stability-linux-2026-10-16.json)  |
-| macOS   | [1800946 ms / 1687074 次](acceptance/p20-policy-stability-darwin-2026-10-16.json) | [1801076 ms / 637537 次](acceptance/p20-xhttp-split-stability-darwin-2026-10-16.json) | [1801354 ms / 1261987 次](acceptance/p20-xmux-stability-darwin-2026-10-16.json) | [1800270 ms / 1278484 次](acceptance/p20-transport-stability-darwin-2026-10-16.json) |
+| 平台    | 路由/DNS                                                                          | 上下行分离                                                                             | XMUX                                                                            | 混合传输                                                                             |
+| ------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Windows | [1800271 ms / 1635920 次](acceptance/p20-policy-stability-win32-2026-10-16.json)  | [1800661 ms / 1134757 次](acceptance/p20-xhttp-split-stability-win32-2026-10-16.json)  | [1800831 ms / 1222892 次](acceptance/p20-xmux-stability-win32-2026-10-16.json)  | [1800295 ms / 1184603 次](acceptance/p20-transport-stability-win32-2026-10-16.json)  |
+| Linux   | [1800698 ms / 1767487 次](acceptance/p20-policy-stability-linux-2026-10-16.json)  | [1801007 ms / 1359652 次](acceptance/p20-xhttp-split-stability-linux-2026-10-16.json)  | [1800483 ms / 1395380 次](acceptance/p20-xmux-stability-linux-2026-10-16.json)  | [1800285 ms / 1375888 次](acceptance/p20-transport-stability-linux-2026-10-16.json)  |
+| macOS   | [1800666 ms / 1661973 次](acceptance/p20-policy-stability-darwin-2026-10-16.json) | [1801017 ms / 1180493 次](acceptance/p20-xhttp-split-stability-darwin-2026-10-16.json) | [1800375 ms / 1299925 次](acceptance/p20-xmux-stability-darwin-2026-10-16.json) | [1800311 ms / 1275115 次](acceptance/p20-transport-stability-darwin-2026-10-16.json) |
 
-每项均完成 29 次轮换；P20 DNS 超时回退每平台 116–116 次，UDP 与 DNS 验证计数、内存/队列/延迟、配置/源码/脚本/包清单摘要均在原始记录中。分离负载的代理故障与混合传输的 cover 故障也按各自原有门槛核验。
+每项均完成 29 次轮换；P20 DNS 超时回退每平台 116 次。UDP/DNS 验证计数、内存/队列/延迟、配置/源码/脚本/包清单摘要、代理与 cover 故障恢复及关闭状态均保存在原始记录。
 
-[机器汇总](acceptance/p20-2026-10-16.json) 保存作业、artifact 摘要和逐文件摘要。`scripts/collect-policy-acceptance.js` 从 GitHub 只读收集并核验，`scripts/acceptance-evidence.js` 在 CI 拒绝短时、缺少数据、源码/依赖/包清单/脚本不符或资源未清理的记录。原始 JSON 按字节保存并排除格式化及 Git 换行转换。私有配置只参与本地字段审计，CI 与产品不接触真实凭据；HTTP/3、DoQ 继续暂缓。
+[机器汇总](acceptance/p20-2026-10-16.json) 保存作业、artifact、原生门禁日志摘要和逐文件摘要。`scripts/collect-policy-acceptance.js` 只读收集并校验；`scripts/acceptance-evidence.js` 在 CI 拒绝短时、缺字段、来源不符或资源未清理的记录。JSON 按原始字节保存，排除格式化和 Git 换行转换。私有配置只参与本地字段审计，CI/产品不接触真实凭据；HTTP/3、DoQ 继续暂缓。

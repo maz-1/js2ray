@@ -3,338 +3,338 @@
   "node": "v24.20.0",
   "platform": "darwin",
   "arch": "x64",
-  "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
-  "started": "2026-10-15T18:56:33.137Z",
+  "commit": "e5d580a0b30f9e29d6dacd80177200a17ed72a5b",
+  "started": "2026-10-15T20:09:38.214Z",
   "durationMinutes": 30,
   "formalAcceptance": true,
   "concurrentSessions": 100,
   "rotations": 29,
   "proxyFaults": 0,
-  "churn": 9457,
-  "iterations": 1261987,
-  "bytes": 5168387614,
+  "churn": 9864,
+  "iterations": 1299925,
+  "bytes": 5323781662,
   "peak": {
-    "rss": 274956288,
-    "heap": 46020680,
-    "clients": 39,
-    "sockets": 98,
-    "queueBytes": 770148
+    "rss": 279027712,
+    "heap": 46949688,
+    "clients": 36,
+    "sockets": 96,
+    "queueBytes": 811108
   },
   "latency": {
-    "count": 1261987,
-    "totalMs": 27281349.373850178,
-    "maxMs": 1218.4382600000245
+    "count": 1299925,
+    "totalMs": 23268051.40115262,
+    "maxMs": 910.2526639999996
   },
   "samples": [
     {
       "elapsedMs": 3,
-      "rss": 89808896,
-      "heap": 22052184,
-      "clients": 24,
-      "sockets": 89,
+      "rss": 91332608,
+      "heap": 19398144,
+      "clients": 21,
+      "sockets": 84,
       "queueBytes": 100,
       "rotations": 0,
       "churn": 0
     },
     {
-      "elapsedMs": 59199,
-      "rss": 181030912,
-      "heap": 20402304,
-      "clients": 32,
-      "sockets": 90,
-      "queueBytes": 49252,
+      "elapsedMs": 59083,
+      "rss": 166952960,
+      "heap": 24891032,
+      "clients": 29,
+      "sockets": 86,
+      "queueBytes": 28772,
       "rotations": 0,
-      "churn": 288
+      "churn": 312
     },
     {
-      "elapsedMs": 118309,
-      "rss": 187797504,
-      "heap": 31530296,
+      "elapsedMs": 118336,
+      "rss": 185430016,
+      "heap": 30669248,
+      "clients": 29,
+      "sockets": 89,
+      "queueBytes": 36965,
+      "rotations": 1,
+      "churn": 631
+    },
+    {
+      "elapsedMs": 177839,
+      "rss": 191901696,
+      "heap": 37165216,
+      "clients": 30,
+      "sockets": 87,
+      "queueBytes": 69732,
+      "rotations": 2,
+      "churn": 912
+    },
+    {
+      "elapsedMs": 237639,
+      "rss": 196927488,
+      "heap": 27837080,
+      "clients": 30,
+      "sockets": 88,
+      "queueBytes": 147556,
+      "rotations": 3,
+      "churn": 1206
+    },
+    {
+      "elapsedMs": 297136,
+      "rss": 206385152,
+      "heap": 20923416,
+      "clients": 33,
+      "sockets": 93,
+      "queueBytes": 61540,
+      "rotations": 4,
+      "churn": 1506
+    },
+    {
+      "elapsedMs": 356203,
+      "rss": 221396992,
+      "heap": 23920584,
       "clients": 32,
       "sockets": 90,
-      "queueBytes": 86116,
-      "rotations": 1,
-      "churn": 588
-    },
-    {
-      "elapsedMs": 177630,
-      "rss": 203161600,
-      "heap": 30141904,
-      "clients": 35,
-      "sockets": 92,
-      "queueBytes": 168036,
-      "rotations": 2,
-      "churn": 892
-    },
-    {
-      "elapsedMs": 236765,
-      "rss": 203083776,
-      "heap": 28807280,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 221284,
-      "rotations": 3,
-      "churn": 1140
-    },
-    {
-      "elapsedMs": 295930,
-      "rss": 228933632,
-      "heap": 34187632,
-      "clients": 34,
-      "sockets": 90,
-      "queueBytes": 12388,
-      "rotations": 4,
-      "churn": 1416
-    },
-    {
-      "elapsedMs": 355229,
-      "rss": 237252608,
-      "heap": 24606808,
-      "clients": 34,
-      "sockets": 90,
-      "queueBytes": 12388,
+      "queueBytes": 36964,
       "rotations": 5,
-      "churn": 1710
+      "churn": 1830
     },
     {
-      "elapsedMs": 414636,
-      "rss": 246767616,
-      "heap": 31295672,
-      "clients": 33,
-      "sockets": 90,
-      "queueBytes": 32868,
-      "rotations": 6,
-      "churn": 1992
-    },
-    {
-      "elapsedMs": 473852,
-      "rss": 261451776,
-      "heap": 21669912,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 32868,
-      "rotations": 7,
-      "churn": 2304
-    },
-    {
-      "elapsedMs": 533122,
-      "rss": 265773056,
-      "heap": 27018064,
-      "clients": 36,
-      "sockets": 90,
-      "queueBytes": 753764,
-      "rotations": 8,
-      "churn": 2622
-    },
-    {
-      "elapsedMs": 592226,
-      "rss": 266391552,
-      "heap": 26917032,
-      "clients": 31,
-      "sockets": 90,
-      "queueBytes": 118884,
-      "rotations": 9,
-      "churn": 2940
-    },
-    {
-      "elapsedMs": 651266,
-      "rss": 266907648,
-      "heap": 28404688,
-      "clients": 34,
+      "elapsedMs": 415468,
+      "rss": 225845248,
+      "heap": 25388152,
+      "clients": 32,
       "sockets": 90,
       "queueBytes": 41060,
-      "rotations": 10,
-      "churn": 3264
+      "rotations": 6,
+      "churn": 2148
     },
     {
-      "elapsedMs": 710345,
-      "rss": 266805248,
-      "heap": 22108192,
-      "clients": 34,
+      "elapsedMs": 474579,
+      "rss": 243130368,
+      "heap": 31705016,
+      "clients": 32,
+      "sockets": 89,
+      "queueBytes": 41060,
+      "rotations": 7,
+      "churn": 2478
+    },
+    {
+      "elapsedMs": 533646,
+      "rss": 248963072,
+      "heap": 23588568,
+      "clients": 33,
+      "sockets": 91,
+      "queueBytes": 8292,
+      "rotations": 8,
+      "churn": 2796
+    },
+    {
+      "elapsedMs": 592782,
+      "rss": 267825152,
+      "heap": 25671704,
+      "clients": 32,
+      "sockets": 89,
+      "queueBytes": 12388,
+      "rotations": 9,
+      "churn": 3138
+    },
+    {
+      "elapsedMs": 651830,
+      "rss": 268619776,
+      "heap": 28042744,
+      "clients": 31,
+      "sockets": 88,
+      "queueBytes": 4196,
+      "rotations": 10,
+      "churn": 3474
+    },
+    {
+      "elapsedMs": 710925,
+      "rss": 272355328,
+      "heap": 35544496,
+      "clients": 32,
       "sockets": 90,
       "queueBytes": 36964,
       "rotations": 11,
-      "churn": 3582
+      "churn": 3804
     },
     {
-      "elapsedMs": 769383,
-      "rss": 267235328,
-      "heap": 24515896,
-      "clients": 34,
-      "sockets": 90,
-      "queueBytes": 12388,
-      "rotations": 12,
-      "churn": 3906
-    },
-    {
-      "elapsedMs": 828412,
-      "rss": 267067392,
-      "heap": 22727328,
+      "elapsedMs": 769972,
+      "rss": 270979072,
+      "heap": 25388168,
       "clients": 32,
       "sockets": 90,
-      "queueBytes": 32868,
+      "queueBytes": 4196,
+      "rotations": 12,
+      "churn": 4140
+    },
+    {
+      "elapsedMs": 829072,
+      "rss": 272605184,
+      "heap": 34208168,
+      "clients": 29,
+      "sockets": 86,
+      "queueBytes": 100,
       "rotations": 13,
-      "churn": 4230
+      "churn": 4470
     },
     {
-      "elapsedMs": 887460,
-      "rss": 268353536,
-      "heap": 32273784,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 82020,
+      "elapsedMs": 888137,
+      "rss": 272326656,
+      "heap": 22212472,
+      "clients": 31,
+      "sockets": 88,
+      "queueBytes": 94308,
       "rotations": 14,
-      "churn": 4554
+      "churn": 4806
     },
     {
-      "elapsedMs": 946504,
-      "rss": 268255232,
-      "heap": 24509824,
-      "clients": 34,
-      "sockets": 90,
+      "elapsedMs": 947181,
+      "rss": 274853888,
+      "heap": 40557328,
+      "clients": 33,
+      "sockets": 89,
       "queueBytes": 36964,
       "rotations": 15,
-      "churn": 4878
+      "churn": 5136
     },
     {
-      "elapsedMs": 1005543,
-      "rss": 269344768,
-      "heap": 33074544,
-      "clients": 34,
+      "elapsedMs": 1006280,
+      "rss": 274092032,
+      "heap": 34939272,
+      "clients": 33,
       "sockets": 89,
-      "queueBytes": 61540,
+      "queueBytes": 65636,
       "rotations": 16,
-      "churn": 5202
+      "churn": 5472
     },
     {
-      "elapsedMs": 1064599,
-      "rss": 270843904,
-      "heap": 38339680,
-      "clients": 34,
-      "sockets": 91,
-      "queueBytes": 41087,
+      "elapsedMs": 1065559,
+      "rss": 273145856,
+      "heap": 22435336,
+      "clients": 31,
+      "sockets": 88,
+      "queueBytes": 8292,
       "rotations": 17,
-      "churn": 5520
+      "churn": 5790
     },
     {
-      "elapsedMs": 1123670,
-      "rss": 270082048,
-      "heap": 31246080,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 12388,
-      "rotations": 18,
-      "churn": 5844
-    },
-    {
-      "elapsedMs": 1182784,
-      "rss": 270471168,
-      "heap": 35493328,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 4196,
-      "rotations": 19,
-      "churn": 6174
-    },
-    {
-      "elapsedMs": 1241816,
-      "rss": 270495744,
-      "heap": 31073648,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 41060,
-      "rotations": 20,
-      "churn": 6504
-    },
-    {
-      "elapsedMs": 1300896,
-      "rss": 269959168,
-      "heap": 25850608,
-      "clients": 36,
-      "sockets": 93,
+      "elapsedMs": 1124590,
+      "rss": 275230720,
+      "heap": 33894776,
+      "clients": 31,
+      "sockets": 88,
       "queueBytes": 32868,
-      "rotations": 21,
-      "churn": 6834
+      "rotations": 18,
+      "churn": 6120
     },
     {
-      "elapsedMs": 1359930,
-      "rss": 270184448,
-      "heap": 28428160,
-      "clients": 35,
-      "sockets": 91,
-      "queueBytes": 12388,
-      "rotations": 22,
-      "churn": 7170
-    },
-    {
-      "elapsedMs": 1419068,
-      "rss": 271372288,
-      "heap": 35394520,
+      "elapsedMs": 1183636,
+      "rss": 276242432,
+      "heap": 33361408,
       "clients": 32,
       "sockets": 90,
-      "queueBytes": 12388,
-      "rotations": 23,
-      "churn": 7500
+      "queueBytes": 155748,
+      "rotations": 19,
+      "churn": 6445
     },
     {
-      "elapsedMs": 1478113,
-      "rss": 270438400,
-      "heap": 28681256,
-      "clients": 36,
-      "sockets": 93,
-      "queueBytes": 36964,
-      "rotations": 24,
-      "churn": 7824
+      "elapsedMs": 1242717,
+      "rss": 276455424,
+      "heap": 32012168,
+      "clients": 31,
+      "sockets": 90,
+      "queueBytes": 28772,
+      "rotations": 20,
+      "churn": 6768
     },
     {
-      "elapsedMs": 1537153,
-      "rss": 270467072,
-      "heap": 29007696,
-      "clients": 35,
+      "elapsedMs": 1301784,
+      "rss": 275353600,
+      "heap": 24033432,
+      "clients": 31,
+      "sockets": 88,
+      "queueBytes": 8292,
+      "rotations": 21,
+      "churn": 7098
+    },
+    {
+      "elapsedMs": 1360817,
+      "rss": 276054016,
+      "heap": 28282136,
+      "clients": 32,
+      "sockets": 90,
+      "queueBytes": 41060,
+      "rotations": 22,
+      "churn": 7428
+    },
+    {
+      "elapsedMs": 1419853,
+      "rss": 275730432,
+      "heap": 23833168,
+      "clients": 33,
       "sockets": 91,
-      "queueBytes": 100,
-      "rotations": 25,
-      "churn": 8142
+      "queueBytes": 32868,
+      "rotations": 23,
+      "churn": 7758
     },
     {
-      "elapsedMs": 1596213,
-      "rss": 270987264,
-      "heap": 31017120,
+      "elapsedMs": 1478894,
+      "rss": 277491712,
+      "heap": 34208984,
+      "clients": 33,
+      "sockets": 91,
+      "queueBytes": 41060,
+      "rotations": 24,
+      "churn": 8094
+    },
+    {
+      "elapsedMs": 1537954,
+      "rss": 277069824,
+      "heap": 29502368,
       "clients": 33,
       "sockets": 90,
-      "queueBytes": 53348,
-      "rotations": 26,
-      "churn": 8442
+      "queueBytes": 41060,
+      "rotations": 25,
+      "churn": 8430
     },
     {
-      "elapsedMs": 1655328,
-      "rss": 272531456,
-      "heap": 36756248,
-      "clients": 36,
-      "sockets": 93,
+      "elapsedMs": 1597134,
+      "rss": 277356544,
+      "heap": 23548992,
+      "clients": 32,
+      "sockets": 89,
+      "queueBytes": 32868,
+      "rotations": 26,
+      "churn": 8766
+    },
+    {
+      "elapsedMs": 1656172,
+      "rss": 277499904,
+      "heap": 32208608,
+      "clients": 31,
+      "sockets": 90,
       "queueBytes": 41060,
       "rotations": 27,
-      "churn": 8748
+      "churn": 9096
     },
     {
-      "elapsedMs": 1714436,
-      "rss": 271540224,
-      "heap": 31217544,
-      "clients": 35,
-      "sockets": 92,
-      "queueBytes": 45156,
+      "elapsedMs": 1715379,
+      "rss": 277553152,
+      "heap": 30362672,
+      "clients": 33,
+      "sockets": 91,
+      "queueBytes": 32868,
       "rotations": 28,
-      "churn": 9054
+      "churn": 9402
     },
     {
-      "elapsedMs": 1773759,
-      "rss": 272437248,
-      "heap": 27093528,
-      "clients": 35,
-      "sockets": 92,
-      "queueBytes": 41060,
+      "elapsedMs": 1774492,
+      "rss": 277405696,
+      "heap": 32100760,
+      "clients": 32,
+      "sockets": 89,
+      "queueBytes": 36964,
       "rotations": 29,
-      "churn": 9336
+      "churn": 9726
     }
   ],
   "passed": true,
@@ -420,13 +420,13 @@
     "transports/reality/stream.js": "9e13e6eaa5ff09d9f96086f4fc980c6839ea87f5162c2115290eb51ce43b1873",
     "transports/reality/wire.js": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9",
     "transports/vision-tls.js": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0",
-    "transports/xhttp/client.js": "dc12c2f0c5c63023e211dfe4bb2781251774bee8c232b0c645a1a25184d765cd",
+    "transports/xhttp/client.js": "a973fbd67546d75029fee1b866a02756862734536ea7fa3fe38d74c2583bead1",
     "transports/xhttp/common.js": "c90048eabc1a1f1d00f931a23e0ba02be05e0b1e3a0b72c3d92aa0fa64df58a0",
     "transports/xhttp/index.js": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3",
-    "transports/xhttp/server.js": "28bcab905fa7e0a82e86a3375a99a6ad28e9361710a6f5dd3cffefc8c4fe697e",
-    "transports/xhttp/xmux.js": "b15498d7d36fee914e7b4e947e5eb5279d247498b3ad9fff63b819daee89a9e7"
+    "transports/xhttp/server.js": "b7110d869916039abfed131634297d7bb3c04fb18603e24145e75b66f5c9d713",
+    "transports/xhttp/xmux.js": "8d93d8ba6a964da32e91175c6df61e877d9737a4160e3981527cd5b5ddaadd92"
   },
-  "sourceSha256": "0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08",
+  "sourceSha256": "f765dbc3c712e19a79f372858a12e6361ab74ad6192cecc84e47af97e752213f",
   "harnessSha256": "c68409859768c8cb8eff97eb8a42aa7e667e54d021c1bb2ec42faeeeee81883c",
   "profiles": [
     {
@@ -454,15 +454,15 @@
       "count": 16
     }
   ],
-  "elapsedMs": 1801354,
+  "elapsedMs": 1800375,
   "poolCounters": {
-    "created": 17347,
-    "retired": 17195,
-    "requests": 442808,
-    "pings": 698,
+    "created": 17944,
+    "retired": 17787,
+    "requests": 457666,
+    "pings": 325,
     "failures": 0
   },
-  "configSha256": "97f7bd54dc8493e602233e235bb3e8d1fd00c1b6dc4242bf5a7a59cdb78109df",
+  "configSha256": "d68d17927d2242fd66b5ebacc436a5694e8d893aee4575eccbc3cf4ef6437d39",
   "closed": [
     {
       "state": "closed",
@@ -573,5 +573,5 @@
       "reverse": []
     }
   ],
-  "finished": "2026-10-15T19:26:37.241Z"
+  "finished": "2026-10-15T20:39:40.057Z"
 }
