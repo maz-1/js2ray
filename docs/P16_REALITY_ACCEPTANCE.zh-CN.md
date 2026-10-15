@@ -25,6 +25,8 @@ npm run test:interop
 npm run test:package
 ```
 
-三平台 CI 与完整普通/参考互通结果待实际执行后填入，不以本机结果替代。实现边界、目标握手布局约束、固定非 PQ Chrome 120 模板及不支持项见 [API](API.zh-CN.md#realityp16)。
+Windows 2022、Ubuntu 24.04、macOS 15 Intel 的 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38719238453) 全部通过，功能提交为 `0abc16233d50b3b23373fab72bd729253395b449`。每个平台 236/236 普通回归、156/156 参考互通，失败、取消和跳过均为零；语法、类型、格式、配置和实际 tarball 安装均通过。验收时包内共 108 个文件，新增本节机器证据后增加一个文档文件，产品源码与运行依赖不变。
+
+[机器可读证据](acceptance/reality-2026-10-15.json) 从实际完整作业日志提取测试数与包验证结果，保存逐平台作业链接和 77 个产品源码的规范化 Git SHA256；源码汇总为 `56f744db79b6c4866a90098f1b7125c7ba0a63e704454988793b2bbbd2106526`。推送前本地审计覆盖 184 个跟踪文件与 355 个历史 blob，未匹配私有用户 ID、prefix、服务器地址或非标准端口。实现边界、目标握手布局约束、固定非 PQ Chrome 120 模板及不支持项见 [API](API.zh-CN.md#realityp16)。
 
 协议参考：[固定 Xray REALITY 客户端](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/transport/internet/reality/reality.go)、[固定 REALITY 服务端握手](https://github.com/XTLS/REALITY/blob/48f0b2d5ed6d/handshake_server_tls13.go)、[固定 uTLS 模板](https://github.com/refraction-networking/utls/blob/v1.6.7/u_parrots.go)、[TLS 1.3](https://www.rfc-editor.org/rfc/rfc8446.html)、[证书压缩](https://www.rfc-editor.org/rfc/rfc8879.html)。

@@ -120,7 +120,7 @@ path 自动补末尾 `/`，查询串保留。随机 UUID 关联 packet-up/stream
 
 XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。故障、GOAWAY 或运行时关闭终止受影响会话。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
 
-传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、REALITY、完整 XMUX、跨节点 downloadSettings、浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、XHTTP 与 REALITY 的组合、完整 XMUX、跨节点 downloadSettings、XHTTP 浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
 
 ## Vision（P15）
 

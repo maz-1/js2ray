@@ -360,9 +360,11 @@ P15 全部验收通过：功能验收提交 `fd294a63e80abb5808ab31092682523e11f
 - [x] 完整客户端/服务端、目标握手镜像、未认证连接转发、配置/类型/文档与明确限制。
 - [x] 与 Vision 组合，实际双向 Direct、缓冲保序和 XUDP。
 - [x] 固定 Xray 双向互通 21/21（含 4 项原型），普通专项 27/27：认证拒绝、取消/限额、轮换与资源回收；100 并发真实内层 TLS 1.3 双向 Direct。
-- [ ] Windows、Linux、macOS 全量回归、互通、配置/类型/格式及发布包验收。
+- [x] Windows、Linux、macOS 各 236/236 普通回归、156/156 参考互通，配置/类型/格式及发布包验收全部通过，无失败、取消或跳过。
 
 原型通过后继续实现；实际支持边界、命令及验收证据在本节逐项更新。所有凭据、目标和密钥均使用独立合成 fixture，不读取真实节点配置进行 REALITY 试探。
+
+P16 全部验收通过：功能提交 `0abc16233d50b3b23373fab72bd729253395b449` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38719238453)。纯 Node.js 握手原型 4/4、协议与运行时专项 27/27、固定 Xray 25.3.6 对照合计 21/21。100 并发双向 Direct、同端口私钥/short ID/UUID/dest 轮换与回滚、实际安装包的 REALITY + Vision 均通过。77 个产品源码的 Git 规范化 SHA256 汇总为 `56f744db79b6c4866a90098f1b7125c7ba0a63e704454988793b2bbbd2106526`；[验收说明](docs/P16_REALITY_ACCEPTANCE.zh-CN.md) 与 [机器可读证据](docs/acceptance/reality-2026-10-15.json) 保存逐平台作业、测试数和隐私审计。支持原始 TCP、TLS 1.3、固定非 PQ Chrome 120 模板；WS/XHTTP REALITY、PQ、其他任意指纹和 PROXY protocol 明确不支持，详见 API。
 
 ## 13 参考资料
 
