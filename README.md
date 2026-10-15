@@ -1,316 +1,75 @@
-
 # js2ray
 
-A Node.js implementation of the V2Ray VMess protocol (plus other protocols like SOCKS and Freedom). Deployable on cPanel Node.js hosts and dedicated servers.
+An embeddable, pure JavaScript proxy runtime for Node.js 24. Original implementation by [seezaara](https://github.com/seezaara/js2ray), MIT licensed.
 
+This working tree is **4.0.0-dev.0**. It implements the runtime, TCP/TLS/WS/WSS transports, VLESS v0 TCP/traditional UDP, and VMess/SOCKS/Freedom regressions. The complete development plan is still in progress: declarative DNS/routing, Geo resources, Mux.Cool, traditional reverse, public HTTP/Undici adapters and full release acceptance remain pending. Unsupported behavior produces configuration diagnostics.
 
-## Install & Run
-
-Install with:
-
-```bash
-npm i js2ray
-````
-
-Then create a file at `/root/js2ray/index.js`:
+## Direct library use
 
 ```js
-var js2ray = require("js2ray");
-// your config here
-```
+const { createRuntime } = require('js2ray');
 
-Run as a systemd service:
-
-```bash
-systemctl enable js2ray
-systemctl restart js2ray
-```
-
-It will stay alive forever.
-
-
-## Debug Mode
-
-Stop the systemd service:
-
-```bash
-systemctl disable js2ray
-systemctl stop js2ray
-```
-
-Then run manually for debugging:
-
-```bash
-node /root/js2ray/index.js
-```
-
-
-## Setup
-
-### Server-side
-
-```js
-var js2ray = require("js2ray");
-
-var config = {
-    inbounds: [
-        {
-            protocol: "vmess",
-            networks: [
-                {
-                    type: "http", // ws | tcp | http | xhttp
-                    address: "0.0.0.0",
-                    port: 80,
-                    option: {
-                        path: "/ws",
-                        fake: "hello world"
-                    },
-                }
-            ],
-            users: [
-                {
-                    id: "b87cd5bc-71d1-e7c7-e031-24390995a198",
-                    security: "none", // auto | aes-128-gcm | chacha20-poly1305 | none | zero
-                    alterId: 0,
-                }
-            ],
-        },
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "0.0.0.0",
-                    port: 1080
-                }
-            ]
-        }
-    ],
-    debug: function (...e) {
-        // console.log(...e)
-    },
-    storage: __dirname + "/app.json",
+const runtime = createRuntime({
+  inbounds: [],
+  outbounds: [{ tag: 'direct', protocol: 'freedom' }],
+});
+await runtime.start();
+try {
+  const stream = await runtime.dial({ host: 'example.com', port: 80 });
+  stream.write('GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n');
+  for await (const chunk of stream) process.stdout.write(chunk);
+} finally {
+  await runtime.close({ drainTimeoutMs: 5000 });
 }
-
-js2ray.config(config).start();
 ```
 
----
+CommonJS and ESM named imports are supported. Importing or constructing a runtime does not listen, start timers, register process handlers, resume stdin, or install services. With `inbounds: []`, `start()` and `dial()` create no local proxy listener.
 
-### Client / Bridge Side (Tunnel)
+Use the traditional JSON outbound in [examples/vless-wss-client.json](examples/vless-wss-client.json) for VLESS over WSS. Replace the synthetic address, UUID, Host, SNI and path with your own values; the connection address, certificate name, HTTP Host and WebSocket path are independent. Certificate chain and name verification are enabled by default.
 
 ```js
-var js2ray = require("js2ray");
-
-var config = {
-    inbounds: [
-        {
-            protocol: "vmess",
-            networks: [
-                {
-                    type: "http", // ws | tcp | http | xhttp
-                    address: "0.0.0.0",
-                    port: 80,
-                    option: {
-                        path: ["/", "/data"],
-                        fake: "hello world"
-                    },
-                }
-            ],
-            users: [
-                {
-                    id: "b87cd5bc-71d1-e7c7-e031-24390995a155",
-                    security: "none",
-                    alterId: 0,
-                }
-            ],
-        },
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "0.0.0.0",
-                    port: 1080
-                }
-            ]
-        }
-    ],
-    outbounds: [
-        {
-            tag: "outbound",
-            protocol: "vmess",
-            networks: [
-                {
-                    type: "tcp",
-                    address: "server.address",
-                    port: 1234
-                }
-            ],
-            users: [
-                {
-                    id: "b87cd5bc-71d1-e7c7-e031-24390995a198",
-                    security: "none",
-                    alterId: 0,
-                }
-            ],
-        }
-    ],
-    storage: __dirname + "/app.json",
-    debug: function (...e) {
-        // console.log(...e)
-    },
-}
-
-js2ray.config(config).start();
+const runtime = createRuntime({ inbounds: [], outbounds: [yourVlessOutbound] });
+await runtime.start();
+const stream = await runtime.dial({ host: 'example.com', port: 443, outboundTag: 'proxy' });
+// For an HTTPS target, wrap this stream with tls.connect({ socket: stream, ...targetTlsOptions }).
 ```
 
----
-
-### API-Enabled Server
-
-You can leave `users: []` and instead manage them remotely via the `api` field.
+VLESS and Freedom expose UDP separately:
 
 ```js
-var js2ray = require("js2ray");
-var fs = require("fs");
-var os = require("os");
-
-var config = {
-    inbounds: [
-        {
-            protocol: "vmess",
-            networks: [
-                {
-                    type: "http",
-                    address: "0.0.0.0",
-                    port: 80,
-					ip: ["1.1.1.1"] // limit clients ip 
-                    option: {
-                        path: "/ws",
-                        fake: "hello world"
-                    },
-                }
-            ],
-            users: []
-        },
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "0.0.0.0",
-                    port: 1080,
-					ip: ["1.1.1.1"] // limit clients ip 
-                }
-            ]
-        }
-    ],
-    api: {
-        address: "0.0.0.0",
-        port: 2050,
-        post: {
-            task: function () {
-                return JSON.stringify({
-                    rmx: Math.round(os.totalmem() / 1024 / 1024),
-                    ram: Math.round(os.freemem() / 1024 / 1024),
-                    net: 0 // placeholder
-                })
-            },
-            backup: function () {
-                return fs.readFileSync(__dirname + "/app.json", "utf-8");
-            }
-        }
-    },
-    storage: __dirname + "/app.json",
-    debug: function (...e) {
-        // console.log(...e)
-    },
+const session = await runtime.openDatagram({ host: '127.0.0.1', port: 53 });
+await session.send(dnsQueryBuffer);
+for await (const { data, host, port } of session) {
+  // Each item is exactly one datagram from the fixed target.
+  break;
 }
-
-js2ray.config(config).start();
+session.close();
 ```
 
----
+Callers must respect normal stream backpressure. TCP/TLS support half-close; WebSocket `end()` closes both directions after sending queued bytes, as required by WebSocket. Applications requiring a response after write EOF should use TCP/TLS.
 
-## SOCKS Examples
+## CLI and checks
 
-### Minimal SOCKS Proxy with Freedom
-
-```js
-var js2ray = require("js2ray");
-
-var config = {
-    inbounds: [
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "0.0.0.0",
-                    port: 10805,
-                }
-            ]
-        }
-    ],
-    // if outbounds not defined, "freedom" is used by default
-    storage: __dirname + "/app.json",
-}
-
-js2ray.config(config).start();
+```sh
+npm ci --ignore-scripts
+npm test
+npm run check
+npm run check:types
+npm run format:check
+npm run check:config
+npm run test:package
+node cli/index.js check examples/vless-wss-client.json
+node cli/index.js run your-config.json
 ```
 
-### SOCKS-to-SOCKS Tunnel (SOCKS Inbound + SOCKS Outbound)
+`check` validates and prints a redacted report without dialing. The CLI alone owns SIGINT/SIGTERM handling. Package installation has no system-service hooks.
 
-```js
-var js2ray = require("js2ray");
-
-var config = {
-    inbounds: [
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "0.0.0.0",
-                    port: 1080,
-                }
-            ],
-			users: [
-				{
-					user: "u",
-					pass: "p",
-				}
-			],
-        }
-    ],
-    outbounds: [
-        {
-            protocol: "socks",
-            networks: [
-                {
-                    address: "remote.socks.server",
-                    port: 1080,
-                }
-            ],
-			users: [
-				{
-					user: "server-u",
-					pass: "server-p",
-				}
-			],
-        }
-    ],
-    storage: __dirname + "/app.json",
-}
-
-js2ray.config(config).start();
+```sh
+npm run test:interop
 ```
 
----
+Interoperability checks require the exact binaries in [test/fixtures/reference-cores.json](test/fixtures/reference-cores.json); missing tools or checksum mismatches fail. Set `JS2RAY_XRAY_BIN` / `JS2RAY_V2RAY_BIN`, or place the locked Windows binaries in the ignored `.test-tools/` directory. These executables are development test peers, never product dependencies. Set `JS2RAY_INTEROP_VERBOSE=1` for synthetic reference logs.
 
-## License
+Private remote smoke testing is opt-in: `node scripts/smoke-private.js v2ray-config.json`. It selects only the `proxy` outbound, makes one example.com request, and reports status and listener count. It does not claim that the full source configuration is supported. The private configuration is ignored by Git and excluded from the package.
 
-<p>
-    <img width="32px" src="https://raw.githubusercontent.com/seezaara/RocketV2ray/main/doc/logo.png">
-    <a href="https://www.youtube.com/@seezaara">seezaara YouTube</a><br>
-    <img width="32px" src="https://raw.githubusercontent.com/seezaara/RocketV2ray/main/doc/logo.png">
-    <a href="https://t.me/seezaara">seezaara Telegram</a>
-</p>
-
-
+See [API and migration](docs/API.zh-CN.md), [compatibility and evidence](docs/IMPLEMENTATION_STATUS.zh-CN.md), and [the development plan](DEVELOPMENT_PLAN.zh-CN.md).

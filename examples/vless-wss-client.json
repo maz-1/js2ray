@@ -1,0 +1,25 @@
+{
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "192.0.2.1",
+            "port": 443,
+            "users": [{ "id": "d342d11e-d424-4583-b36e-524ab1f0afa4", "encryption": "none" }]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": { "serverName": "proxy.example", "allowInsecure": false },
+        "wsSettings": { "path": "/vless", "host": "proxy.example" }
+      },
+      "mux": { "enabled": false, "concurrency": -1 }
+    }
+  ]
+}

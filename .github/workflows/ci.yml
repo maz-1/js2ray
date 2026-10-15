@@ -1,0 +1,22 @@
+name: Node 24 regression
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  regression:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm run check:types
+      - run: npm run format:check
+      - run: npm run check:config
+      - run: npm test
+      - run: npm pack --dry-run

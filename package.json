@@ -1,9 +1,11 @@
 {
   "name": "js2ray",
-  "version": "3.0.3",
-  "description": "The v2ray vmess protocol, based on nodejs javascript which you can use on hosts and servers",
+  "version": "4.0.0-dev.0",
+  "description": "Embeddable pure JavaScript proxy runtime with explicit lifecycle and direct Duplex dialing",
   "main": "index.js",
-  "bin": "index.js",
+  "bin": {
+    "js2ray": "cli/index.js"
+  },
   "keywords": [
     "vmess",
     "nodejs",
@@ -16,8 +18,15 @@
     "protocol"
   ],
   "scripts": {
-    "start": "node index.js",
-    "install": "node install.js"
+    "start": "node cli/index.js",
+    "test": "node --test --test-timeout=15000 test/*.test.js",
+    "check": "node scripts/check.js",
+    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json",
+    "test:interop": "node --test --test-timeout=15000 test/interop/*.test.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:types": "tsc -p tsconfig.json",
+    "test:package": "node scripts/verify-package.js"
   },
   "author": "seezaara",
   "license": "MIT",
@@ -27,6 +36,37 @@
     "url": "https://github.com/seezaara/js2ray.git"
   },
   "dependencies": {
-    "ws": "^8.12.0"
+    "ws": "8.22.0"
+  },
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "import": "./index.mjs"
+    }
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "files": [
+    "index.js",
+    "index.mjs",
+    "index.d.ts",
+    "cli",
+    "config",
+    "runtime",
+    "transports",
+    "core",
+    "protocols",
+    "examples",
+    "docs",
+    "LICENSE",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "xray": {
+    "version": "24.11.5",
+    "source": "https://github.com/XTLS/Xray-core",
+    "commit": "afc7ec55062c14ae69fc67b148155faae1c31548",
+    "platform": "windows-amd64",
+    "testEnvironment": { "xray.cone.disabled": "true" },
+    "sha256": "ed6af84a5848bff37c691f746867d605c68ce6aa2efe25b09464905832b9b1c0"
+  },
+  "v2ray": {
+    "version": "5.14.1",
+    "source": "https://github.com/v2fly/v2ray-core",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "build": "v2rayN bundled Custom build; upstream tag commit is a source reference, not a verified build provenance",
+    "platform": "windows-amd64",
+    "sha256": "9204011a215d4411f5803ecf801c9c9fdfc8cf719c792508968662d26e2e2950"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+coverage/
+*.tgz
+.test-tools/
+test-results/
+v2ray-config.json
+
