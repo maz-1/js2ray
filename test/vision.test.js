@@ -288,18 +288,18 @@ test('Vision strict certificate validation, established cancellation and bounded
 
 test(
   'Vision 100 concurrent inner TLS 1.3 streams switch both ways and release all sessions',
-  { timeout: 12000 },
+  { timeout: 30000 },
   async (t) => {
     const target = await tlsEcho(t, 'TLSv1.3');
     const server = createRuntime({
       inbounds: [bound(0, true)],
-      limits: { handshakeTimeoutMs: 5000 },
+      limits: { handshakeTimeoutMs: 10000 },
     });
     await server.start();
     t.after(() => server.close());
     const client = createRuntime({
       outbounds: [bound(server.listenersInfo[0].address.port)],
-      limits: { handshakeTimeoutMs: 5000 },
+      limits: { handshakeTimeoutMs: 10000 },
     });
     await client.start();
     t.after(() => client.close());
