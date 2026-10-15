@@ -471,3 +471,23 @@ test('XMUX peer capacity below the mode requirement fails promptly and releases 
   await assert.rejects(dial(), { code: 'ERR_LIMIT' });
   assert.equal(pool.stats.clients, 0);
 });
+
+test('XMUX unref on one logical stream preserves other streams references', async (t) => {
+  const { dial, pool } = await fixture(t);
+  const first = await dial(),
+    second = await dial();
+  const entry = [...pool.entries][0];
+  assert.equal(entry.refCount, 2);
+  first.unref();
+  assert.equal(entry.refCount, 1);
+  first.unref();
+  assert.equal(entry.refCount, 1);
+  await exchange(second);
+  first.ref();
+  assert.equal(entry.refCount, 2);
+  first.destroy();
+  await until(() => entry.refCount === 1);
+  await exchange(second);
+  second.destroy();
+  await until(() => entry.refCount === 0);
+});

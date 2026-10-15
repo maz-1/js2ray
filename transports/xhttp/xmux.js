@@ -53,22 +53,31 @@ class XmuxPool {
         : candidates[randomInt(candidates.length)];
     // Reserve synchronously, before awaiting the shared physical handshake.
     entry.users++;
+    entry.refCount++;
     if (running) entry.active++;
     if (entry.leftUsage > 0) entry.leftUsage--;
     clearTimeout(entry.idleTimer);
-    entry.ref(true);
+    entry.updateRef();
     let released = false;
+    let referenced = true;
     const lease = {
       entry,
+      ref: (value) => {
+        if (released || referenced === value) return;
+        referenced = value;
+        entry.refCount += value ? 1 : -1;
+        entry.updateRef();
+      },
       release: () => {
         if (released) return;
         released = true;
         entry.users--;
+        if (referenced) entry.refCount--;
+        entry.updateRef();
         if (running) entry.active--;
         if (!entry.users) {
           if (!entry.reusable() || !entry.initialized || this.closed) entry.retire();
           else {
-            entry.ref(false);
             entry.idleTimer = setTimeout(() => entry.retire(), 90000);
             entry.idleTimer.unref();
           }
@@ -94,6 +103,7 @@ class XmuxPool {
     const controller = new AbortController();
     const entry = {
       users: 0,
+      refCount: 0,
       active: 0,
       initialized: false,
       closed: false,
@@ -103,7 +113,8 @@ class XmuxPool {
       leftUsage: draw(this.policy.cMaxReuseTimes) || -1,
       leftRequests: draw(this.policy.hMaxRequestTimes) || Infinity,
       expires: draw(this.policy.hMaxReusableSecs),
-      ref(value) {
+      updateRef() {
+        const value = this.refCount > 0;
         for (const socket of this.sockets) socket[value ? 'ref' : 'unref']();
         this.session?.[value ? 'ref' : 'unref']();
       },
@@ -183,6 +194,7 @@ class XmuxPool {
         }
         entry.sockets.add(socket);
         socket.once('close', () => entry.sockets.delete(socket));
+        entry.updateRef();
         return socket;
       };
       const raw = addSocket(await this.dial(rawNetwork, options));
@@ -331,6 +343,7 @@ class XmuxPool {
         };
       }
       entry.initialized = true;
+      entry.updateRef();
     })().catch((cause) => {
       entry.destroy(transportError(cause));
       throw transportError(cause);

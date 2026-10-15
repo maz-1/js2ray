@@ -36,11 +36,13 @@ async function connect(network, limits, dial) {
     sequence = 0;
   let closed = false,
     closeReason;
+  let referenced = true;
   const fail = (cause) => stream.destroy(transportError(cause));
   const stream = new XhttpStream(config, {
     remoteAddress: entry.remoteAddress,
     control: (ref) => {
-      for (const value of leases) value.entry.ref(ref);
+      referenced = ref;
+      for (const value of leases) value.ref(ref);
     },
     send: (data, callback) => {
       if (mode !== 'packet-up') return upload.write(data, callback);
@@ -55,6 +57,7 @@ async function connect(network, limits, dial) {
               throw closeReason ?? failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport');
             }
             leases.add(packetLease);
+            packetLease.ref(referenced);
             if (previous !== lease) {
               leases.delete(previous);
               previous.release();

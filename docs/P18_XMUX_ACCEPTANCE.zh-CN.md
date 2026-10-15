@@ -4,7 +4,7 @@
 
 HTTP 客户端池按 Runtime、网络配置和代次隔离；异步握手前预留并发，取消一个等待者不取消其他等待者，全部取消后关闭无主连接。计数或时长达到上限后退役并排空；packet-up 可为后续 POST 更换上行客户端，保留原 GET，业务字节不重放。HTTP/2 GOAWAY 后已接受的流保留，新流切换；对端 TCP FIN 及时释放物理连接和全部流。池与可见资源指标见 API 文档。
 
-`test/xmux.test.js` 33 项专项覆盖六字段/范围/默认值/互斥/错误路径、两种 HTTP 版本及有无 TLS 的三模式共享、取消隔离、并发预留、复用和请求预算、时长退役、GOAWAY、远端流容量、RST、物理断链、PING 开关、实例/代次隔离和关闭。既有 XHTTP 轮换测试调整为验证复用已认证 TLS session 时旧路径拒绝新流，不再假定每个逻辑流重做 TLS 握手。
+`test/xmux.test.js` 34 项专项覆盖六字段/范围/默认值/互斥/错误路径、两种 HTTP 版本及有无 TLS 的三模式共享、取消隔离、并发预留、复用和请求预算、时长退役、GOAWAY、远端流容量、RST、物理断链、PING 开关、ref/unref 隔离、实例/代次隔离和关闭。既有 XHTTP 轮换测试调整为验证复用已认证 TLS session 时旧路径拒绝新流，不再假定每个逻辑流重做 TLS 握手。
 
 `test/interop/xmux.test.js` 新增 12 项对照，严格 TLS HTTP/1.1、HTTP/2 三模式双向；每项持有旧业务流超过 1 秒复用时长，同时验证新流、请求预算轮换及取消隔离。Xray 该版本的 packet-up 要求 scMaxEachPostBytes 大于其 8192 字节内部缓冲，专项使用 16384 字节。归档和二进制摘要沿用 `reference-platforms.json`，不读取真实节点或用户配置。
 
