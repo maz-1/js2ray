@@ -102,13 +102,31 @@ for (const mode of ['packet-up', 'stream-up', 'auto'])
     });
 for (const backendVersion of ['1.1', '2'])
   test(`XHTTP split plaintext frontends and HTTP/${backendVersion} upstream conversion`, async (t) => {
-    const { client, target } = await topology(t, 'stream-up', '2', '1.1', {
+    const { client, target, config } = await topology(t, 'stream-up', '2', '1.1', {
       secure: false,
       backendVersion,
     });
     const stream = await client.dial(target);
     await exchange(stream);
     stream.destroy();
+    const network = config.outbounds[0].networks[0];
+    network.address = 'upload-node.test';
+    network.option.downloadSettings.address = 'download-node.test';
+    const names = new Set();
+    const named = createRuntime(config, {
+      lookup: (name, options, callback) => {
+        names.add(name);
+        if (options.all) callback(null, [{ address: '127.0.0.1', family: 4 }]);
+        else callback(null, '127.0.0.1', 4);
+      },
+    });
+    await named.start();
+    t.after(() => named.close());
+    const resolved = await named.dial(target);
+    await exchange(resolved);
+    resolved.destroy();
+    assert.ok(names.has('upload-node.test'));
+    assert.ok(names.has('download-node.test'));
   });
 test('XHTTP split native and traditional validation rejects unsupported combinations and keeps TLS paths private', () => {
   const network = {
@@ -230,14 +248,24 @@ for (const side of ['up', 'down'])
   test(`XHTTP split validates the ${side} TLS identity independently`, async (t) => {
     const { config, target } = await topology(t, 'packet-up', '2', '2');
     const network = config.outbounds[0].networks[0];
-    (side === 'up' ? network : network.option.downloadSettings).option.tls.serverName =
-      'wrong.test';
-    const client = createRuntime(config);
-    await client.start();
-    t.after(() => client.close());
-    await assert.rejects(client.dial(target), { code: 'ERR_TLS' });
-    await client.close();
-    assert.equal(client.metrics.xhttp.active, 0);
+    const tls = (side === 'up' ? network : network.option.downloadSettings).option.tls;
+    for (const field of ['serverName', 'ca']) {
+      const previous = tls[field];
+      tls[field] =
+        field === 'serverName'
+          ? 'wrong.test'
+          : require('node:fs').readFileSync(
+              require('node:path').join(__dirname, 'fixtures/tls/rotated-cert.pem'),
+              'utf8',
+            );
+      const client = createRuntime(config);
+      await client.start();
+      t.after(() => client.close());
+      await assert.rejects(client.dial(target), { code: 'ERR_TLS' });
+      await client.close();
+      assert.equal(client.metrics.xhttp.active, 0);
+      tls[field] = previous;
+    }
   });
 test('XHTTP split packet-up request retirement replaces only upload clients and keeps GET alive', async (t) => {
   const { client, target, down } = await topology(t, 'packet-up', '2', '2', {

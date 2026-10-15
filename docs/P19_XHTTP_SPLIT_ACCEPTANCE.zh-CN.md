@@ -1,10 +1,10 @@
 # P19 XHTTP 上下行分离验收
 
-基线：Node 24.20.0、Xray 25.3.6、Caddy 2.10.0，HTTP/3 继续暂缓。产品保持纯 JavaScript，运行依赖仅 ws；参考内核和 Caddy 只在测试中使用。当前三平台正式结果待完成后记录，未完成项见开发计划。
+基线：Node 24.20.0、Xray 25.3.6、Caddy 2.10.0，HTTP/3 继续暂缓。产品保持纯 JavaScript，运行依赖仅 ws；参考内核和 Caddy 只在测试中使用。[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38769117110) 每平台 339 项普通/202 项参考互通、实际 tarball 安装及配置/类型/格式全部通过；正式长时结果待完成后记录，未完成项见开发计划。
 
 原生 `option.downloadSettings` 为完整 XHTTP Network；传统字段为含 address/port 的 Xray StreamSettings。上行与下行分别校验地址、TLS/SNI、Host、路径、请求头、HTTP 版本和 XMUX。下行使用同一 UUID 的 GET，上传模式由上行决定；拒绝 stream-one 分离、嵌套配置、HTTP/3、REALITY 和非 XHTTP 下行。服务端不共享跨监听器会话，两条代理入口必须汇聚至同一后端监听器。
 
-普通专项 `test/xhttp-split.test.js` 覆盖四种 HTTP 版本组合、auto、明文和严格 TLS、双向 HTTP 版本转换、二进制与独立入口、取消隔离、两侧错误 TLS 名称、503/302/响应头超时、上传缓冲死锁、单侧断链、packet-up 请求退役、下行 GOAWAY、跨代下行地址更换与失败回滚。物理客户端关闭通知绑定当前租约；上传迁移后取消旧通知，避免旧连接影响仍在工作的分离连接。释放租约时移除通知，不保留额外用户引用。body 在空 readable 通知时调用 read(0)，保证 EOF 可被观察且不消费业务数据。
+普通专项 `test/xhttp-split.test.js` 覆盖四种 HTTP 版本组合、auto、明文和严格 TLS、双向 HTTP 版本转换、二进制与独立入口、取消隔离、两侧错误 TLS 名称及 CA、独立域名引导解析、503/302/响应头超时、上传缓冲死锁、单侧断链、packet-up 请求退役、下行 GOAWAY、跨代下行地址更换与失败回滚。物理客户端关闭通知绑定当前租约；上传迁移后取消旧通知，避免旧连接影响仍在工作的分离连接。释放租约时移除通知，不保留额外用户引用。body 在空 readable 通知时调用 read(0)，保证 EOF 可被观察且不消费业务数据。
 
 参考互通 `test/interop/xhttp-split.test.js` 包含 Node 代理和 Caddy 两类部署，每类 16 项：packet-up/stream-up、四种严格 TLS 上下行版本组合和两个方向。每项并发持有两条流，逐字节比较二进制，跨越上传池复用时限后继续传输并检查取消隔离。Node 代理另外提供有界的故障注入和 HTTP/2 上游转换；Caddy 终止前端 TLS 并转 HTTP/1.1 后端，不把两个进程内端点的自测代替参考互通。
 
