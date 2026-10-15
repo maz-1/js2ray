@@ -99,7 +99,7 @@ export interface RoutingRule {
   outboundTag: string;
 }
 export interface Routing {
-  domainStrategy?: 'AsIs';
+  domainStrategy?: 'AsIs' | 'IPIfNonMatch' | 'IPOnDemand';
   rules?: RoutingRule[];
 }
 export interface GeoResource {

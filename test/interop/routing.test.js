@@ -7,6 +7,65 @@ const { listen, readBytes } = require('../helpers');
 const { runCore, freePort } = require('./helpers');
 const { dnsServer } = require('../fixtures/dns-server');
 for (const kind of ['v2ray', 'xray']) {
+  for (const domainStrategy of ['IPIfNonMatch', 'IPOnDemand']) {
+    test(`${kind}: ${domainStrategy} selects the same outbound using DNS hosts and every resolved IP`, async (t) => {
+      const outbounds = [];
+      for (const tag of ['default', 'ip', 'domain']) {
+        const server = net.createServer((socket) => {
+          socket.on('error', () => {});
+          socket.end(tag.padEnd(8));
+        });
+        const port = await listen(server);
+        t.after(() => new Promise((resolve) => server.close(resolve)));
+        outbounds.push({ protocol: 'freedom', tag, settings: { redirect: `127.0.0.1:${port}` } });
+      }
+      const routing = {
+        domainStrategy,
+        rules: [
+          { type: 'field', ip: ['198.18.0.0/15', '2001:db8::/32'], outboundTag: 'ip' },
+          { type: 'field', domain: ['full:domain.test'], outboundTag: 'domain' },
+        ],
+      };
+      const dns = {
+        hosts: {
+          'domain.test': ['192.0.2.1', '198.18.1.1'],
+          'fallback.test': ['192.0.2.1', '2001:db8::1'],
+        },
+      };
+      const port = await freePort();
+      await runCore(
+        t,
+        kind,
+        {
+          log: { loglevel: 'warning' },
+          inbounds: [
+            { listen: '127.0.0.1', port, protocol: 'socks', settings: { auth: 'noauth' } },
+          ],
+          outbounds,
+          routing,
+          dns,
+        },
+        port,
+      );
+      const reference = createRuntime({
+        outbounds: [{ protocol: 'socks', networks: [{ address: '127.0.0.1', port }] }],
+      });
+      const runtime = createRuntime({ outbounds, routing, dns });
+      await Promise.all([reference.start(), runtime.start()]);
+      t.after(() => Promise.all([reference.close(), runtime.close()]));
+      for (const [host, expected] of [
+        ['domain.test', domainStrategy === 'IPOnDemand' ? 'ip' : 'domain'],
+        ['fallback.test', 'ip'],
+        ['2001:db8::2', 'ip'],
+      ]) {
+        for (const client of [reference, runtime]) {
+          const stream = await client.dial({ host, port: 80 });
+          assert.equal((await readBytes(stream, 8)).toString().trim(), expected);
+          stream.destroy();
+        }
+      }
+    });
+  }
   test(`${kind}: DNS exact domain takes priority over an earlier parent domain server`, async (t) => {
     const broad = await dnsServer(t, { addresses: ['192.0.2.1'] }),
       exact = await dnsServer(t, { addresses: ['192.0.2.2'] });

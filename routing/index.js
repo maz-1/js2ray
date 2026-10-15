@@ -15,8 +15,9 @@ function ports(value) {
 }
 class Router {
   constructor(config = {}, data) {
-    if ((config.domainStrategy ?? 'AsIs') !== 'AsIs')
-      throw new TypeError('Only routing AsIs is supported.');
+    this.strategy = config.domainStrategy ?? 'AsIs';
+    if (!['AsIs', 'IPIfNonMatch', 'IPOnDemand'].includes(this.strategy))
+      throw new TypeError('Unknown routing domain strategy.');
     this.rules = (config.rules ?? []).map((rule) => {
       if (rule.type !== undefined && rule.type !== 'field')
         throw new TypeError('Only field rules are supported.');
@@ -49,10 +50,10 @@ class Router {
       }
       if (rule.ip) {
         const ips = list('ip').map((pattern) => ipMatcher(pattern, data));
-        conditions.push(
-          (target) =>
-            Boolean(net.isIP(target.routeHost ?? target.host)) &&
-            ips.some((fn) => fn(target.routeHost ?? target.host)),
+        conditions.push((target) =>
+          [target.routeHost ?? target.host, ...(target.routeIPs ?? [])].some(
+            (address) => net.isIP(address) && ips.some((fn) => fn(address)),
+          ),
         );
       }
       if (rule.port !== undefined) {
@@ -69,11 +70,33 @@ class Router {
       }
       if (!conditions.length || typeof rule.outboundTag !== 'string' || !rule.outboundTag)
         throw new TypeError('A routing rule needs conditions and an outbound tag.');
-      return { tag: rule.outboundTag, matches: (target) => conditions.every((fn) => fn(target)) };
+      return {
+        tag: rule.outboundTag,
+        needsIP: Boolean(rule.ip),
+        matches: (target) => conditions.every((fn) => fn(target)),
+      };
     });
   }
   select(target) {
     return this.rules.find((rule) => rule.matches(target))?.tag;
+  }
+  async selectAsync(target, resolve) {
+    if (this.strategy === 'AsIs' || net.isIP(target.routeHost ?? target.host))
+      return this.select(target);
+    if (this.strategy === 'IPIfNonMatch') {
+      const first = this.select(target);
+      if (first !== undefined) return first;
+    }
+    let resolved = false;
+    for (const rule of this.rules) {
+      if (rule.needsIP && !resolved) {
+        // Never mutate host: a proxy peer must still receive the domain name.
+        const records = await resolve(target.routeHost ?? target.host);
+        target = { ...target, routeIPs: records.map((record) => record.address) };
+        resolved = true;
+      }
+      if (rule.matches(target)) return rule.tag;
+    }
   }
 }
 module.exports = { Router, ports };

@@ -315,8 +315,8 @@ SOCKS 入站在样例中属于显式、可选功能。无端口库模式用另�
 | --- | --- | --- |
 | P9 统一错误与指标 | 已建立流、数据报、拨号、DNS 的稳定错误；实例隔离的字节、耗时、缓存、队列及重连统计；脱敏、取消和资源回收回归 | 已通过：`node --test test/metrics.test.js test/runtime.test.js` 17/17；`npm test` 110/110 |
 | P10 应用 WebSocket | 公开 WS/WSS 客户端适配；真实 Upgrade、子协议、文本/二进制、心跳、鉴权失败、严格目标 TLS、取消、关闭和代理承载测试 | 已通过：`node --test test/websocket-adapter.test.js` 5/5；真实普通流、VMess 和 VLESS Mux 上的 WS/WSS |
-| P11 DNS 联动路由 | AsIs/IPIfNonMatch/IPOnDemand、所有解析地址参与 IP 匹配、保留实际域名、显式出站绕过、DNS 自身防递归、超时取消及固定内核对照 | 实施中 |
-| P12 UDP 扩展 | SOCKS5 UDP、VMess UDP、Mux UDP/XUDP、reverse UDP；独立数据报边界、地址、空包、大包、队列、取消、关闭及固定内核互通 | 待实施 |
+| P11 DNS 联动路由 | AsIs/IPIfNonMatch/IPOnDemand、所有解析地址参与 IP 匹配、保留实际域名、显式出站绕过、DNS 自身防递归、超时取消及固定内核对照 | 已通过：DNS/路由专项 13/13；V2Ray 5.14.1、Xray 24.11.5 两策略对照 4/4 |
+| P12 UDP 扩展 | SOCKS5 UDP、VMess UDP、Mux UDP/XUDP、reverse UDP；独立数据报边界、地址、空包、大包、队列、取消、关闭及固定内核互通 | 实施中 |
 | P13 平滑轮换 | 配置/凭据预检、新实例就绪后切换、新请求与连接池按代隔离、旧会话限时排空、启动失败回滚、并发轮换和关闭竞争 | 待实施 |
 
 新增验收继续使用合成凭据及固定参考内核，真实配置只在本地审计中读取，不进入日志、Git 或发布包。最终运行普通回归、类型/格式/配置检查、参考互通、实际 tarball 安装和三平台 CI。

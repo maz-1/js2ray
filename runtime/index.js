@@ -612,7 +612,15 @@ class Runtime extends EventEmitter {
         throw failure('ERR_CANCELLED', 'Dial was cancelled.', 'transport', signal.reason);
       let tag = target.outboundTag;
       if (tag === undefined && this.#router)
-        tag = this.#router.select({ ...target, network: datagram ? 'udp' : 'tcp' });
+        tag = await this.#metrics.measure('routing', () =>
+          this.#router.selectAsync({ ...target, network: datagram ? 'udp' : 'tcp' }, (name) =>
+            this.#metrics.measure('dns', () =>
+              target.dnsInternal
+                ? this.#resolver.bootstrap(name, 0, signal)
+                : this.#resolver.resolve(name, { signal }),
+            ),
+          ),
+        );
       else if (tag === undefined && typeof this.#config.routing === 'function') {
         tag = this.#config.routing(target.host, target.port, datagram ? 2 : 1, target.inboundTag);
         if (tag === true) tag = undefined;

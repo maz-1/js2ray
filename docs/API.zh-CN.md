@@ -48,7 +48,7 @@
 - 模块级 `on` 和共享 `protocols` 被实例事件替代。启动后可通过 `runtime.protocols.vmess.api` 使用实例的用户管理接口；它与原来的自定义 HTTP 管理 API 不等价。
 - 不再创建 Linux systemd 文件，不注册宿主异常或退出处理。部署服务由操作者显式配置。
 - 原 HTTP 伪装、XHTTP、自定义管理 API、`security: "zero"` 等未验收能力在新入口中明确拒绝。旧实现源码保留，但不列为新接口正式支持能力。
-- `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network。仅支持 AsIs，不为 IP 规则额外解析域名。域名可用 full/domain/keyword/geosite，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
+- `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network。支持 AsIs、IPIfNonMatch 和 IPOnDemand。域名可用 full/domain/keyword/geosite，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
 
 ## DNS 与 reverse
 
@@ -62,7 +62,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 
-`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、非 AsIs 路由策略、HTTP Blackhole 响应、Mux UDP/XUDP、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
+`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、Mux UDP/XUDP、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
 
 ## 运行指标（P9）
 
@@ -71,3 +71,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 ## 应用 WebSocket（P10）
 
 `createWebSocket(runtime, url, options)` 同步返回基于 ws 的事件客户端；监听 open 后发送消息，message 提供 Buffer 和 isBinary。支持 WS/WSS、protocols、headers、origin、signal、timeoutMs、targetTls、outboundTag/inboundTag、maxPayload/maxBufferBytes/closeTimeoutMs；不自动跟随重定向。目标 TLS 独立验证，默认关闭压缩，默认 1 MiB 消息/发送队列、5 秒关闭预算。大消息按 8 KiB WebSocket 分片发送，接收方仍取得完整消息。取消覆盖拨号、Upgrade 和已建立连接；运行时关闭释放升级后的流。用 ping/pong 和 close/terminate 管理心跳与关闭，应用自行实施认证。
+
+## DNS 联动路由（P11）
+
+AsIs 不为规则解析域名；IPIfNonMatch 先以原始域名完整匹配，未命中再解析并重试；IPOnDemand 按序遇到 IP 条件时才解析。一次决策复用全部 A/AAAA 结果，任一地址符合即可，IP/域名等字段仍需同时满足。解析地址仅参与路由，代理请求保留原始 host（嗅探 routeOnly 保留实际目标）；显式 outboundTag 跳过规则和额外路由解析。DNS/DoH 自身目标使用 hosts/系统引导解析，避免递归；路由查询支持总拨号预算、取消和 DNS 错误，不隐式直连回退。
