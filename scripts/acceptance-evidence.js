@@ -23,6 +23,7 @@ function sourceEvidence() {
         .join(''),
     ),
     dependenciesSha256: digest('package-lock.json'),
+    packageSha256: digest('package.json'),
   };
 }
 function verify(record, { formal = true, current = true } = {}) {
@@ -60,6 +61,8 @@ function verify(record, { formal = true, current = true } = {}) {
       throw Error('Acceptance product sources differ from current checkout.');
     if (record.dependenciesSha256 !== expected.dependenciesSha256)
       throw Error('Acceptance dependencies differ from current checkout.');
+    if (record.packageSha256 !== expected.packageSha256)
+      throw Error('Acceptance package manifest differs from current checkout.');
     const harness = { P17: 'transport', P18: 'xmux', P19: 'xmux', P20: 'policy' }[record.phase];
     if (!harness || record.harnessSha256 !== digest(`scripts/${harness}-stability.js`))
       throw Error('Acceptance harness differs from current checkout.');

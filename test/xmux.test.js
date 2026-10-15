@@ -74,6 +74,36 @@ async function fixture(
     dial: (signal) => connect(network, { ...limits, signal, xhttpPool: pool }),
   };
 }
+test('XMUX packet-up accepts an empty HTTP2 acknowledgement whose EOF precedes the awaiting continuation', async (t) => {
+  const f = await fixture(t, { mode: 'packet-up' }),
+    hold = await f.pool.acquire();
+  const session = hold.entry.session,
+    request = session.request.bind(session);
+  let completed = 0;
+  session.request = (headers, ...args) => {
+    const req = request(headers, ...args);
+    if (headers[':method'] === 'POST' && headers['content-length'] !== undefined) {
+      const once = req.once;
+      req.once = function (event, listener) {
+        if (event === 'response')
+          return once.call(this, event, (headers) => {
+            once.call(this, 'end', () => {
+              completed++;
+              listener(headers);
+            });
+            this.resume();
+          });
+        return once.call(this, event, listener);
+      };
+    }
+    return req;
+  };
+  hold.release();
+  const stream = await f.dial();
+  t.after(() => stream.destroy());
+  await exchange(stream, randomBytes(16385));
+  assert.ok(completed >= 3);
+});
 test('XMUX validates every field, inclusive ranges, mutual exclusion and traditional extra', () => {
   const native = (xmux) => ({
     outbounds: [

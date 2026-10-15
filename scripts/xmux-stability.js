@@ -60,6 +60,7 @@ async function main() {
   };
   result.sourceNormalization = 'UTF-8, CRLF to LF';
   result.dependenciesSha256 = require('./acceptance-evidence').digest('package-lock.json');
+  result.packageSha256 = require('./acceptance-evidence').digest('package.json');
   const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
     .split('\0')
     .filter((file) =>

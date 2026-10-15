@@ -33,6 +33,8 @@
 | hosts 多个条件命中             | 合并匹配条目，单条 alias 优先于该条 IP | 同左                                             | 仅最高优先条目                                |
 | cacheStrategy/fallbackStrategy | 固定版本原生支持全局及每服务器         | JS 扩展；参考只比较原生字段                      | JS 扩展                                       |
 
+SOCKS UDP 的来源/用户采用已认证 TCP 控制连接上下文，sourcePort 是控制连接端口；不宣称与参考内核独立 UDP 入站的包来源端口完全等价。WS/XHTTP 经过反向代理时使用实际对端地址，不信任 X-Forwarded-For；不恢复被代理隐藏的原始地址。
+
 hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为 5，深链/循环作为 JS 明确有界差异，不宣称逐错误一致。DNS domainMatcher 为 V2Ray 原生字段、Xray 档案中的 JS 扩展，选择服务器 domains 的扫描或索引实现；不改变 hosts/服务器的优先级。`disableFallbackIfMatch` 只在存在优先服务器时抑制普通回退；显式每服务器策略优先。同层混用新旧策略字段时，JS 对冲突的 cacheStrategy/disableCache 报错，fallbackStrategy 枚举优先于旧布尔开关；建议每层使用一种策略写法。固定 Xray 会忽略非法 user 正则，JS 统一在配置阶段拒绝。兼容档案只覆盖本页列出的静态语义，不模拟两个内核的全部内部调度、缓存并发合并、日志或管理 API。
 
 `HTTP/3`、`DoQ` 继续暂缓；不支持动态 balancer/observatory、进程条件、Starlark/Lua、FakeDNS、DoT、任意新版本新增字段。本阶段不启动这些原型。
@@ -40,3 +42,5 @@ hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为
 专项命令：`node --test --test-concurrency=1 test/policy-compat.test.js test/dns-compat.test.js`；固定对照：`node --test --test-concurrency=1 test/interop/policy-compat.test.js`。完整验收使用全量 CI 和 `npm run test:stability:policy`，后者 100 个持续 TCP 业务会话、另 4 个持续 UDP 会话、30 分钟、DNS/缓存/超时回退、每分钟凭据轮换和新连接，并记录源码/依赖/脚本/配置摘要、延迟、内存、队列及清理结果。短跑不能计作正式验收。P17/P18/P19 长时负载因共享产品变化继续全量重跑。
 
 验收状态：本机专项和固定对照已通过，三平台全量与正式长时结果待本轮运行后记录。
+
+中间回归曾在本机和 Linux 固定 Xray 的 TLS HTTP/2 packet-up 路径出现超时。已以真实 HTTP/2 流构造确定性时序：空确认的 EOF 先于异步续体恢复，旧代码只等未来 end 事件导致误超时。修复后接受已完成响应，提前关闭仍失败，所有监听器/计时器统一清理；不更改原有预算。失败运行 38788191414 不作为通过证据。

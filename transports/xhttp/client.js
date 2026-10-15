@@ -76,24 +76,47 @@ async function connect(network, limits, dial) {
           pending.req.end(part);
           const body = await pending.response;
           await new Promise((resolve, reject) => {
+            // Empty HTTP/2 acknowledgements can reach EOF before this Promise
+            // continuation runs. Waiting only for a future end loses that EOF.
+            if (body.readableEnded) return resolve();
+            if (body.destroyed)
+              return reject(
+                failure('ERR_CLOSED', 'XHTTP upload response closed before EOF.', 'transport'),
+              );
+            let settled = false;
             const timer = setTimeout(() => {
               const cause = failure(
                 'ERR_TIMEOUT',
                 'XHTTP packet acknowledgement timed out.',
                 'transport',
               );
+              settle(cause);
               stream.destroy(cause);
-              reject(cause);
             }, config.timeout);
             const settle = (cause) => {
+              if (settled) return;
+              settled = true;
               clearTimeout(timer);
+              body.removeListener('end', ended);
+              body.removeListener('error', failed);
+              body.removeListener('aborted', aborted);
+              body.removeListener('close', closedBody);
               cause ? reject(cause) : resolve();
             };
-            body.once('end', () => settle());
-            body.once('error', settle);
-            body.once('aborted', () =>
-              settle(failure('ERR_CLOSED', 'XHTTP upload response was aborted.', 'transport')),
-            );
+            const ended = () => settle(),
+              failed = (cause) => settle(cause);
+            const aborted = () =>
+              settle(failure('ERR_CLOSED', 'XHTTP upload response was aborted.', 'transport'));
+            const closedBody = () =>
+              body.readableEnded
+                ? settle()
+                : settle(
+                    failure('ERR_CLOSED', 'XHTTP upload response closed before EOF.', 'transport'),
+                  );
+            body.once('end', ended);
+            body.once('error', failed);
+            body.once('aborted', aborted);
+            body.once('close', closedBody);
             body.resume();
           });
         }

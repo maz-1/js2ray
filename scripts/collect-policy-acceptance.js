@@ -92,7 +92,7 @@ async function main() {
         );
       const tests = counts('tests');
       assert.equal(tests.length, 2);
-      assert.ok(tests[0] >= 371 && tests[1] >= 228);
+      assert.ok(tests[0] >= 372 && tests[1] >= 228);
       assert.deepEqual(counts('pass'), tests);
       for (const field of ['fail', 'cancelled', 'skipped']) assert.deepEqual(counts(field), [0, 0]);
       const packed =
@@ -141,6 +141,7 @@ async function main() {
       assert.ok(record.rotations >= 29);
       assert.ok(record.iterations > 0);
       assert.equal(record.dependenciesSha256, source.dependenciesSha256);
+      assert.equal(record.packageSha256, source.packageSha256);
       const harness = kind === 'xhttp-split' ? 'xmux' : kind;
       assert.equal(record.harnessSha256, digest(`scripts/${harness}-stability.js`));
       assert.equal(
@@ -216,6 +217,7 @@ async function main() {
     'test/fixtures/reference-cores.json',
     'test/fixtures/policy-references.json',
     'package-lock.json',
+    'package.json',
   ];
   for (const file of harnessFiles)
     for (const run of runs)

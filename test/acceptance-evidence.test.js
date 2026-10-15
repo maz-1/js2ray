@@ -21,6 +21,7 @@ test('acceptance evidence fails closed on false-green, short duration, stale sou
     { elapsedMs: undefined },
     { harnessSha256: 'changed' },
     { dependenciesSha256: undefined },
+    { packageSha256: undefined },
     { elapsedMs: 1799999 },
     { concurrentSessions: 99 },
     { formalAcceptance: false },
