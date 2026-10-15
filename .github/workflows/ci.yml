@@ -21,9 +21,18 @@ jobs:
       # Keep each test's real concurrency and default deadlines; avoid several
       # independent 100-handshake stress files competing for a small CI CPU.
       - name: Run unit tests (serial files)
-        run: node --test --test-concurrency=1 --test-timeout=15000 test/*.test.js
+        run: |
+          node -e "require('node:fs').mkdirSync('test-results',{recursive:true})"
+          node --test --test-concurrency=1 --test-timeout=15000 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/unit.tap test/*.test.js
       - run: npm run test:tools
       - run: npm run test:interop
       - run: npm run test:package
       - name: Record HTTP3 runtime capability (informational)
         run: node scripts/probe-http3.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-report-${{ runner.os }}-x64
+          path: test-results/unit.tap
+          if-no-files-found: error
+          retention-days: 30

@@ -339,28 +339,28 @@ test('XMUX cancelling all waiters closes the pending dial and permits a new atte
     { code: 'ERR_CANCELLED' },
   );
 
-  test('XMUX outgoing writes do not postpone an otherwise read-idle HTTP/2 PING', async (t) => {
-    const { dial, pool, listener } = await fixture(t, {
-      accept: (stream) => stream.resume(),
-      xmux: { maxConnections: 1, hKeepAlivePeriod: 1 },
-    });
-    let pings = 0;
-    listener.server.on('session', (session) => session.on('ping', () => pings++));
-    const stream = await dial();
-    for (let i = 0; i < 16; i++) {
-      await new Promise((resolve, reject) =>
-        stream.write(Buffer.alloc(128), (cause) => (cause ? reject(cause) : resolve())),
-      );
-      await pause(100);
-    }
-    assert.ok(pings > 0);
-    assert.ok(pool.stats.pings > 0);
-    stream.destroy();
-  });
   await until(() => sockets.size === 1);
   controller.abort();
   await pending;
   await until(() => pool.stats.clients === 0 && sockets.size === 0);
+});
+test('XMUX outgoing writes do not postpone an otherwise read-idle HTTP/2 PING', async (t) => {
+  const { dial, pool, listener } = await fixture(t, {
+    accept: (stream) => stream.resume(),
+    xmux: { maxConnections: 1, hKeepAlivePeriod: 1 },
+  });
+  let pings = 0;
+  listener.server.on('session', (session) => session.on('ping', () => pings++));
+  const stream = await dial();
+  for (let i = 0; i < 16; i++) {
+    await new Promise((resolve, reject) =>
+      stream.write(Buffer.alloc(128), (cause) => (cause ? reject(cause) : resolve())),
+    );
+    await pause(100);
+  }
+  assert.ok(pings > 0);
+  assert.ok(pool.stats.pings > 0);
+  stream.destroy();
 });
 for (const period of [1, -1]) {
   test(`XMUX hKeepAlivePeriod=${period} controls idle HTTP/2 PING`, async (t) => {
