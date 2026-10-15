@@ -180,7 +180,9 @@ class GeoData {
         if (domain.type === 1) {
           const expression = domain.value.replace(/^\(\?i\)/, '');
           const regex = new RegExp(expression, domain.value.startsWith('(?i)') ? 'i' : '');
-          return (host) => regex.test(host);
+          const match = (host) => regex.test(host);
+          match.priority = (host) => (match(host) ? 3000000 : Infinity);
+          return match;
         }
         return domainMatcher(
           `${['keyword', '', 'domain', 'full'][domain.type]}:${domain.value}`,
@@ -188,6 +190,11 @@ class GeoData {
         );
       });
     const result = (host) => matchers.some((fn) => fn(host));
+    result.priority = (host) => {
+      let best = Infinity;
+      for (const match of matchers) best = Math.min(best, match.priority(host));
+      return best;
+    };
     this.compiledSites.set(key, result);
     return result;
   }
@@ -204,7 +211,7 @@ function domainMatcher(pattern, data = new GeoData(), plain = 'keyword') {
   if (mode === 'geosite') return data.site(value);
   if (!['full', 'domain', 'keyword'].includes(mode))
     throw new TypeError('Unsupported domain matcher.');
-  return (host) => {
+  const match = (host) => {
     host = host.toLowerCase().replace(/\.$/, '');
     return mode === 'full'
       ? host === value
@@ -212,6 +219,15 @@ function domainMatcher(pattern, data = new GeoData(), plain = 'keyword') {
         ? host === value || host.endsWith('.' + value)
         : host.includes(value);
   };
+  match.priority = (host) =>
+    !match(host)
+      ? Infinity
+      : mode === 'full'
+        ? 0
+        : mode === 'domain'
+          ? 1000000 + 253 - value.length
+          : 2000000 + host.toLowerCase().indexOf(value);
+  return match;
 }
 function ipMatcher(pattern, data = new GeoData()) {
   return pattern.startsWith('geoip:') ? data.ip(pattern.slice(6)) : cidrMatcher(pattern);

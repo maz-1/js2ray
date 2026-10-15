@@ -36,7 +36,9 @@ class Resolver {
     this.bootstrapLookup = this.bootstrapLookup.bind(this);
   }
   hostValue(host) {
-    return this.hosts.find((entry) => entry.match(host))?.addresses;
+    return this.hosts
+      .filter((entry) => entry.match(host))
+      .sort((a, b) => a.match.priority(host) - b.match.priority(host))[0]?.addresses;
   }
   async systemLookup(host, family, signal) {
     return new Promise((resolve, reject) => {
@@ -149,9 +151,11 @@ class Resolver {
         throw failure('ERR_LIMIT', 'DNS concurrency limit reached.', 'dns');
       this.pending++;
       try {
-        const preferred = this.servers.filter((server) =>
-          server.domains.some((match) => match(host)),
-        );
+        const priority = (server) =>
+          Math.min(...server.domains.map((match) => match.priority(host)));
+        const preferred = this.servers
+          .filter((server) => priority(server) < Infinity)
+          .sort((a, b) => priority(a) - priority(b));
         let servers = preferred.length
           ? [
               ...preferred,
@@ -162,8 +166,7 @@ class Resolver {
                   )),
             ]
           : this.servers.filter((server) => !server.skipFallback);
-        if (!servers.length || (!preferred.length && this.config.disableFallback))
-          servers = this.servers.slice(0, 1);
+        if (!preferred.length && this.config.disableFallback) servers = [];
         let last;
         for (const server of servers) {
           try {

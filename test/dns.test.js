@@ -155,3 +155,33 @@ test('Freedom UseIP uses DNS while AsIs node bootstrap and route matching remain
   ])
     assert.equal(checkConfig({ dns }).ok, false);
 });
+test('hosts and DNS servers prefer exact/longest matches; disabled fallback never queries an unmatched server', async (t) => {
+  const broad = await dnsServer(t, { addresses: ['192.0.2.1'] }),
+    specific = await dnsServer(t, { addresses: ['192.0.2.2'] });
+  const servers = [
+    { address: broad.address, port: broad.port, domains: ['domain:zone.test'] },
+    { address: specific.address, port: specific.port, domains: ['domain:nested.zone.test'] },
+  ];
+  const runtime = createRuntime({
+    dns: {
+      hosts: { 'domain:hosts.test': '192.0.2.1', 'specific.hosts.test': '192.0.2.2' },
+      servers,
+      disableFallback: true,
+    },
+  });
+  await runtime.start();
+  t.after(() => runtime.close());
+  assert.equal((await runtime.resolve('specific.hosts.test'))[0].address, '192.0.2.2');
+  assert.equal(
+    (await runtime.resolve('specific.nested.zone.test', { family: 4 }))[0].address,
+    '192.0.2.2',
+  );
+  assert.equal(broad.calls.length, 0);
+  await assert.rejects(runtime.resolve('unmatched.test'), { code: 'ERR_DNS' });
+  assert.equal(broad.calls.length, 0);
+  const isolated = createRuntime({ dns: { servers: [{ ...servers[0], skipFallback: true }] } });
+  await isolated.start();
+  t.after(() => isolated.close());
+  await assert.rejects(isolated.resolve('other.test'), { code: 'ERR_DNS' });
+  assert.equal(broad.calls.length, 0);
+});

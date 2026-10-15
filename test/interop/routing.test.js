@@ -7,6 +7,57 @@ const { listen, readBytes } = require('../helpers');
 const { runCore, freePort } = require('./helpers');
 const { dnsServer } = require('../fixtures/dns-server');
 for (const kind of ['v2ray', 'xray']) {
+  test(`${kind}: DNS exact domain takes priority over an earlier parent domain server`, async (t) => {
+    const broad = await dnsServer(t, { addresses: ['192.0.2.1'] }),
+      exact = await dnsServer(t, { addresses: ['192.0.2.2'] });
+    const dns = {
+      queryStrategy: 'UseIPv4',
+      tag: 'dns-query',
+      servers: [
+        { address: broad.address, port: broad.port, domains: ['domain:zone.test'] },
+        { address: exact.address, port: exact.port, domains: ['full:specific.zone.test'] },
+      ],
+    };
+    const port = await freePort(true);
+    await runCore(
+      t,
+      kind,
+      {
+        log: { loglevel: 'warning' },
+        dns,
+        inbounds: [
+          {
+            tag: 'dns-in',
+            listen: '127.0.0.1',
+            port,
+            protocol: 'dokodemo-door',
+            settings: { network: 'tcp,udp', address: '8.8.8.8', port: 53 },
+          },
+        ],
+        outbounds: [
+          { tag: 'direct', protocol: 'freedom' },
+          { tag: 'dns-out', protocol: 'dns' },
+        ],
+        routing: { rules: [{ type: 'field', inboundTag: ['dns-in'], outboundTag: 'dns-out' }] },
+      },
+      port,
+    );
+    const reference = createRuntime();
+    await reference.start();
+    t.after(() => reference.close());
+    const session = await reference.openDatagram({ host: '127.0.0.1', port });
+    const wire = require('../../dns/wire');
+    const request = wire.query('specific.zone.test', 1);
+    await session.send(request);
+    const reply = wire.response((await session.next()).value.data, request);
+    session.destroy();
+    const runtime = createRuntime({ dns });
+    await runtime.start();
+    t.after(() => runtime.close());
+    const result = await runtime.resolve('specific.zone.test', { family: 4 });
+    assert.equal(reply.records[0].address, '192.0.2.2');
+    assert.equal(result[0].address, reply.records[0].address);
+  });
   test(`${kind}: ordered AsIs routing matches js2ray across domains, CIDRs, ports and inbound tags`, async (t) => {
     const outbounds = [];
     for (const tag of ['default', 'direct', 'proxy', 'block']) {

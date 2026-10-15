@@ -54,6 +54,8 @@
 
 `runtime.resolve(host, { family: 0|4|6, signal })` 返回带 family 和 TTL 的地址数组。DNS 支持 hosts/别名、A/AAAA、普通 UDP DNS/截断转 TCP、严格 TLS 的 DoH、domains 选择、expectIPs、缓存及回退。DNS 配置的 timeoutMs 为每服务器预算；整体预算随服务器数有界增长。localhost 与 https+local 本地解析；普通 DNS 和 https DoH 经配置路由。代理节点和 DNS 引导只使用 hosts/注入系统解析器。Freedom 默认 AsIs，UseIP/UseIPv4/UseIPv6 才使用内部 DNS。
 
+DNS hosts 和服务器匹配遵循 full 优先、最长 domain 后缀其次、最先出现的 keyword、最后资源正则的顺序；相同优先级按配置顺序。禁用 fallback 或 skipFallback 后，不会强行查询第一台未匹配服务器。此优先级只决定 DNS 服务器选择，路由规则仍严格按规则顺序。
+
 `reverse.bridges` 提供虚拟入站 tag，`reverse.portals` 提供虚拟出站 tag；引用必须存在，规则顺序由配置明确决定。Bridge domain:0 规则必须先于 Bridge 本地业务规则。控制域名只用于连接识别。Bridge 主动建连，无需代理监听；Portal 业务端口需显式配置 TCP/dokodemo-door 入站。`runtime.stats.reverse` 和 `reverse` 事件分别记录角色、传输、会话及连接/活动/排空/退避状态；active 表示控制传输可用，不代表目标业务一定可达。
 
 Bridge 默认最多 4 条承载、每条最多 129 会话（含控制），断线重连从 100 ms 开始指数退避，上限 30 秒并带抖动。可配置 maxWorkers/maxSessions/reconnectMs。Portal 优先选非排空且会话数最少的承载；参考控制消息超过 256 累计会话后使其排空。传输故障会终止受影响业务，不重放应用字节。普通 outbound mux=false 不关闭 reverse 所需内部 Mux。Mux END 关闭整个会话，不能承诺等待写 EOF 后再返回响应的任意 TCP 半关闭协议；WS 同样没有 TCP 半关闭。runtime.close 会终止反代承载。
