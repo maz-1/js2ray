@@ -72,7 +72,7 @@ test('VLESS authentication, truncation, command and flow reject explicitly', asy
     code: 'ERR_PROTOCOL',
   });
   const command = Buffer.from(request);
-  command[18] = 3;
+  command[18] = 4;
   await assert.rejects(readRequest(source([command]), { users: [{ id }] }, {}), {
     code: 'ERR_UNSUPPORTED',
   });

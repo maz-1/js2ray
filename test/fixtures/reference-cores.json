@@ -11,7 +11,7 @@
     "version": "5.14.1",
     "source": "https://github.com/v2fly/v2ray-core",
     "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
-    "build": "v2rayN bundled Custom build; upstream tag commit is a source reference, not a verified build provenance",
+    "build": "Verified byte-for-byte against the official v5.14.1 release archive and its published .dgst SHA256; Custom is the official version banner",
     "platform": "windows-amd64",
     "sha256": "9204011a215d4411f5803ecf801c9c9fdfc8cf719c792508968662d26e2e2950"
   }

@@ -8,6 +8,7 @@ const net = require('node:net');
 const { once } = require('node:events');
 const { listen } = require('../helpers');
 const references = require('../fixtures/reference-cores.json');
+const platforms = require('../fixtures/reference-platforms.json');
 
 async function freePort(udp = false) {
   if (udp) {
@@ -47,13 +48,16 @@ async function freePort(udp = false) {
 async function runCore(t, kind, config, port) {
   const executable =
     process.env[`JS2RAY_${kind.toUpperCase()}_BIN`] ??
-    path.resolve(__dirname, `../../.test-tools/${kind}.exe`);
+    path.resolve(
+      __dirname,
+      `../../.test-tools/${kind}${process.platform === 'win32' ? '.exe' : ''}`,
+    );
   if (!fs.existsSync(executable))
     throw new Error(
       `Missing required ${kind} reference core. Set JS2RAY_${kind.toUpperCase()}_BIN. Interoperability checks cannot be skipped.`,
     );
   const sha = crypto.createHash('sha256').update(fs.readFileSync(executable)).digest('hex');
-  if (sha !== references[kind].sha256)
+  if (sha !== platforms[`${process.platform}-${process.arch}`]?.[kind]?.sha256)
     throw new Error(
       `Reference core checksum mismatch: ${kind}. Update the explicit platform lock before testing a new build.`,
     );

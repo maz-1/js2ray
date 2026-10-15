@@ -91,11 +91,19 @@ test('invalid shapes always return diagnostics rather than crashing', () => {
 test('the full reference requirements remain a failing fixture until their behavior exists', () => {
   const report = checkConfig(require('./fixtures/reference-config.pending.json'));
   assert.equal(report.ok, false);
-  for (const field of ['reverse', 'routing', 'routing.rules[1].outboundTag'])
+  for (const field of ['routing', 'routing.rules[1].outboundTag'])
     assert.ok(report.diagnostics.some((item) => item.path === field));
 });
 
 test('normalization is reusable as runtime input', () => {
   const normalized = normalizeConfig({});
   assert.equal(checkConfig(normalized).ok, true);
+});
+test('revised synthetic combined configuration validates with pinned resources and keeps invalid api diagnostic', () => {
+  const report = checkConfig(require('../examples/combined.json'), {
+    baseDir: require('node:path').resolve('examples'),
+  });
+  assert.equal(report.ok, true, JSON.stringify(report.diagnostics));
+  assert.equal(report.config.inbounds.length, 0);
+  assert.equal(report.config.reverse.bridges.length, 1);
 });

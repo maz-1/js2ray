@@ -7,7 +7,7 @@ const { Js2rayError } = require('../runtime/errors');
 const uuid = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 const supported = {
   inbound: ['vmess', 'socks', 'vless', 'tcp'],
-  outbound: ['vmess', 'socks', 'vless', 'freedom', 'blackhole'],
+  outbound: ['vmess', 'socks', 'vless', 'freedom', 'blackhole', 'service'],
 };
 
 function diagnostic(field, reason) {
@@ -46,7 +46,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
   input = adapted.input;
   keys(
     input,
-    ['inbounds', 'outbounds', 'routing', 'dns', 'geodata', 'storage', 'debug', 'limits'],
+    ['inbounds', 'outbounds', 'routing', 'dns', 'geodata', 'reverse', 'storage', 'debug', 'limits'],
     '',
   );
   if (input.debug !== undefined && typeof input.debug !== 'function')
@@ -83,10 +83,31 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
           'domainStrategy',
           'target',
           'sniffing',
+          'mux',
+          'service',
+          'allow',
         ],
         prefix,
       );
       const protocol = item.protocol ?? (kind === 'outbound' ? 'freedom' : undefined);
+      if (item.mux !== undefined) {
+        const mux = item.mux;
+        if (kind !== 'outbound' || !mux || typeof mux !== 'object' || Array.isArray(mux))
+          add(prefix + '.mux', 'Expected outbound Mux settings.');
+        else {
+          keys(mux, ['enabled', 'concurrency'], prefix + '.mux');
+          if (typeof mux.enabled !== 'boolean')
+            add(prefix + '.mux.enabled', 'Expected an explicit boolean.');
+          if (
+            mux.enabled &&
+            (protocol !== 'vless' ||
+              !Number.isInteger(mux.concurrency ?? 8) ||
+              (mux.concurrency ?? 8) < 1 ||
+              (mux.concurrency ?? 8) > 128)
+          )
+            add(prefix + '.mux', 'Mux supports VLESS TCP with concurrency 1–128.');
+        }
+      }
       if (!supported[kind].includes(protocol))
         add(`${prefix}.protocol`, 'Protocol is not supported by this runtime.');
       const tag = item.tag ?? `${kind}-${i}`;
@@ -95,15 +116,27 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       tags.add(tag);
       const networks = item.networks ?? [];
       if (
-        !['freedom', 'blackhole'].includes(protocol) &&
+        !['freedom', 'blackhole', 'service'].includes(protocol) &&
         (!Array.isArray(networks) || !networks.length)
       )
         add(`${prefix}.networks`, 'At least one network is required.');
       if (
-        ['freedom', 'blackhole'].includes(protocol) &&
+        ['freedom', 'blackhole', 'service'].includes(protocol) &&
         (item.networks !== undefined || item.users !== undefined)
       )
         add(prefix, 'This outbound does not accept networks or users.');
+      if (protocol === 'service') {
+        if (
+          typeof item.service !== 'string' ||
+          !item.service ||
+          !item.allow ||
+          !host(item.allow.host) ||
+          !port(item.allow.port)
+        )
+          add(prefix, 'Service outbound requires a registered name and exact allowed host/port.');
+        else keys(item.allow, ['host', 'port'], prefix + '.allow');
+      } else if (item.service !== undefined || item.allow !== undefined)
+        add(prefix, 'Service fields require protocol service.');
       let redirect;
       if (item.redirect !== undefined) {
         if (protocol !== 'freedom' || typeof item.redirect !== 'string')
@@ -325,10 +358,11 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       });
       if (['vmess', 'vless'].includes(protocol) && !normalizedUsers.length)
         add(`${prefix}.users`, 'This protocol requires explicitly configured users.');
-      return ['freedom', 'blackhole'].includes(protocol)
+      return ['freedom', 'blackhole', 'service'].includes(protocol)
         ? {
             tag,
             protocol,
+            ...(protocol === 'service' ? { service: item.service, allow: { ...item.allow } } : {}),
             ...(redirect ? { redirect } : {}),
             ...(item.domainStrategy ? { domainStrategy: item.domainStrategy } : {}),
           }
@@ -337,6 +371,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             protocol,
             networks: normalizedNetworks,
             users: normalizedUsers,
+            ...(item.mux ? { mux: { ...item.mux } } : {}),
             ...(item.target ? { target: { ...item.target } } : {}),
             ...(item.sniffing ? { sniffing: { ...item.sniffing } } : {}),
           };
@@ -344,13 +379,17 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
   };
   const inbounds = bounds('inbound');
   const outbounds = bounds('outbound');
+  const reverse = require('./reverse').reverseConfig(input.reverse, add, host, [
+    ...inbounds,
+    ...outbounds,
+  ]);
   const policy = require('./policy').policy(input, {
     baseDir,
     add,
     host,
     port,
-    inbounds,
-    outbounds,
+    inbounds: [...inbounds, ...(reverse?.bridges ?? [])],
+    outbounds: [...outbounds, ...(reverse?.portals ?? [])],
   });
   const limits = {
     connectTimeoutMs: 10000,
@@ -384,6 +423,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     routing: policy.routing,
     dns: policy.dns,
     geodata: policy.geodata,
+    reverse,
     storage:
       typeof input.storage === 'string' && input.storage
         ? path.resolve(baseDir, input.storage)
@@ -401,8 +441,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       protocols: { inbound: [...supported.inbound], outbound: [...supported.outbound] },
       transports: ['tcp', 'tls', 'ws', 'wss'],
       udp: ['vless', 'freedom'],
-      reverse: false,
-      mux: false,
+      reverse: true,
+      mux: true,
     },
   };
 }

@@ -8,6 +8,12 @@ const { failure } = require('../../runtime/errors');
 const utils = require('../../core/utils');
 
 function encodeRequest(user, target, command = 1) {
+  if (command === 3)
+    return Buffer.concat([
+      Buffer.from([0]),
+      Buffer.from(user.id.replaceAll('-', ''), 'hex'),
+      Buffer.from([0, 3]),
+    ]);
   const name = Buffer.from(target.host);
   const family = net.isIP(target.host);
   const address = family
@@ -33,7 +39,9 @@ async function readRequest(socket, bound, options) {
   if (!authenticated) throw failure('ERR_AUTH', 'VLESS authentication rejected.', 'authentication');
   if (prefix[17] !== 0)
     throw failure('ERR_UNSUPPORTED', 'VLESS addons and flow are not implemented.', 'protocol');
-  const rest = await reader.read(4);
+  const command = (await reader.read(1))[0];
+  if (command === 3) return { command: 3, host: 'v1.mux.cool', port: 0 };
+  const rest = Buffer.concat([Buffer.from([command]), await reader.read(3)]);
   if (![1, 2].includes(rest[0]))
     throw failure(
       'ERR_UNSUPPORTED',
@@ -41,7 +49,6 @@ async function readRequest(socket, bound, options) {
       'protocol',
     );
   const port = rest.readUInt16BE(1);
-  if (!port) throw failure('ERR_PROTOCOL', 'VLESS target port must be nonzero.', 'protocol');
   let host;
   if (rest[3] === 1 || rest[3] === 3)
     host = utils.iptoString(await reader.read(rest[3] === 1 ? 4 : 16));
@@ -69,8 +76,12 @@ function responseStream(socket, maxBufferBytes) {
       socket.end(callback);
     },
     destroy(error, callback) {
+      if (!socket.closed) socket.once('close', () => callback(error));
+      else {
+        callback(error);
+        return;
+      }
       socket.destroy();
-      callback(error);
     },
   });
   stream.on('error', () => {});

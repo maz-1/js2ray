@@ -238,9 +238,10 @@ class Mux extends EventEmitter {
     }
     if (frame.status === 3) {
       session.remoteEnd = true;
-      if (frame.error)
-        { this.send({ id: frame.id, status: 3 }).catch(() => {}); session.destroy(failure('ERR_MUX_SESSION', 'Remote Mux session failed.', 'mux')); }
-      else {
+      if (frame.error) {
+        this.send({ id: frame.id, status: 3 }).catch(() => {});
+        session.destroy(failure('ERR_MUX_SESSION', 'Remote Mux session failed.', 'mux'));
+      } else {
         session.push(null);
         if (!session.writableEnded) session.end();
       }

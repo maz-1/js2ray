@@ -75,6 +75,7 @@ test('Freedom returns a binary Duplex, supports half-close and leaves no resourc
     connections: 0,
     pendingDials: 0,
     listeners: 0,
+    reverse: [],
   });
 });
 

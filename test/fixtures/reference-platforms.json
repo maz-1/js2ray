@@ -1,0 +1,38 @@
+{
+  "win32-x64": {
+    "v2ray": {
+      "url": "https://github.com/v2fly/v2ray-core/releases/download/v5.14.1/v2ray-windows-64.zip",
+      "archiveSha256": "598341574acbfff9503cb9dd049f9b3130ecfab73d5846546bfa4e17cb5f5452",
+      "sha256": "9204011a215d4411f5803ecf801c9c9fdfc8cf719c792508968662d26e2e2950"
+    },
+    "xray": {
+      "url": "https://github.com/XTLS/Xray-core/releases/download/v24.11.5/Xray-windows-64.zip",
+      "archiveSha256": "5c4eb89eccae428dc799b31a11b15f816fc24fc17146feea107bcde8c4bee826",
+      "sha256": "ed6af84a5848bff37c691f746867d605c68ce6aa2efe25b09464905832b9b1c0"
+    }
+  },
+  "linux-x64": {
+    "v2ray": {
+      "url": "https://github.com/v2fly/v2ray-core/releases/download/v5.14.1/v2ray-linux-64.zip",
+      "archiveSha256": "532445bee17e89a14f3c4f6101bdd3a9a87f519f4150439b43c6f101aaa5672b",
+      "sha256": "478417247a669e7f9bc501ccaf7c7b0f851b7f142e9222d002cba7e786b753c3"
+    },
+    "xray": {
+      "url": "https://github.com/XTLS/Xray-core/releases/download/v24.11.5/Xray-linux-64.zip",
+      "archiveSha256": "1b0990a61006061fc9d3d7ef4645a689a7dd8959e85ff747813faa9d63baab17",
+      "sha256": "60b3f677708d80e55fbd7ed258c8c0342ba183693adcf411c001cb323dae7049"
+    }
+  },
+  "darwin-x64": {
+    "v2ray": {
+      "url": "https://github.com/v2fly/v2ray-core/releases/download/v5.14.1/v2ray-macos-64.zip",
+      "archiveSha256": "b46ae406b4ad33d4066ca54bc32784360ba0daa65dce0eee09018202d682c72d",
+      "sha256": "dbfbb0b23851ede925a4b7bafb0c6b594be7fc49ebac0f5cdf2debc8a365f6c8"
+    },
+    "xray": {
+      "url": "https://github.com/XTLS/Xray-core/releases/download/v24.11.5/Xray-macos-64.zip",
+      "archiveSha256": "803fe8210415de80d23587cefa2c04c11898608738e75ff349142a4419d6e2d8",
+      "sha256": "b7982d7f646a11050efd5d4dd3a41ecb872bba19e8b6af761963b9dfbecf9d45"
+    }
+  }
+}

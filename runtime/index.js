@@ -15,6 +15,9 @@ const { FramedDatagram, directDatagram } = require('./datagram');
 const { Router } = require('../routing');
 const { Resolver } = require('../dns');
 const { sniff } = require('../routing/sniff');
+const { Mux } = require('../protocols/mux');
+const { abortable } = require('./abortable');
+const { Reverse } = require('../reverse');
 
 class Runtime extends EventEmitter {
   #state = 'created';
@@ -31,6 +34,9 @@ class Runtime extends EventEmitter {
   #storage;
   #router;
   #resolver;
+  #muxes = new Set();
+  #muxClients = new Map();
+  #reverse;
 
   constructor(config, options = {}) {
     super();
@@ -49,6 +55,12 @@ class Runtime extends EventEmitter {
       signal: this.#lifetime.signal,
       lookup: options.lookup,
     });
+    this.#reverse = new Reverse(this.#config.reverse, {
+      dial: (target) => this.dial(target),
+      signal: this.#lifetime.signal,
+      limits: this.#config.limits,
+      event: (event) => this.emit('reverse', event),
+    });
     this.#storage = createStorage(this.#config.storage);
     this.#storage.on('storageError', (error) => this.#report(error));
   }
@@ -65,6 +77,7 @@ class Runtime extends EventEmitter {
       connections: this.#streams.size,
       pendingDials: this.#pending.size,
       listeners: this.#servers.length,
+      reverse: this.#reverse.stats,
     };
   }
   get protocols() {
@@ -131,6 +144,11 @@ class Runtime extends EventEmitter {
         logger: () => this.#report(failure('ERR_PROTOCOL', 'VMess processing failed.', 'protocol')),
       });
       for (const bound of this.#config.outbounds) {
+        if (
+          bound.protocol === 'service' &&
+          typeof this.#options.services?.[bound.service] !== 'function'
+        )
+          throw failure('ERR_CONFIG', 'Service handler is not registered.', 'config');
         if (bound.protocol === 'vmess')
           this.#clients.set(bound.tag, this.#vmess.client(bound, this.#legacyTransport(bound)));
       }
@@ -195,6 +213,7 @@ class Runtime extends EventEmitter {
       if (this.#lifetime.signal.aborted)
         throw failure('ERR_CANCELLED', 'Startup was cancelled.', 'runtime');
       this.#setState('running');
+      this.#reverse.start();
       return this;
     } catch (error) {
       if (!this.#closing) {
@@ -255,6 +274,17 @@ class Runtime extends EventEmitter {
         signal: this.#lifetime.signal,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       });
+      if (target.command === 3) {
+        await require('./streams').write(socket, Buffer.from([0, 0]));
+        this.#trackMux(
+          new Mux(socket, {
+            server: true,
+            dispatch: (target) => this.dial({ ...target, inboundTag: bound.tag }),
+            maxBufferBytes: this.#config.limits.maxBufferBytes,
+          }),
+        );
+        return;
+      }
       if (target.command === 2) {
         const remote = await this.openDatagram({
           host: target.host,
@@ -434,6 +464,52 @@ class Runtime extends EventEmitter {
   dial(target) {
     return this.#dial(target, false);
   }
+  #trackMux(mux) {
+    this.#muxes.add(mux);
+    mux.once('close', () => this.#muxes.delete(mux));
+    return mux;
+  }
+  async #outboundMux(bound) {
+    if (!this.#muxClients.has(bound.tag)) {
+      const pending = (async () => {
+        let stream;
+        try {
+          stream = this.#track(
+            await connect(bound.networks[0], {
+              ...this.#config.limits,
+              signal: this.#lifetime.signal,
+              lookup: this.#resolver.bootstrapLookup,
+            }),
+          );
+          const raw = stream;
+          stream = this.#track(
+            await vless.client(
+              raw,
+              bound,
+              { host: 'v1.mux.cool', port: 0 },
+              this.#config.limits,
+              3,
+            ),
+          );
+          this.#streams.delete(raw);
+          const mux = this.#trackMux(
+            new Mux(stream, {
+              maxSessions: bound.mux.concurrency ?? 8,
+              maxBufferBytes: this.#config.limits.maxBufferBytes,
+            }),
+          );
+          mux.once('close', () => this.#muxClients.delete(bound.tag));
+          return mux;
+        } catch (error) {
+          stream?.destroy();
+          this.#muxClients.delete(bound.tag);
+          throw error;
+        }
+      })();
+      this.#muxClients.set(bound.tag, pending);
+    }
+    return this.#muxClients.get(bound.tag);
+  }
   openDatagram(target) {
     return this.#dial(target, true);
   }
@@ -448,7 +524,14 @@ class Runtime extends EventEmitter {
   async #dial(target, datagram) {
     if (this.#state !== 'running')
       throw failure('ERR_STATE', 'Runtime must be running before dialing.', 'runtime');
-    if (!target || !host(target.host) || !port(target.port))
+    const control =
+      target &&
+      target.port === 0 &&
+      (this.#config.reverse?.bridges?.some(
+        (item) => item.domain === target.host && item.tag === target.inboundTag,
+      ) ||
+        this.#config.reverse?.portals?.some((item) => item.domain === target.host));
+    if (!target || !host(target.host) || !port(target.port, control))
       throw failure('ERR_TARGET', 'Invalid connection target.', 'config');
     target = { ...target, host: isIP(target.host) ? target.host : domainToASCII(target.host) };
     if (target.signal !== undefined && !(target.signal instanceof AbortSignal))
@@ -491,7 +574,8 @@ class Runtime extends EventEmitter {
       const bound =
         tag === undefined
           ? this.#config.outbounds[0]
-          : this.#config.outbounds.find((item) => item.tag === tag);
+          : (this.#config.outbounds.find((item) => item.tag === tag) ??
+            this.#config.reverse?.portals?.find((item) => item.tag === tag));
       if (!bound) throw failure('ERR_ROUTING', 'Outbound tag does not exist.', 'routing');
       if (bound.protocol === 'blackhole')
         throw failure('ERR_BLOCKED', 'Target blocked by routing.', 'routing');
@@ -517,9 +601,37 @@ class Runtime extends EventEmitter {
         lookup,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       };
+      if (datagram && bound.mux?.enabled)
+        throw failure('ERR_UNSUPPORTED', 'Ordinary Mux only supports TCP.', 'mux');
       if (datagram && !['vless', 'freedom'].includes(bound.protocol))
         throw failure('ERR_UNSUPPORTED', 'UDP is supported by VLESS and Freedom only.', 'protocol');
-      if (datagram && bound.protocol === 'freedom') {
+      if (this.#reverse.portals.has(bound.tag)) {
+        if (datagram)
+          throw failure(
+            'ERR_UNSUPPORTED',
+            'Reverse supports TCP business sessions only.',
+            'reverse',
+          );
+        socket = this.#track(this.#reverse.connect(bound.tag, target));
+      } else if (bound.protocol === 'service') {
+        if (datagram || target.host !== bound.allow.host || target.port !== bound.allow.port)
+          throw failure('ERR_BLOCKED', 'Target is outside service scope.', 'routing');
+        const pendingService = Promise.resolve().then(() =>
+          this.#options.services[bound.service]({ ...target, signal }),
+        );
+        pendingService.then(
+          (stream) => {
+            if (signal.aborted) stream?.destroy?.();
+          },
+          () => {},
+        );
+        const service = await abortable(pendingService, signal);
+        if (!(service instanceof require('node:stream').Duplex))
+          throw failure('ERR_PROTOCOL', 'Service handler must return a Duplex.', 'reverse');
+        socket = this.#track(service);
+      } else if (bound.mux?.enabled) {
+        socket = this.#track((await abortable(this.#outboundMux(bound), signal)).open(target));
+      } else if (datagram && bound.protocol === 'freedom') {
         socket = this.#track(await directDatagram(target, options));
       } else if (bound.protocol === 'vmess') {
         const client = this.#clients.get(bound.tag);
@@ -629,6 +741,7 @@ class Runtime extends EventEmitter {
   }
 
   async #cleanup(drainTimeoutMs) {
+    this.#reverse.close();
     for (const token of this.#pending) token.controller.abort();
     const listenersClosed = this.#servers.map(
       ({ server }) =>
@@ -651,6 +764,8 @@ class Runtime extends EventEmitter {
         this.on('connectionClosed', changed);
       });
     }
+    for (const mux of this.#muxes) mux.close();
+    this.#muxClients.clear();
     const streamsClosed = [...this.#streams].map(
       (stream) =>
         new Promise((resolve) => {
@@ -661,6 +776,7 @@ class Runtime extends EventEmitter {
     );
     for (const listener of this.#servers) listener.destroy();
     await Promise.all([...listenersClosed, ...streamsClosed]);
+    this.#streams.clear();
     if (this.#pending.size)
       await new Promise((resolve) => {
         const changed = () => {

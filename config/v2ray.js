@@ -91,8 +91,7 @@ function adaptV2ray(input, add) {
     const stream = transport(bound.streamSettings, `${prefix}.streamSettings`);
     if (bound.mux) {
       checkKeys(bound.mux, ['enabled', 'concurrency'], `${prefix}.mux`);
-      if (bound.mux.enabled !== false)
-        add(`${prefix}.mux.enabled`, 'Outbound Mux is not implemented.');
+      result.mux = bound.mux;
     }
     if (bound.protocol === 'freedom') {
       checkKeys(settings, ['redirect', 'domainStrategy'], `${prefix}.settings`);

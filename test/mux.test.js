@@ -29,7 +29,10 @@ test('Mux concurrent streams isolate payloads, recycle IDs and close transport r
     });
   });
   const port = await listen(server);
-  t.after(() => { peer?.close(); return new Promise((resolve) => server.close(resolve)); });
+  t.after(() => {
+    peer?.close();
+    return new Promise((resolve) => server.close(resolve));
+  });
   const raw = net.connect(port, '127.0.0.1');
   await once(raw, 'connect');
   const mux = new Mux(raw, { maxBufferBytes: 8 * 1024 * 1024 });
@@ -48,20 +51,47 @@ test('Mux concurrent streams isolate payloads, recycle IDs and close transport r
     b = mux.open(destination);
   assert.equal(a.id, 65535);
   assert.equal(b.id, 0);
-  a.destroy(); mux.nextId = 65535; const c = mux.open(destination); assert.notEqual(c.id, 65535); c.destroy();
+  a.destroy();
+  mux.nextId = 65535;
+  const c = mux.open(destination);
+  assert.notEqual(c.id, 65535);
+  c.destroy();
   b.destroy();
-  const peerClosed = new Promise(resolve => peer.once('close', resolve));
+  const peerClosed = new Promise((resolve) => peer.once('close', resolve));
   mux.close();
   assert.equal(mux.sessions.size, 0);
   await peerClosed;
   assert.equal(peer.closed, true);
 });
 test('a slow Mux consumer is terminated at its queue cap while another session remains usable', async () => {
-  const { duplexPair, PassThrough } = require('node:stream'); const [left, right] = duplexPair();
-  const server = new Mux(right, { server: true, maxBufferBytes: 65536, dispatch: async target => { const stream = new PassThrough(); if (target.host === 'flood.test') setImmediate(() => { if (!stream.destroyed) stream.write(Buffer.alloc(16384)); }); return stream; } });
+  const { duplexPair, PassThrough } = require('node:stream');
+  const [left, right] = duplexPair();
+  const server = new Mux(right, {
+    server: true,
+    maxBufferBytes: 65536,
+    dispatch: async (target) => {
+      const stream = new PassThrough();
+      if (target.host === 'flood.test')
+        setImmediate(() => {
+          if (!stream.destroyed) stream.write(Buffer.alloc(16384));
+        });
+      return stream;
+    },
+  });
   const client = new Mux(left, { sessionLimit: 8192, maxBufferBytes: 65536 });
-  try { const slow = client.open({ host: 'flood.test', port: 80 }); const error = await new Promise(resolve => slow.once('error', resolve)); assert.equal(error.code, 'ERR_LIMIT'); assert.equal(client.closed, false); const healthy = client.open({ host: 'healthy.test', port: 80 }); healthy.write('healthy'); assert.equal((await readBytes(healthy, 7)).toString(), 'healthy'); healthy.destroy(); }
-  finally { client.close(); server.close(); }
+  try {
+    const slow = client.open({ host: 'flood.test', port: 80 });
+    const error = await new Promise((resolve) => slow.once('error', resolve));
+    assert.equal(error.code, 'ERR_LIMIT');
+    assert.equal(client.closed, false);
+    const healthy = client.open({ host: 'healthy.test', port: 80 });
+    healthy.write('healthy');
+    assert.equal((await readBytes(healthy, 7)).toString(), 'healthy');
+    healthy.destroy();
+  } finally {
+    client.close();
+    server.close();
+  }
 });
 test('Mux rejects UDP and bounds per-session receive and overall send queues', () => {
   const { PassThrough } = require('node:stream');
