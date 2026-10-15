@@ -23,15 +23,25 @@ jobs:
             sudo apt-get update -qq
             sudo apt-get install -y gdb
           fi
-      - name: Capture native failure without test worker isolation
+      - name: Capture native failure with the normal test worker lifecycle
         shell: bash
         run: |
-          mkdir -p test-results/http2-native
-          for attempt in $(seq 1 12); do
-            log="test-results/http2-native/gdb-${attempt}.txt"
-            gdb --batch -ex 'set pagination off' -ex 'handle SIGPIPE nostop noprint pass' -ex run -ex 'thread apply all bt' --args node --test --test-isolation=none --test-timeout=15000 test/xmux.test.js > "$log" 2>&1
+          mkdir -p test-results/http2-native test-results/http2-native-cores
+          ulimit -c unlimited
+          echo "$PWD/test-results/http2-native-cores/core.%p" | sudo tee /proc/sys/kernel/core_pattern >/dev/null
+          for attempt in $(seq 1 24); do
+            log="test-results/http2-native/attempt-${attempt}.txt"
+            set +e
+            node --test --test-timeout=15000 --test-reporter=tap test/xmux.test.js > "$log" 2>&1
+            status=$?
+            set -e
             tail -n 12 "$log"
-            if rg -q 'received signal SIG(SEGV|ABRT)' "$log"; then
+            if [ "$status" -ne 0 ]; then
+              for core in test-results/http2-native-cores/core.*; do
+                if [ -f "$core" ]; then
+                  gdb --batch -ex 'set pagination off' -ex 'thread apply all bt' "$(command -v node)" "$core" > "test-results/http2-native/backtrace-${attempt}.txt" 2>&1
+                fi
+              done
               echo "Native failure captured on attempt ${attempt}"
               exit 1
             fi
@@ -40,6 +50,8 @@ jobs:
         if: always()
         with:
           name: http2-native-diagnostics
-          path: test-results/http2-native
+          # Core memory can contain runner environment credentials. Upload only
+          # backtraces and TAP text; core images remain on the ephemeral runner.
+          path: test-results/http2-native/*.txt
           if-no-files-found: error
           retention-days: 30
