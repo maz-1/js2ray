@@ -2,3 +2,4 @@
 *.sh text eol=lf
 *.dat binary
 docs/acceptance/p19-*-stability-*-2026-10-16.json -text
+docs/acceptance/p20-*-stability-*-2026-10-16.json -text

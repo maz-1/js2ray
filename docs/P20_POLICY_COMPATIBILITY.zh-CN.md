@@ -44,3 +44,5 @@ hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为
 验收状态：本机专项和固定对照已通过，三平台全量与正式长时结果待本轮运行后记录。
 
 中间回归曾在本机和 Linux 固定 Xray 的 TLS HTTP/2 packet-up 路径出现超时。已以真实 HTTP/2 流构造确定性时序：空确认的 EOF 先于异步续体恢复，旧代码只等未来 end 事件导致误超时。修复后接受已完成响应，提前关闭仍失败，所有监听器/计时器统一清理；不更改原有预算。失败运行 38788191414 不作为通过证据。
+
+另一次 macOS 互通失败来自超大 XUDP 拒绝的过窄错误码断言。固定 Xray 的 [PacketReader](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/common/mux/reader.go) 对超过 buf.Size 的包报错；[ServerWorker.run 与 handle](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/common/mux/server.go) 并发清理承载和响应写入，不能跨平台保证 error END 先于 EOF。测试现仅接受会话级 ERR_MUX_SESSION 或承载级 ERR_TRANSPORT 两种明确拒绝，并新增目标零超大包、会话关闭、新会话恢复及 Mux 会话归零检查。产品不将承载关闭伪装成已收到会话错误；作业 38789667818 的失败不计入最终通过结果。

@@ -1,6 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const dgram = require('node:dgram');
+const { once } = require('node:events');
 const { createRuntime } = require('../..');
 const { echo } = require('../helpers');
 const { runCore, freePort } = require('./helpers');
@@ -12,7 +14,6 @@ const {
   bound,
   tlsEcho,
   transfer,
-  udpEcho,
   datagrams,
 } = require('../fixtures/vision');
 function transport(server) {
@@ -34,7 +35,16 @@ function transport(server) {
 }
 for (const direction of ['client', 'server']) {
   test(`Vision ${direction}: Xray 25.3.6 XUDP boundaries over the padded TLS stream`, async (t) => {
-    const target = await udpEcho(t);
+    const received = [],
+      socket = dgram.createSocket('udp4');
+    socket.on('message', (data, peer) => {
+      received.push(data.length);
+      socket.send(data, peer.port, peer.address);
+    });
+    socket.bind(0, '127.0.0.1');
+    await once(socket, 'listening');
+    t.after(() => new Promise((resolve) => socket.close(resolve)));
+    const target = { host: '127.0.0.1', port: socket.address().port };
     let runtime;
     const port = await freePort(direction === 'server');
     if (direction === 'client') {
@@ -107,10 +117,18 @@ for (const direction of ['client', 'server']) {
       // rejection; an oversized first packet may close before any response.
       await session.send(Buffer.from('established'));
       assert.equal((await session.next()).value.data.toString(), 'established');
-      const rejected = assert.rejects(session.next(), { code: 'ERR_MUX_SESSION' });
-      await session.send(Buffer.alloc(8193));
+      // The pinned core treats oversized Mux packet reads as a carrier failure.
+      // Its response-writer goroutine may send error END before carrier EOF;
+      // neither ordering is guaranteed across platforms (server.go run/handle).
+      const refusal = (error) => ['ERR_MUX_SESSION', 'ERR_TRANSPORT'].includes(error.code);
+      const rejected = assert.rejects(session.next(), refusal);
+      await session.send(Buffer.alloc(8193)).catch((error) => assert.ok(refusal(error)));
       await rejected;
+      assert.equal(session.destroyed, true);
+      assert.equal(received.includes(8193), false, 'oversized packet reached the UDP target');
       session.destroy();
+      await datagrams(runtime, target, 1400);
+      await require('../fixtures/reverse').waitFor(() => runtime.metrics.mux.sessions === 0);
     }
   });
 }
