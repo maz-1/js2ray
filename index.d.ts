@@ -58,6 +58,7 @@ export interface Network {
     scMaxBufferedPosts?: number;
     scStreamUpServerSecs?: number;
     xmux?: XmuxOptions;
+    downloadSettings?: Network;
   };
 }
 export interface XmuxOptions {

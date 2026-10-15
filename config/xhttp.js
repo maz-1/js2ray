@@ -10,6 +10,7 @@ const fields = [
   'scMaxBufferedPosts',
   'scStreamUpServerSecs',
   'xmux',
+  'downloadSettings',
 ];
 const xmuxFields = [
   'maxConcurrency',
@@ -42,6 +43,11 @@ function xmuxSettings(input = {}) {
   return { ...values, hKeepAlivePeriod: keepAlive };
 }
 function validate(option, add, prefix, inbound) {
+  if (option.downloadSettings !== undefined) {
+    if (inbound) add(prefix + '.downloadSettings', 'Download settings are outbound-only.');
+    if (option.mode === 'stream-one')
+      add(prefix + '.downloadSettings', 'stream-one uses one request and cannot split directions.');
+  }
   if (option.xmux !== undefined) {
     const value = option.xmux,
       path = prefix + '.xmux';

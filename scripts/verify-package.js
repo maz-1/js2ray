@@ -106,6 +106,23 @@ try {
     await client.close(); await server.close();
     assert.equal(client.metrics.xhttp.clients, 0);
     assert.equal(client.metrics.xhttp.sockets, 0);
+    const splitServer = api.createRuntime({inbounds:[{protocol:'vless',users:[{id}],networks:[{type:'xhttp',port:0,option:{path:'/shared/',httpVersion:'1.1'}}]}]});
+    await splitServer.start();
+    const cleanups=[];
+    const {proxy} = require(${JSON.stringify(path.join(root, 'test/fixtures/xhttp-proxy.js'))});
+    const up = await proxy({after:fn=>cleanups.push(fn)}, {target:{port:splitServer.listenersInfo[0].address.port},version:'2',prefix:'/up/',method:'POST'});
+    const down = await proxy({after:fn=>cleanups.push(fn)}, {target:{port:splitServer.listenersInfo[0].address.port},version:'1.1',prefix:'/down/',method:'GET'});
+    const splitNetwork = {...up.network,option:{...up.network.option,mode:'packet-up',downloadSettings:down.network}};
+    const splitClient=api.createRuntime({outbounds:[{protocol:'vless',users:[{id,encryption:'none'}],networks:[splitNetwork]}]});
+    await splitClient.start();
+    const splitStream=await splitClient.dial({host:'127.0.0.1',port:target.address().port});
+    splitStream.write('packed-split');
+    const splitChunks=[]; let splitReceived=0;
+    for await(const chunk of splitStream){splitChunks.push(chunk);splitReceived+=chunk.length;if(splitReceived>=12)break;}
+    assert.equal(Buffer.concat(splitChunks).toString(),'packed-split');
+    assert.equal(splitClient.metrics.xhttp.created,2);
+    await splitClient.close();await splitServer.close();for(const cleanup of cleanups.reverse())await cleanup();
+    assert.equal(splitClient.metrics.xhttp.clients,0);assert.equal(splitClient.stats.listeners,0);
     await new Promise(resolve => target.close(resolve));
     const tls = require('node:tls');
     const fs = require('node:fs');

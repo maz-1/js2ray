@@ -8,7 +8,17 @@ on:
       - 'transports/**'
       - 'protocols/**'
       - 'config/**'
+      - 'dns/**'
+      - 'routing/**'
+      - 'geodata/**'
+      - 'adapters/**'
+      - 'reverse/**'
+      - 'core/**'
+      - 'test/fixtures/**'
+      - 'package*.json'
       - 'scripts/xmux-stability.js'
+      - 'scripts/xhttp-split-stability.js'
+      - 'scripts/install-reference-proxies.js'
       - '.github/workflows/xmux-stability.yml'
 permissions:
   contents: read

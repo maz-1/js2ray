@@ -209,14 +209,14 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
               add(prefix + '.sniffing.' + field, 'Invalid sniffing limit.');
         }
       }
-      const normalizedNetworks = (Array.isArray(networks) ? networks : []).map((network, j) => {
-        const np = `${prefix}.networks[${j}]`;
+      const normalizeNetwork = (network, np, download = false) => {
         if (!network || typeof network !== 'object' || Array.isArray(network)) {
           add(np, 'Expected a network object.');
           return {};
         }
         keys(network, ['type', 'address', 'port', 'option'], np);
         const type = network.type ?? 'tcp';
+        if (download && type !== 'xhttp') add(np + '.type', 'Download transport must be xhttp.');
         if (!['tcp', 'ws', 'xhttp'].includes(type))
           add(
             `${np}.type`,
@@ -244,6 +244,17 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         );
         if (type === 'xhttp')
           require('./xhttp').validate(option, add, np + '.option', kind === 'inbound');
+        let downloadSettings;
+        if (option.downloadSettings !== undefined) {
+          if (download)
+            add(np + '.option.downloadSettings', 'Nested download settings are not supported.');
+          else
+            downloadSettings = normalizeNetwork(
+              option.downloadSettings,
+              np + '.option.downloadSettings',
+              true,
+            );
+        }
         if (type === 'tcp' && (option.path !== undefined || option.headers !== undefined))
           add(np + '.option', 'WebSocket path and headers require type ws.');
         if (
@@ -340,10 +351,14 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             ...option,
             headers: option.headers ? { ...option.headers } : undefined,
             tls: normalizedTls,
+            ...(downloadSettings ? { downloadSettings } : {}),
             ...(reality ? { reality } : {}),
           },
         };
-      });
+      };
+      const normalizedNetworks = (Array.isArray(networks) ? networks : []).map((network, j) =>
+        normalizeNetwork(network, `${prefix}.networks[${j}]`),
+      );
       if (item.udp && normalizedNetworks.some((network) => network.type !== 'tcp'))
         add(prefix + '.udp', 'SOCKS UDP association requires TCP/TLS control transports.');
       const users = item.users ?? [];
@@ -546,7 +561,7 @@ function redact(value) {
   return JSON.parse(
     JSON.stringify(value, (key, entry) => {
       if (
-        /^(id|user|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers)$/i.test(
+        /^(id|user|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers|address|host|serverName|serverNames|dest|port)$/i.test(
           key,
         ) ||
         /token|secret|authorization|cookie/i.test(key)

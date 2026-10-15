@@ -1,0 +1,66 @@
+{
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "proxy.example.net",
+            "port": 443,
+            "users": [
+              {
+                "id": "5945fc2c-45b7-48cc-a19c-4cd28dbd6237",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "proxy.example.net",
+          "alpn": ["h2"]
+        },
+        "xhttpSettings": {
+          "host": "cdn.example.net",
+          "path": "/synthetic-xhttp",
+          "mode": "stream-up",
+          "extra": {
+            "xmux": {
+              "maxConcurrency": "16-32",
+              "maxConnections": 0,
+              "cMaxReuseTimes": 0,
+              "hMaxRequestTimes": "600-900",
+              "hMaxReusableSecs": "1800-3000",
+              "hKeepAlivePeriod": 0
+            },
+            "downloadSettings": {
+              "address": "download.example.net",
+              "port": 443,
+              "network": "xhttp",
+              "security": "tls",
+              "tlsSettings": {
+                "serverName": "download.example.net",
+                "alpn": ["http/1.1"]
+              },
+              "xhttpSettings": {
+                "host": "download-cdn.example.net",
+                "path": "/synthetic-download",
+                "extra": {
+                  "xmux": {
+                    "maxConcurrency": "16-32",
+                    "hKeepAlivePeriod": -1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

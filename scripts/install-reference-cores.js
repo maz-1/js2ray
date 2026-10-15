@@ -36,6 +36,7 @@ async function main() {
     if (process.platform !== 'win32') fs.chmodSync(filename, 0o700);
     process.stdout.write(`Installed verified ${kind} for ${platform}.\n`);
   }
+  await require('./install-reference-proxies').install();
 }
 main().catch((error) => {
   process.stderr.write(error.message + '\n');

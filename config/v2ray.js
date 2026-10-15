@@ -7,7 +7,7 @@ function adaptV2ray(input, add) {
     for (const key of Object.keys(object ?? {}))
       if (!allowed.includes(key)) add(`${prefix}.${key}`, 'Unsupported V2Ray behavior field.');
   };
-  const transport = (stream = {}, prefix) => {
+  const transport = (stream = {}, prefix, download = false) => {
     if (!stream || typeof stream !== 'object' || Array.isArray(stream)) {
       add(prefix, 'Expected stream settings.');
       stream = {};
@@ -22,6 +22,7 @@ function adaptV2ray(input, add) {
         'wsSettings',
         'tcpSettings',
         'xhttpSettings',
+        ...(download ? ['address', 'port'] : []),
       ],
       prefix,
     );
@@ -127,6 +128,21 @@ function adaptV2ray(input, add) {
       }
     } else if (stream.tlsSettings)
       add(`${prefix}.tlsSettings`, 'TLS settings require security tls.');
+    if (option.downloadSettings !== undefined) {
+      const value = option.downloadSettings;
+      if (download) {
+        add(
+          prefix + '.xhttpSettings.downloadSettings',
+          'Nested download settings are unsupported.',
+        );
+        delete option.downloadSettings;
+      } else if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        add(prefix + '.xhttpSettings.downloadSettings', 'Expected download stream settings.');
+      } else {
+        const converted = transport(value, prefix + '.xhttpSettings.downloadSettings', true);
+        option.downloadSettings = { ...converted, address: value.address, port: value.port };
+      }
+    }
     return { type: network, option };
   };
   const convert = (bound, index, inbound) => {

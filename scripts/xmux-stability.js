@@ -28,6 +28,7 @@ async function bounded(operation, cleanup) {
   }
 }
 async function main() {
+  const split = process.env.JS2RAY_XHTTP_SPLIT === '1';
   const minutes = Number(process.env.JS2RAY_STABILITY_MINUTES ?? 30);
   const rotationMs = Number(process.env.JS2RAY_ROTATION_MS ?? 60000);
   if (
@@ -38,7 +39,7 @@ async function main() {
   )
     throw Error('Invalid stability duration.');
   const result = {
-    phase: 'P18',
+    phase: split ? 'P19' : 'P18',
     node: process.version,
     platform: process.platform,
     arch: process.arch,
@@ -48,6 +49,7 @@ async function main() {
     formalAcceptance: minutes >= 30,
     concurrentSessions: 100,
     rotations: 0,
+    proxyFaults: 0,
     churn: 0,
     iterations: 0,
     bytes: 0,
@@ -74,6 +76,10 @@ async function main() {
       .join(''),
   );
   result.harnessSha256 = sha(fs.readFileSync(__filename, 'utf8').replace(/\r\n/g, '\n'));
+  if (split)
+    result.proxyHarnessSha256 = sha(
+      fs.readFileSync('test/fixtures/xhttp-proxy.js', 'utf8').replace(/\r\n/g, '\n'),
+    );
   const cleanups = [],
     managers = [],
     held = [],
@@ -96,11 +102,11 @@ async function main() {
             {
               type: 'xhttp',
               address: '127.0.0.1',
-              port: server ? 0 : profile.port,
+              port: server ? 0 : split ? profile.up.port : profile.port,
               option: {
-                path: credentials.path,
-                mode: profile.mode,
-                httpVersion: profile.httpVersion,
+                path: split && !server ? '/upload' + credentials.path : credentials.path,
+                mode: split && server ? 'auto' : profile.mode,
+                httpVersion: split && server ? '1.1' : profile.httpVersion,
                 scMaxEachPostBytes: 32768,
                 xmux: {
                   maxConcurrency: '4-6',
@@ -109,7 +115,28 @@ async function main() {
                   hMaxReusableSecs: '2-4',
                   hKeepAlivePeriod: 1,
                 },
-                tls: server ? { cert, key } : { ca: cert, serverName: 'js2ray.test' },
+                ...(split && server
+                  ? {}
+                  : { tls: server ? { cert, key } : { ca: cert, serverName: 'js2ray.test' } }),
+                ...(split && !server
+                  ? {
+                      host: 'upload.test',
+                      downloadSettings: {
+                        ...profile.down.network,
+                        option: {
+                          ...profile.down.network.option,
+                          path: '/download' + credentials.path,
+                          xmux: {
+                            maxConcurrency: '4-6',
+                            cMaxReuseTimes: '8-12',
+                            hMaxRequestTimes: '24-36',
+                            hMaxReusableSecs: '2-4',
+                            hKeepAlivePeriod: 1,
+                          },
+                        },
+                      },
+                    }
+                  : {}),
               },
             },
           ],
@@ -139,28 +166,87 @@ async function main() {
   try {
     const target = await echo({ after: (fn) => cleanups.push(fn) });
     for (const httpVersion of ['1.1', '2'])
-      for (const mode of ['packet-up', 'stream-up', 'stream-one']) {
-        const profile = {
-          name: `xhttp-${httpVersion}-${mode}`,
-          httpVersion,
-          mode,
-          count: profiles.length < 4 ? 17 : 16,
-          credentials: { id: crypto.randomUUID(), path: '/xmux-0' },
-        };
-        profile.server = createRuntimeManager(config(profile, true, profile.credentials));
-        managers.push(profile.server);
-        await profile.server.start();
-        profile.port = profile.server.listenersInfo[0].address.port;
-        profile.client = createRuntimeManager(config(profile, false, profile.credentials));
-        managers.push(profile.client);
-        await profile.client.start();
-        profiles.push(profile);
-        const streams = await Promise.all(
-          Array.from({ length: profile.count }, () => profile.client.dial(target)),
-        );
-        for (const stream of streams) held.push({ stream, profile, slow: held.length % 10 === 0 });
+      for (const mode of split
+        ? ['packet-up', 'stream-up']
+        : ['packet-up', 'stream-up', 'stream-one']) {
+        for (const downVersion of split ? ['1.1', '2'] : [httpVersion]) {
+          const profile = {
+            name: `xhttp-${httpVersion}-${mode}` + (split ? `-down-${downVersion}` : ''),
+            httpVersion,
+            mode,
+            count: split ? (profiles.length < 4 ? 13 : 12) : profiles.length < 4 ? 17 : 16,
+            credentials: { id: crypto.randomUUID(), path: '/xmux-0' },
+          };
+          profile.server = createRuntimeManager(config(profile, true, profile.credentials));
+          managers.push(profile.server);
+          await profile.server.start();
+          profile.port = profile.server.listenersInfo[0].address.port;
+          if (split) {
+            const { proxy } = require('../test/fixtures/xhttp-proxy');
+            const common = { target: { port: profile.port }, backendPath: '/', maxRecords: 32 };
+            if (profiles.length >= 4) {
+              const gateway = await proxy(
+                { after: (fn) => cleanups.push(fn) },
+                { ...common, secure: false, prefix: '/', faultMethod: 'GET' },
+              );
+              const fronts = await require('../test/fixtures/caddy').caddy(
+                { after: (fn) => cleanups.push(fn) },
+                { port: gateway.port },
+                {
+                  upPrefix: '/upload/',
+                  downPrefix: '/download/',
+                  backendPath: '/',
+                  upVersion: httpVersion,
+                  downVersion,
+                },
+              );
+              profile.up = fronts.up;
+              profile.up.network.option.httpVersion = httpVersion;
+              profile.down = fronts.down;
+              profile.down.network.option.httpVersion = downVersion;
+              profile.down.setFault = gateway.setFault;
+              profile.proxyChild = fronts.child;
+              profile.deployment = 'caddy-2.10.0';
+            } else {
+              profile.deployment = 'node';
+              profile.up = await proxy(
+                { after: (fn) => cleanups.push(fn) },
+                {
+                  ...common,
+                  version: httpVersion,
+                  prefix: '/upload/',
+                  host: 'upload.test',
+                  method: 'POST',
+                },
+              );
+              profile.down = await proxy(
+                { after: (fn) => cleanups.push(fn) },
+                {
+                  ...common,
+                  version: downVersion,
+                  prefix: '/download/',
+                  host: 'download.test',
+                  method: 'GET',
+                },
+              );
+            }
+          }
+          profile.client = createRuntimeManager(config(profile, false, profile.credentials));
+          managers.push(profile.client);
+          await profile.client.start();
+          profiles.push(profile);
+          const streams = await Promise.all(
+            Array.from({ length: profile.count }, () => profile.client.dial(target)),
+          );
+          for (const stream of streams)
+            held.push({ stream, profile, slow: held.length % 10 === 0 });
+        }
       }
-    result.profiles = profiles.map(({ name, count }) => ({ name, count }));
+    result.profiles = profiles.map(({ name, count, deployment }) => ({
+      name,
+      count,
+      ...(deployment ? { deployment } : {}),
+    }));
     assert.equal(held.length, 100);
     const started = performance.now(),
       deadline = started + minutes * 60000;
@@ -246,6 +332,15 @@ async function main() {
           }
           if (performance.now() >= nextRotation && performance.now() < deadline) {
             for (const profile of profiles) {
+              if (split) {
+                profile.down.setFault('reject');
+                try {
+                  await assert.rejects(bounded(profile.client.dial(target)));
+                } finally {
+                  profile.down.setFault(undefined);
+                }
+                result.proxyFaults++;
+              }
               const next = { id: crypto.randomUUID(), path: '/xmux-' + (result.rotations + 1) },
                 budget = { drainTimeoutMs: Math.ceil(minutes * 60000 + 30000) };
               (await profile.server.rotate(config(profile, true, next), budget)).drained.catch(
@@ -297,6 +392,14 @@ async function main() {
     await Promise.all(managers.map((manager) => manager.close()));
     await Promise.allSettled(workers);
     for (const cleanup of cleanups.reverse()) await cleanup();
+    if (split) {
+      result.closedProxyProcesses = profiles
+        .filter((p) => p.proxyChild)
+        .map((p) => ({
+          exited: p.proxyChild.exitCode !== null || p.proxyChild.signalCode !== null,
+        }));
+      result.passed &&= result.closedProxyProcesses.every((p) => p.exited);
+    }
     result.closed = managers.map((manager) => manager.stats);
     result.passed &&= result.closed.every(
       (stats) =>
@@ -308,7 +411,10 @@ async function main() {
     );
     result.finished = new Date().toISOString();
     fs.mkdirSync('test-results', { recursive: true });
-    fs.writeFileSync('test-results/xmux-stability.json', JSON.stringify(result, null, 2) + '\n');
+    fs.writeFileSync(
+      split ? 'test-results/xhttp-split-stability.json' : 'test-results/xmux-stability.json',
+      JSON.stringify(result, null, 2) + '\n',
+    );
     process.stdout.write(
       JSON.stringify({
         passed: result.passed,

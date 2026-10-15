@@ -116,11 +116,21 @@ await manager.close();
 
 path 自动补末尾 `/`，查询串保留。随机 UUID 关联 packet-up/stream-up 上下行；分包序号排序并拒绝重复、非法序号和超出窗口的包。缺包、未配对会话、单包上传、响应头和分包确认的等待受 handshakeTimeoutMs 限制。xPaddingBytes 默认 100-1000，支持 1–4096 内整数或范围；入站同时接受 Referer 和旧查询参数 padding。scMaxEachPostBytes 默认 1000000，实际还受 maxBufferBytes 限制；scMaxBufferedPosts 默认 30、上限 128。stream-up 响应定期发送 padding 保活，scStreamUpServerSecs 默认 30 秒，-1 关闭；该响应不进入业务流。
 
-每条逻辑出站独占 HTTP/1 连接池或 HTTP/2 会话，关闭时释放请求、物理连接和计时器，不跨实例或配置代复用。HTTP/2 入站可在一条物理连接上承载多个逻辑会话，单个 RST_STREAM 只终止对应会话。可读端暂停会传递到 HTTP body/HTTP2 流控；顺序 packet-up 确认等待可读队列空间。队列超限返回结构化错误，不自动重试或重放业务数据。
+P18 起，同一 Runtime、网络配置及代次内的逻辑出站共享 XMUX 客户端池；关闭逻辑连接释放其请求和租约，Runtime 关闭释放整个池、物理连接和计时器。不同实例或配置代不复用。HTTP/2 入站可在一条物理连接上承载多个逻辑会话，单个 RST_STREAM 只终止对应会话。可读端暂停会传递到 HTTP body/HTTP2 流控；顺序 packet-up 确认等待可读队列空间。队列超限返回结构化错误，不自动重试或重放业务数据。
 
 XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。物理连接故障或运行时关闭终止受影响会话；P18 的 HTTP/2 GOAWAY 停止复用该客户端，已接受的流继续排空，新流及 packet-up 后续上行使用新连接。业务字节不自动重放。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
 
-传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、XHTTP 与 REALITY 的组合、跨节点 downloadSettings、XHTTP 浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3 暂缓；XHTTP 与 REALITY 的组合、XHTTP 浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+
+### 上下行分离（P19）
+
+出站 `option.downloadSettings` 接受一个完整的原生 XHTTP Network：`{ type: 'xhttp', address, port, option }`。上下行分别配置地址、TLS/SNI、Host、path、查询串、请求头、HTTP 版本及 XMUX；下行不继承上行配置，省略值按该侧默认值处理。连接上传模式由上行配置及协商出的 HTTP 版本决定；下行始终使用带相同会话 UUID 的 GET。支持 packet-up、stream-up 和 auto；stream-one 只有一个请求，不能与分离配置同时使用。仅出站支持，拒绝嵌套 downloadSettings、HTTP/3、REALITY 及非 XHTTP 下行。
+
+传统 JSON 的 `xhttpSettings.downloadSettings` 或 `extra.downloadSettings` 使用完整的 `{ address, port, network: 'xhttp', security, tlsSettings, xhttpSettings }`，TLS ALPN 映射为该侧 HTTP 版本。示例见 `examples/vless-xhttp-split-client.json`。两条入口须汇聚到同一服务端 XHTTP 监听器的会话，反向代理可重写不同的路径和 Host；本实现不会在独立服务端间同步会话，也不自动发现共享后端。
+
+每侧使用独立 XMUX 池、TLS 信任和 DNS 引导上下文，并随 Runtime/配置代隔离。packet-up 的上传预算退役只更换上行客户端，既有下行 GET 保持不变；HTTP/2 GOAWAY 排空已接受请求。任一正在使用的物理客户端失效会关闭该逻辑连接并释放另一侧租约；取消、失败、超时及轮换均不重放业务字节。`metrics.xhttp` 汇总两侧池；不额外保存地址或凭据。配置报告也脱敏嵌套端点及端口。
+
+反向代理必须保持流式请求/响应、禁止缓存和自动重放，并将两侧会话路由到同一后端。固定 Caddy 2.10.0 对照使用 `enable_full_duplex: true`、`flush_interval: -1`，并向 HTTP/1.1 后端设置 `Connection: close`，避免 Go HTTP 服务在发送响应头前等待上传结束。各入口明确限制 ALPN；固定 Xray 的 HTTP/1 客户端指纹可能仍提供 h2，不能让入口协商 h2 后按 HTTP/1 收发。测试仅启用 h1/h2，不监听 QUIC。Caddy 仅作为独立测试工具，不进入产品包或运行依赖。
 
 ### XMUX（P18）
 

@@ -401,7 +401,20 @@ P17 全部验收通过：[全量三平台 CI](https://github.com/maz-1/js2ray/ac
 
 P18 全部验收通过：最终产品提交 `74d4529f36db80446b77305ae5f9b0b08766a8af`，[回归](https://github.com/maz-1/js2ray/actions/runs/38749322344)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38749322880) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38749322553) 同源。产品汇总 SHA256 为 `fbd3e69f320246067daba12c1ec7a9d98d6e0f28fa42b87969093bc326eae939`。保活修正后的持续入站/只有出站/空闲恢复测试均通过；原始记录与最终产品一一对应，不以修正前的长时结果代替。
 
-## 15 参考资料
+## 15 XHTTP 上下行分离与部署链路 P19（2026-10-16）
+
+HTTP/3 继续暂缓。本阶段锁定 Xray 25.3.6，实现 HTTP/1.1、HTTP/2 的独立上下行入口；先确认 downloadSettings 的默认值、模式及会话关联语义，不能将任意独立服务端误认为共享会话。
+
+- [x] 修正文档中“逻辑连接独占池”的历史描述；XMUX 长时工作流补齐 DNS、路由、Geo、适配器、reverse、core、测试 fixture 和依赖变更触发范围。
+- [x] 实现原生及传统 downloadSettings 配置、严格诊断、类型与样例；独立地址/SNI/Host/path/TLS/HTTP 版本及 XMUX 池，不支持项明确拒绝。
+- [x] 完成上下行关联、背压、取消、限时、断链、单向故障、GOAWAY、请求预算及配置轮换测试，业务字节不重放。本地新增 27 项专项通过；下行物理客户端失效现能立即终止逻辑流并释放上行租约。
+- [x] 完成真实 HTTP 反向代理链路的流式转发、版本转换、缓冲/超时/拒绝和关闭测试，使用合成凭据及本地严格 TLS。Node 代理与固定 Caddy 2.10.0 均有双向对照；Caddy 明确启用 HTTP/1 全双工、上游 Connection: close 和逐入口 ALPN，三平台归档按官方 SHA512 校验并锁定二进制 SHA256。
+- [ ] 完成固定 Xray 25.3.6 客户端/服务端双向互通、全量回归、配置/类型/格式、实际 tarball 安装和隐私审计。
+- [ ] 完成 Windows/Linux/macOS 全量及 100 会话/30 分钟上下行分离长时验收，保存原始记录、运行版本、配置和产品源码摘要；P18 回归与长时继续通过。
+
+每项实现和验收后更新本节；未执行或失败的结果不计作完成。
+
+## 16 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

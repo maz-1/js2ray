@@ -78,6 +78,34 @@ async function example() {
   api.createHttpsAgent(runtime, { targetTls: { ca: 'PEM' } }).destroy();
 }
 void example;
+void createRuntime({
+  outbounds: [
+    {
+      protocol: 'vless',
+      users: [{ id: '5945fc2c-45b7-48cc-a19c-4cd28dbd6237', encryption: 'none' }],
+      networks: [
+        {
+          type: 'xhttp',
+          address: 'upload.test',
+          port: 443,
+          option: {
+            mode: 'packet-up',
+            downloadSettings: {
+              type: 'xhttp',
+              address: 'download.test',
+              port: 443,
+              option: {
+                httpVersion: '2',
+                tls: { serverName: 'download.test' },
+                xmux: { maxConcurrency: 8 },
+              },
+            },
+          },
+        },
+      ],
+    },
+  ],
+});
 
 import { createRuntimeManager, createWebSocket } from '../index.js';
 async function managed() {

@@ -141,6 +141,9 @@ function attachBody(body, stream) {
       const data = body.read(Math.min(window - stream.readableLength, body.readableLength));
       if (!data || !stream.receive(data)) break;
     }
+    // EOF can arrive as an empty readable notification. Ask Node to observe
+    // it without consuming bytes, even when there is no queued body data.
+    if (!body.readableLength) body.read(0);
   };
   stream.pullBody = pull;
   body.on('readable', pull);

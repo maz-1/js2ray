@@ -101,6 +101,7 @@ class XmuxPool {
     const pool = this;
     const config = this.config;
     const controller = new AbortController();
+    require('node:events').setMaxListeners(0, controller.signal);
     const entry = {
       users: 0,
       refCount: 0,
@@ -109,6 +110,7 @@ class XmuxPool {
       closed: false,
       retired: false,
       sockets: new Set(),
+      signal: controller.signal,
       requests: new Set(),
       leftUsage: draw(this.policy.cMaxReuseTimes) || -1,
       leftRequests: draw(this.policy.hMaxRequestTimes) || Infinity,
@@ -152,7 +154,7 @@ class XmuxPool {
         clearTimeout(this.pingTimer);
         clearTimeout(this.pingDeadline);
         clearInterval(this.readObserver);
-        controller.abort();
+        controller.abort(cause ?? closedError());
         for (const req of this.requests) req.destroy(cause);
         this.agent?.destroy();
         this.session?.destroy(cause);
@@ -238,7 +240,7 @@ class XmuxPool {
           entry.retire();
         });
         session.once('close', () => entry.destroy(closedError()));
-        const slots = config.mode === 'stream-one' ? 1 : 2;
+        const slots = this.limits.xhttpSlots ?? (config.mode === 'stream-one' ? 1 : 2);
         session.on('remoteSettings', (remote) => {
           entry.capacity = Math.floor(remote.maxConcurrentStreams / slots);
           if (entry.capacity < 1) {

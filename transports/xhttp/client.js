@@ -8,24 +8,31 @@ const { XmuxPool } = require('./xmux');
 
 async function connect(network, limits, dial) {
   const config = settings(network.option, limits);
-  const tls = config.tls;
-  const ownPool = !limits.xhttpPool;
-  const pool = limits.xhttpPool ?? new XmuxPool(network, limits, dial);
-  let lease;
+  const download = config.downloadSettings;
+  const downloadConfig = download ? settings(download.option, limits) : config;
+  const ownedPools = new Set();
+  const makePool = (network, slots) => {
+    const value = new XmuxPool(network, { ...limits, xhttpSlots: slots }, dial);
+    ownedPools.add(value);
+    return value;
+  };
+  const pool = limits.xhttpPool ?? makePool(network, download ? 1 : undefined);
+  const downPool = download ? (limits.xhttpDownloadPool ?? makePool(download, 1)) : pool;
+  let lease, downLease;
   try {
     lease = await pool.acquire(limits.signal);
+    downLease = download ? await downPool.acquire(limits.signal) : lease;
   } catch (cause) {
-    if (ownPool) pool.close();
+    lease?.release();
+    for (const value of ownedPools) value.close();
     throw cause;
   }
   const entry = lease.entry;
   const version = entry.version;
   const mode = config.mode === 'auto' ? (version === '2' ? 'stream-up' : 'packet-up') : config.mode;
-  const address = isIPv6(network.address) ? `[${network.address}]` : network.address;
-  const authorityName = config.host ?? tls?.serverName ?? address;
-  const authority = isIPv6(authorityName) ? `[${authorityName}]` : authorityName;
   const requests = new Set();
-  const leases = new Set([lease]);
+  const leases = new Set([lease, downLease]);
+  const observers = new Map();
   const lifetime = new AbortController();
   const packetSignal = limits.signal
     ? AbortSignal.any([limits.signal, lifetime.signal])
@@ -39,7 +46,7 @@ async function connect(network, limits, dial) {
   let referenced = true;
   const fail = (cause) => stream.destroy(transportError(cause));
   const stream = new XhttpStream(config, {
-    remoteAddress: entry.remoteAddress,
+    remoteAddress: downLease.entry.remoteAddress,
     control: (ref) => {
       referenced = ref;
       for (const value of leases) value.ref(ref);
@@ -51,15 +58,17 @@ async function connect(network, limits, dial) {
           const part = data.subarray(offset, offset + config.maxPostBytes);
           if (!packetLease.entry.packetReusable()) {
             const previous = packetLease;
-            packetLease = await pool.acquire(packetSignal, false);
+            packetLease = await pool.acquire(packetSignal, Boolean(download));
             if (closed) {
               packetLease.release();
               throw closeReason ?? failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport');
             }
             leases.add(packetLease);
+            observe(packetLease);
             packetLease.ref(referenced);
-            if (previous !== lease) {
+            if (previous !== lease || download) {
               leases.delete(previous);
+              unobserve(previous);
               previous.release();
             }
           }
@@ -105,29 +114,48 @@ async function connect(network, limits, dial) {
       lifetime.abort();
       limits.signal?.removeEventListener('abort', abort);
       for (const req of requests) req.destroy(cause);
-      for (const value of leases) value.release();
+      for (const value of leases) {
+        unobserve(value);
+        value.release();
+      }
       leases.clear();
-      if (ownPool) pool.close();
+      for (const value of ownedPools) value.close();
     },
   });
+  function observe(value) {
+    const callback = () => {
+      if (!closed) stream.destroy(transportError(value.entry.signal.reason));
+    };
+    observers.set(value, callback);
+    value.entry.signal.addEventListener('abort', callback, { once: true });
+    if (value.entry.signal.aborted) callback();
+  }
+  function unobserve(value) {
+    value.entry.signal.removeEventListener('abort', observers.get(value));
+    observers.delete(value);
+  }
   const abort = () =>
     stream.destroy(
       failure('ERR_CANCELLED', 'XHTTP dial was cancelled.', 'transport', limits.signal.reason),
     );
   limits.signal?.addEventListener('abort', abort, { once: true });
+  for (const value of leases) observe(value);
   const id = randomUUID();
-  function request(method, suffix, length, owner = entry) {
+  function request(method, suffix, length, owner = entry, selected = config, endpoint = network) {
     if (closed) throw closeReason ?? failure('ERR_CLOSED', 'XHTTP connection closed.', 'transport');
-    const path = config.path + suffix + (config.query ? '?' + config.query : '');
+    const tls = selected.tls;
+    const authorityName = selected.host ?? tls?.serverName ?? endpoint.address;
+    const authority = isIPv6(authorityName) ? `[${authorityName}]` : authorityName;
+    const path = selected.path + suffix + (selected.query ? '?' + selected.query : '');
     const headers = Object.fromEntries(
-      Object.entries(config.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]),
+      Object.entries(selected.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]),
     );
-    headers.referer = `${tls ? 'https' : 'http'}://${authority}${config.path}${suffix}?x_padding=${padding(config)}`;
-    if (method === 'POST' && length === undefined && !config.noGRPCHeader)
+    headers.referer = `${tls ? 'https' : 'http'}://${authority}${selected.path}${suffix}?x_padding=${padding(selected)}`;
+    if (method === 'POST' && length === undefined && !selected.noGRPCHeader)
       headers['content-type'] = 'application/grpc';
     // Go's HTTP/1 server otherwise drains the unfinished request body before
     // flushing response headers. A streaming POST owns this socket until close.
-    if (version === '1.1' && method === 'POST' && length === undefined)
+    if (owner.version === '1.1' && method === 'POST' && length === undefined)
       headers.connection = 'close';
     if (length !== undefined) headers['content-length'] = String(length);
     const req =
@@ -143,8 +171,8 @@ async function connect(network, limits, dial) {
             { endStream: method === 'GET' },
           )
         : http.request({
-            host: network.address,
-            port: network.port,
+            host: endpoint.address,
+            port: endpoint.port,
             method,
             path,
             agent: owner.agent,
@@ -193,7 +221,14 @@ async function connect(network, limits, dial) {
   }
   try {
     if (limits.signal?.aborted) abort();
-    const down = request(mode === 'stream-one' ? 'POST' : 'GET', mode === 'stream-one' ? '' : id);
+    const down = request(
+      mode === 'stream-one' ? 'POST' : 'GET',
+      mode === 'stream-one' ? '' : id,
+      undefined,
+      downLease.entry,
+      downloadConfig,
+      download ?? network,
+    );
     if (mode === 'stream-one') upload = down.req;
     if (mode === 'stream-up') {
       const up = request('POST', id);

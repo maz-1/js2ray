@@ -628,19 +628,29 @@ class Runtime extends EventEmitter {
   }
   #connect(network, options) {
     if (network.type === 'xhttp') {
-      if (!this.#xhttpPools.has(network))
-        this.#xhttpPools.set(
-          network,
-          new (require('../transports/xhttp/xmux').XmuxPool)(
+      const poolFor = (network, slots) => {
+        if (!this.#xhttpPools.has(network))
+          this.#xhttpPools.set(
             network,
-            {
-              ...this.#config.limits,
-              lookup: this.#resolver.bootstrapLookup,
-            },
-            connect,
-          ),
-        );
-      options = { ...options, xhttpPool: this.#xhttpPools.get(network) };
+            new (require('../transports/xhttp/xmux').XmuxPool)(
+              network,
+              {
+                ...this.#config.limits,
+                lookup: this.#resolver.bootstrapLookup,
+                xhttpSlots: slots,
+              },
+              connect,
+            ),
+          );
+        return this.#xhttpPools.get(network);
+      };
+      options = {
+        ...options,
+        xhttpPool: poolFor(network, network.option.downloadSettings ? 1 : undefined),
+        ...(network.option.downloadSettings
+          ? { xhttpDownloadPool: poolFor(network.option.downloadSettings, 1) }
+          : {}),
+      };
     }
     return this.#metrics.measure('transport', async () =>
       this.#observeTransport(await connect(network, options)),
