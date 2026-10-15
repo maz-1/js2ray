@@ -346,9 +346,11 @@ P14 全部验收通过：XHTTP 专项 37/37、Xray 25.3.6 对照 21/21；Windows
 - [x] VLESS Vision 流协商、填充编解码、内层 TLS 识别与原始 TCP 切换；明确配置限制和错误。
 - [x] 原生/传统配置、类型、示例、指标及凭据/证书轮换回归。
 - [x] 固定 Xray 25.3.6 双向互通 8/8；真实内层 TLS 1.3 均触发双向 Direct，普通流量/TLS 1.2 保持外层 TLS，另测 XUDP 和参考内核大包拒绝。
-- [ ] Windows、Linux、macOS 全量回归、互通和发布包验收。
+- [x] Windows、Linux、macOS 各 209/209 普通回归、135/135 参考互通，类型/格式/配置及实际 tarball 安装全部通过，零跳过。
 
-验收命令：`node --test test/vision-prototype.test.js test/vision.test.js`、`node --test test/interop/vision.test.js`、全量回归/互通及现有三平台 CI。100 并发真实内层 TLS 1.3 会话全部完成双向 Direct 并关闭归零；完整范围与后续实际 CI 结果见 [P15 验收](docs/P15_VISION_ACCEPTANCE.zh-CN.md)。
+验收命令：`node --test test/vision-prototype.test.js test/vision.test.js`、`node --test test/interop/vision.test.js`、全量回归/互通及现有三平台 CI。100 并发真实内层 TLS 1.3 会话全部完成双向 Direct 并关闭归零；完整范围与实际 CI 结果见 [P15 验收](docs/P15_VISION_ACCEPTANCE.zh-CN.md)。
+
+P15 全部验收通过：功能验收提交 `fd294a63e80abb5808ab31092682523e11f33491` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194)。公开 API 原型 8/8、Vision 协议及运行时 16/16、固定 Xray 25.3.6 双向互通 8/8；100 并发、同端口凭据及证书轮换、实际发布包内的双向 Direct 均通过。69 个产品源码的 Git 规范化 SHA256 汇总与逐平台作业/日志核对结果保存于 [机器可读证据](docs/acceptance/vision-2026-10-15.json)，隐私审计无敏感字段匹配。运行依赖仍仅 ws，产品无原生扩展、WASM 或参考内核进程。
 
 ## 12 参考资料
 

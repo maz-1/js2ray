@@ -70,7 +70,7 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 - V2Ray 5.14.1 的传统 UDP 对照只承诺至 2046 字节，其参考实现会拆分/丢弃较大数据报。不能外推为该内核的大数据报支持。
 - 正式 VMess 回归使用 alterId=0；保留旧非零 alterId 实现作为未列入固定参考矩阵的能力。为避免 nonce 重用，每方向最多 65536 个加密块，达到后失败。
 - XHTTP 支持 HTTP/1.1、HTTP/2 的 packet-up、stream-up、stream-one，范围与验收见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)。HTTP/3、REALITY、完整 XMUX、浏览器指纹及跨节点上下行分离不在本阶段。
-- Vision 支持原始 TCP/TLS 1.3 的双向 Direct、普通流量和内层 TLS 1.2、XUDP、同端口凭据/证书轮换；API 边界、原型及参考验收见 [P15](P15_VISION_ACCEPTANCE.zh-CN.md)。三平台 CI 在实际作业完成后另行登记。
+- Vision 支持原始 TCP/TLS 1.3 的双向 Direct、普通流量和内层 TLS 1.2、XUDP、同端口凭据/证书轮换；[三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194) 各 209 项普通回归、135 项参考互通、实际 tarball 验证均通过。API 边界、8 项原型、16 项专项、8 项参考互通及 100 并发 Direct 证据见 [P15](P15_VISION_ACCEPTANCE.zh-CN.md)。
 - VMess 嗅探、REALITY、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
 - 不做隐式直连回退，不重放已发业务字节；reverse 传输恢复和 HTTP 上层重定向由各自机制处理。
 

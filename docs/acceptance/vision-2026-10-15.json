@@ -1,0 +1,444 @@
+{
+  "phase": "P15",
+  "date": "2026-10-15",
+  "node": "24.20.0",
+  "commit": "fd294a63e80abb5808ab31092682523e11f33491",
+  "run": {
+    "id": 38713120194,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38713120194",
+    "conclusion": "success"
+  },
+  "reference": {
+    "version": "25.3.6",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "source": "https://github.com/XTLS/Xray-core/tree/v25.3.6",
+    "platform": "windows-amd64",
+    "sha256": "a6a37bbc73a1eaa08abf0537e1d22097afa14be0d92c3ce8b8a808c16c205366"
+  },
+  "referenceProfile": "xray-xhttp (shared pinned Xray 25.3.6 tool)",
+  "transport": "raw TCP with outer TLS 1.3",
+  "flows": [
+    "xtls-rprx-vision",
+    "xtls-rprx-vision-udp443 (outbound policy only; base flow on wire)"
+  ],
+  "prototypeTests": 8,
+  "protocolAndRuntimeTests": 16,
+  "referenceTests": 8,
+  "referenceDirections": [
+    "ordinary TCP, inner TLS 1.2 and inner TLS 1.3: both directions",
+    "TLS 1.3: read and write Direct asserted with exact multi-write transfer",
+    "XUDP both directions at 1400 bytes; explicit reference rejection at 8193 bytes"
+  ],
+  "prototype": {
+    "publicApisOnly": true,
+    "encryptedRecordOneByteReads": true,
+    "coalescedCiphertextAndDirect": true,
+    "delayedKeylog": true,
+    "bufferedPlaintext": true,
+    "sha256Bytes": 2097169,
+    "outerCipherSuites": [
+      "TLS_AES_128_GCM_SHA256",
+      "TLS_AES_256_GCM_SHA384",
+      "TLS_CHACHA20_POLY1305_SHA256"
+    ],
+    "keyUpdateSequenceAndAuthenticationVectors": true,
+    "malformedAndTruncatedRecords": true,
+    "halfClose": true
+  },
+  "concurrency": {
+    "connections": 100,
+    "innerTLS": "1.3",
+    "readDirect": 100,
+    "writeDirect": 100,
+    "finalConnections": 0,
+    "finalQueuedBytes": 0
+  },
+  "rotation": {
+    "samePortCredential": true,
+    "samePortCertificate": true,
+    "heldDirectConnection": true,
+    "failedCandidateRollback": true
+  },
+  "jobs": [
+    {
+      "name": "regression (macos-15-intel)",
+      "id": 116349180770,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38713120194/job/116349180770",
+      "conclusion": "success",
+      "unit": {
+        "tests": 209,
+        "pass": 209,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 135,
+        "pass": 135,
+        "skipped": 0
+      },
+      "package": {
+        "files": 97,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true,
+        "installedVisionDirectRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    },
+    {
+      "name": "regression (ubuntu-24.04)",
+      "id": 116349181288,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38713120194/job/116349181288",
+      "conclusion": "success",
+      "unit": {
+        "tests": 209,
+        "pass": 209,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 135,
+        "pass": 135,
+        "skipped": 0
+      },
+      "package": {
+        "files": 97,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true,
+        "installedVisionDirectRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    },
+    {
+      "name": "regression (windows-2022)",
+      "id": 116349182007,
+      "url": "https://github.com/maz-1/js2ray/actions/runs/38713120194/job/116349182007",
+      "conclusion": "success",
+      "unit": {
+        "tests": 209,
+        "pass": 209,
+        "skipped": 0
+      },
+      "interoperability": {
+        "tests": 135,
+        "pass": 135,
+        "skipped": 0
+      },
+      "package": {
+        "files": 97,
+        "nativeRuntimeAssets": 0,
+        "installedXhttpRoundTrip": true,
+        "installedVisionDirectRoundTrip": true
+      },
+      "requiredSteps": [
+        "Run npm run check",
+        "Run npm run check:types",
+        "Run npm run format:check",
+        "Run npm run check:config",
+        "Run npm test",
+        "Run npm run test:tools",
+        "Run npm run test:interop",
+        "Run npm run test:package"
+      ]
+    }
+  ],
+  "sourceSha256": "64f32e8f22b18e627f734559e555ab7d79f5f6998c7717159f2eaa23557a2624",
+  "sourceFiles": [
+    {
+      "path": "adapters/http.js",
+      "sha256": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16"
+    },
+    {
+      "path": "adapters/websocket.js",
+      "sha256": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd"
+    },
+    {
+      "path": "config/index.js",
+      "sha256": "6e7951ed6123759dad90c0e2fcf8ff9e9bd46f29fb1931eef67dce5754c50f68"
+    },
+    {
+      "path": "config/policy.js",
+      "sha256": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac"
+    },
+    {
+      "path": "config/reverse.js",
+      "sha256": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07"
+    },
+    {
+      "path": "config/v2ray.js",
+      "sha256": "8e4e0a525214c1385d3ccb4ed6aeb9ccf9b8fd3ec097f9090617bf345bb1fcb9"
+    },
+    {
+      "path": "config/xhttp.js",
+      "sha256": "df9de57c93a40273fd09c93a9d3eb30029c81fc3e56da05c3c9c82f7c43a05e4"
+    },
+    {
+      "path": "core/api.js",
+      "sha256": "a5644c5a6bb3bd486956f383a42bc7ce797935b422b4fa287757c0c5b674e8d5"
+    },
+    {
+      "path": "core/event.js",
+      "sha256": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb"
+    },
+    {
+      "path": "core/localNetwork.js",
+      "sha256": "82f7df5f9fb019e03a095a690ddb83186be78d4aa853b8db16eca434a292dd0d"
+    },
+    {
+      "path": "core/remoteNetwork.js",
+      "sha256": "0f3321af69089512d82017ffe717b0cf7c2e0cc56c7d53be576d7871570289a5"
+    },
+    {
+      "path": "core/storage.js",
+      "sha256": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d"
+    },
+    {
+      "path": "core/utils.js",
+      "sha256": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa"
+    },
+    {
+      "path": "dns/index.js",
+      "sha256": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b"
+    },
+    {
+      "path": "dns/wire.js",
+      "sha256": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2"
+    },
+    {
+      "path": "geodata/index.js",
+      "sha256": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832"
+    },
+    {
+      "path": "index.d.ts",
+      "sha256": "bf3405d69d9a3b3c1f3037e7d72ee3ca1409a9f84f1ee6c5cc9f2b91d58b9408"
+    },
+    {
+      "path": "index.js",
+      "sha256": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905"
+    },
+    {
+      "path": "index.mjs",
+      "sha256": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a"
+    },
+    {
+      "path": "protocols/bridge.js",
+      "sha256": "17afe23129a1ef2a4f2deffee6d77b41688d24c0b5f06a7b05bf0eb333def143"
+    },
+    {
+      "path": "protocols/freedom.js",
+      "sha256": "be0ba2bcefd8ac627ccf2bbca95c8cb05b5c0726c5bdac696abb9d9dc0ae8fde"
+    },
+    {
+      "path": "protocols/mux/frame.js",
+      "sha256": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99"
+    },
+    {
+      "path": "protocols/mux/index.js",
+      "sha256": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2"
+    },
+    {
+      "path": "protocols/socks/client.js",
+      "sha256": "cc67f68618f3776c67c6d5b12be59dab7a24c5d9f37d7643dfcba6f5dbe98828"
+    },
+    {
+      "path": "protocols/socks/datagram.js",
+      "sha256": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b"
+    },
+    {
+      "path": "protocols/socks/index.js",
+      "sha256": "1ab5a1b108c07cd7e74ee3eeb30a9550431b8680f2440cc8e9bb61a9fa84b607"
+    },
+    {
+      "path": "protocols/socks/server.js",
+      "sha256": "d13ae480167243d4ec87e77b3172731c4e3917552e3e5b0cb6457fab97ff9767"
+    },
+    {
+      "path": "protocols/socks/stream.js",
+      "sha256": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db"
+    },
+    {
+      "path": "protocols/vless/index.js",
+      "sha256": "8d5ade9cba2e77b9815c10af2d806569c032b44a7941a09138ec113c054dedaa"
+    },
+    {
+      "path": "protocols/vless/vision.js",
+      "sha256": "d539168403fdb19d1b258f3fe713aa436c99144b1f75742dea267c6f64a69c83"
+    },
+    {
+      "path": "protocols/vmess/account.js",
+      "sha256": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79"
+    },
+    {
+      "path": "protocols/vmess/advanced-buffer.js",
+      "sha256": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722"
+    },
+    {
+      "path": "protocols/vmess/aead.js",
+      "sha256": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337"
+    },
+    {
+      "path": "protocols/vmess/client.js",
+      "sha256": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954"
+    },
+    {
+      "path": "protocols/vmess/common.js",
+      "sha256": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa"
+    },
+    {
+      "path": "protocols/vmess/consts.js",
+      "sha256": "f1a5fb36644554b2dc782117b6a9527499345928f4ea9fed23a7bb08a5e6b66e"
+    },
+    {
+      "path": "protocols/vmess/crypto/crc32.js",
+      "sha256": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_assert.js",
+      "sha256": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_sha2.js",
+      "sha256": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/hmac.js",
+      "sha256": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/sha256.js",
+      "sha256": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/utils.js",
+      "sha256": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229"
+    },
+    {
+      "path": "protocols/vmess/crypto/sha3.js",
+      "sha256": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9"
+    },
+    {
+      "path": "protocols/vmess/datagram.js",
+      "sha256": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795"
+    },
+    {
+      "path": "protocols/vmess/index.js",
+      "sha256": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf"
+    },
+    {
+      "path": "protocols/vmess/kdf.js",
+      "sha256": "7f4c128d3920506801d4531bf59a8331d385a0cd433c2fde9575fbc517e1aadf"
+    },
+    {
+      "path": "protocols/vmess/replayfilter.js",
+      "sha256": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0"
+    },
+    {
+      "path": "protocols/vmess/server.js",
+      "sha256": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d"
+    },
+    {
+      "path": "protocols/vmess/store.js",
+      "sha256": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90"
+    },
+    {
+      "path": "protocols/vmess/validator.js",
+      "sha256": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8"
+    },
+    {
+      "path": "reverse/index.js",
+      "sha256": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6"
+    },
+    {
+      "path": "routing/index.js",
+      "sha256": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b"
+    },
+    {
+      "path": "routing/sniff.js",
+      "sha256": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3"
+    },
+    {
+      "path": "runtime/abortable.js",
+      "sha256": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2"
+    },
+    {
+      "path": "runtime/datagram.js",
+      "sha256": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4"
+    },
+    {
+      "path": "runtime/errors.js",
+      "sha256": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220"
+    },
+    {
+      "path": "runtime/hooks.js",
+      "sha256": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1"
+    },
+    {
+      "path": "runtime/index.js",
+      "sha256": "a62fd26f82c8ea6bdf0d82d362ad9719d28e03ce980bfda1aa4e97cf13fced0c"
+    },
+    {
+      "path": "runtime/manager.js",
+      "sha256": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7"
+    },
+    {
+      "path": "runtime/metrics.js",
+      "sha256": "c720e2b0e12ff501540a72bcdf58129319f9758b62720fc7be95cb17f727a04f"
+    },
+    {
+      "path": "runtime/reader.js",
+      "sha256": "39045c83113d6841962cbfdc0e0b1b7cdf5e316177865cfa4dfc151138019392"
+    },
+    {
+      "path": "runtime/streams.js",
+      "sha256": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730"
+    },
+    {
+      "path": "runtime/watch.js",
+      "sha256": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c"
+    },
+    {
+      "path": "transports/index.js",
+      "sha256": "91fbf33436bacf74baa2b040fc9f81418299401f97947a72370ecc9a6cee23e6"
+    },
+    {
+      "path": "transports/vision-tls.js",
+      "sha256": "d27fdb4dcc67f635989e04a461ee6b5348053e534b0eea3447d4f18ee6850ac0"
+    },
+    {
+      "path": "transports/xhttp/client.js",
+      "sha256": "bfb2ecbb33a0467883835a6ec0e056c6c1b5e6afe70cfa0c7e564b91194ce027"
+    },
+    {
+      "path": "transports/xhttp/common.js",
+      "sha256": "97a64066a2178e94634f9937021702fb64350a60cb8bf6840cc5e3f7f575ee8c"
+    },
+    {
+      "path": "transports/xhttp/index.js",
+      "sha256": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3"
+    },
+    {
+      "path": "transports/xhttp/server.js",
+      "sha256": "297b99d8f4608371191a031ecf02c1208be40b8db212da8e899ea64187ae3d03"
+    }
+  ],
+  "privacy": {
+    "filesChecked": 167,
+    "historyBlobsChecked": 322,
+    "matches": 0
+  }
+}

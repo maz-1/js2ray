@@ -27,6 +27,8 @@ npm run test:package
 
 实际 tarball 安装后另建立 Vision 客户端、服务端和真实内层 TLS 目标，检查响应及双向 Direct。运行依赖仍仅 ws，参考二进制、测试证书、私有配置不进包。所有测试使用合成凭据；提交与推送前执行本地私有字段及历史 blob 审计。
 
-三平台 CI 和最终数量将在实际作业完成后登记。支持限制见 [API](API.zh-CN.md#visionp15)：原始 TCP/TLS 1.3、基础 Vision flow、UDP/XUDP；REALITY、指纹伪装、WS/XHTTP Vision、TCP Mux、内核 splice 不属于本阶段。Direct 写方向后的外层 TLS 控制写入明确终止连接；同端口普通 TLS↔Vision 监听类型变更需迁移端口。
+Windows 2022、Ubuntu 24.04、macOS 15 Intel、Node 24.20.0 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194) 全部通过。每个平台 209/209 普通回归、135/135 参考互通，失败/取消/跳过均为零；语法、类型、格式、配置检查及实际 tarball 安装均成功。功能验收提交为 `fd294a63e80abb5808ab31092682523e11f33491`；[机器可读证据](acceptance/vision-2026-10-15.json) 从实际完整作业日志提取测试数和包检查结果，保存逐平台作业链接、固定参考内核、69 个产品源码的规范化 Git SHA256 和本地隐私审计。源码汇总 SHA256 为 `64f32e8f22b18e627f734559e555ab7d79f5f6998c7717159f2eaa23557a2624`。
+
+支持限制见 [API](API.zh-CN.md#visionp15)：原始 TCP/TLS 1.3、基础 Vision flow、UDP/XUDP；REALITY、指纹伪装、WS/XHTTP Vision、TCP Mux、内核 splice 不属于本阶段。Direct 写方向后的外层 TLS 控制写入明确终止连接；同端口普通 TLS↔Vision 监听类型变更需迁移端口。验收包共 97 个文件，之后新增的本节机器证据增加一个文档文件；运行依赖和产品源码不变。
 
 协议与 API 参考：[固定 Xray Vision 编解码](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/proxy/proxy.go)、[固定 Xray 缓冲转移与 Direct](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/proxy/vless/encoding/encoding.go)、[Node 24.20.0 TLSSocket/Duplex 与 keylog 文档](https://github.com/nodejs/node/blob/v24.20.0/doc/api/tls.md)、[RFC 8446 记录保护与流量秘密更新](https://www.rfc-editor.org/rfc/rfc8446.html)。
