@@ -24,3 +24,7 @@ docs/acceptance/p9-p13-mixed-stability-2026-10-15.json
 docs/acceptance/p17-stability-win32-2026-10-15.json
 docs/acceptance/p17-stability-linux-2026-10-15.json
 docs/acceptance/p17-stability-darwin-2026-10-15.json
+
+# Preserve original CI artifacts byte-for-byte.
+docs/acceptance/p18-xmux-stability-*-2026-10-15.json
+docs/acceptance/p18-transport-stability-*-2026-10-15.json

@@ -36,12 +36,13 @@ async function fixture(
     xmux = { maxConnections: 1 },
     secure = false,
     dial = connect,
+    accept = (stream) => stream.pipe(stream),
   } = {},
 ) {
   const limits = { maxConnections: 32, maxBufferBytes: 65536, handshakeTimeoutMs: 1500 };
   const listener = createListener(
     { type: 'xhttp', option: { httpVersion, mode, tls: secure ? { cert, key } : undefined } },
-    (stream) => stream.pipe(stream),
+    accept,
     limits,
   );
   const port = await listen(listener.server);
@@ -307,6 +308,25 @@ test('XMUX cancelling all waiters closes the pending dial and permits a new atte
     connect(network, { ...limits, xhttpPool: pool, signal: controller.signal }),
     { code: 'ERR_CANCELLED' },
   );
+
+  test('XMUX outgoing writes do not postpone an otherwise read-idle HTTP/2 PING', async (t) => {
+    const { dial, pool, listener } = await fixture(t, {
+      accept: (stream) => stream.resume(),
+      xmux: { maxConnections: 1, hKeepAlivePeriod: 1 },
+    });
+    let pings = 0;
+    listener.server.on('session', (session) => session.on('ping', () => pings++));
+    const stream = await dial();
+    for (let i = 0; i < 16; i++) {
+      await new Promise((resolve, reject) =>
+        stream.write(Buffer.alloc(128), (cause) => (cause ? reject(cause) : resolve())),
+      );
+      await pause(100);
+    }
+    assert.ok(pings > 0);
+    assert.ok(pool.stats.pings > 0);
+    stream.destroy();
+  });
   await until(() => sockets.size === 1);
   controller.abort();
   await pending;
@@ -321,11 +341,12 @@ for (const period of [1, -1]) {
     listener.server.on('session', (session) => session.on('ping', () => pings++));
     const stream = await dial();
     await exchange(stream);
-    await pause(1200);
     if (period > 0) {
+      await until(() => pings > 0 && pool.stats.pings > 0);
       assert.ok(pings >= 1);
       assert.ok(pool.stats.pings >= 1);
     } else {
+      await pause(1400);
       assert.equal(pings, 0);
       assert.equal(pool.stats.pings, 0);
     }
@@ -491,3 +512,26 @@ test('XMUX unref on one logical stream preserves other streams references', asyn
   second.destroy();
   await until(() => entry.refCount === 0);
 });
+
+for (const secure of [false, true])
+  test(`XMUX ${secure ? 'TLS ' : ''}HTTP/2 keepalive measures read idle time instead of elapsed lifetime`, async (t) => {
+    const { dial, pool, listener } = await fixture(t, {
+      secure,
+      xmux: { maxConnections: 1, hKeepAlivePeriod: 1 },
+    });
+    let pings = 0;
+    listener.server.on('session', (session) => session.on('ping', () => pings++));
+    const stream = await dial();
+    const socket = [...[...pool.entries][0].sockets][0],
+      initialRead = socket.bytesRead;
+    for (let i = 0; i < 16; i++) {
+      await exchange(stream);
+      await pause(100);
+    }
+    assert.ok(socket.bytesRead > initialRead);
+    assert.equal(pings, 0, 'Active reads must postpone the idle PING.');
+    await until(() => pings > 0 && pool.stats.pings > 0);
+    assert.ok(pings > 0);
+    assert.ok(pool.stats.pings > 0);
+    stream.destroy();
+  });

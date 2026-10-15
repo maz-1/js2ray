@@ -151,6 +151,7 @@ class XmuxPool {
         clearTimeout(this.expiryTimer);
         clearTimeout(this.pingTimer);
         clearTimeout(this.pingDeadline);
+        clearInterval(this.readObserver);
         controller.abort();
         for (const req of this.requests) req.destroy(cause);
         this.agent?.destroy();
@@ -248,11 +249,19 @@ class XmuxPool {
         const period = this.policy.hKeepAlivePeriod;
         if (period >= 0) {
           const interval = (period || 45) * 1000;
+          let readBytes = raw.bytesRead;
+          const observeRead = () => {
+            if (raw.bytesRead === readBytes) return false;
+            readBytes = raw.bytesRead;
+            if (!entry.closed && !entry.pingDeadline) armPing();
+            return true;
+          };
           const armPing = () => {
             clearTimeout(entry.pingTimer);
             const due = Date.now() + interval;
             const ping = () => {
               if (entry.closed || entry.goaway) return;
+              if (observeRead()) return;
               if (Date.now() < due) {
                 entry.pingTimer = setTimeout(ping, Math.min(due - Date.now(), 2147483647));
                 entry.pingTimer.unref();
@@ -285,10 +294,12 @@ class XmuxPool {
             entry.pingTimer = setTimeout(ping, Math.min(interval, 2147483647));
             entry.pingTimer.unref();
           };
-          // Public connection activity updates the idle timer; no private TLS state.
-          raw.on('data', () => {
-            if (!entry.pingDeadline) armPing();
-          });
+          // nghttp2 consumes the socket natively, bypassing JS 'data' events.
+          // Its public byte counter includes DATA and control frames, without
+          // adding a body consumer or changing stream backpressure. Observation
+          // delays an idle PING by at most min(1 s, period / 4).
+          entry.readObserver = setInterval(observeRead, Math.min(1000, interval / 4));
+          entry.readObserver.unref();
           session.once('connect', armPing);
         }
         await new Promise((resolve, reject) => {

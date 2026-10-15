@@ -141,6 +141,8 @@ XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；pac
 
 `runtime.metrics.xhttp` 暴露 clients/draining/active/sockets/pending，以及累计 created/retired/requests/pings/failures，不含目标或凭据。active 是逻辑连接预留数，不包含 packet-up 临时上行租约；requests 为实际创建的 HTTP 请求数，pings 为成功收到 ACK 的 PING 数，failures 为异常关闭的客户端数。验收命令为 `node --test test/xmux.test.js`、`node --test test/interop/xmux.test.js` 和 `npm run test:stability:xmux`。
 
+HTTP/2 由 nghttp2 原生读取 socket，不依赖 JavaScript `data` 事件判断空闲。保活使用公开的 socket.bytesRead 观测入站 DATA 和控制帧，不增加 body 消费者、不改变背压；观测周期为 min(1 秒, 保活周期/4)，实际空闲 PING 可相应延后。持续入站数据会推迟 PING，只有出站写入时不会推迟。
+
 ## Vision（P15）
 
 VLESS 用户设置 `flow: 'xtls-rprx-vision'`，所有节点必须使用原始 TCP 与 TLS 或 P16 的 REALITY。出站及含 Vision 用户的入站监听器强制外层 TLS 1.3；同一监听器的空 flow 用户也使用 TLS 1.3，继续按普通 VLESS 处理。支持原生配置及传统 JSON 的 users/clients.flow，示例见 `examples/vless-vision-client.json`。WS/XHTTP、TCP Mux 和未知 flow 明确拒绝。

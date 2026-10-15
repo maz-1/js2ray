@@ -81,7 +81,7 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 
 ## P18 XMUX
 
-六字段参数、共享客户端池、请求/复用/时长退役、packet-up 上行切换、GOAWAY 排空、HTTP/2 FIN 清理和 ref/unref 隔离已实现。新增 34 项普通专项、12 项严格 TLS 双向参考互通、安装包池复用检查和 100 会话/30 分钟专用长时脚本；三平台完整证据在 [P18](P18_XMUX_ACCEPTANCE.zh-CN.md) 更新。[HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)记录当前 Node 二进制能力、定制运行时和纯 JS QUIC 路线的难度；HTTP/3 未实现。
+六字段参数、共享客户端池、请求/复用/时长退役、packet-up 上行切换、GOAWAY 排空、HTTP/2 FIN 清理、真实读取空闲保活和 ref/unref 隔离已实现。新增 37 项普通专项、12 项严格 TLS 双向参考互通、安装包池复用检查和 100 会话/30 分钟专用长时脚本；三平台完整证据在 [P18](P18_XMUX_ACCEPTANCE.zh-CN.md) 更新。[HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)记录当前 Node 二进制能力、定制运行时和纯 JS QUIC 路线的难度；HTTP/3 未实现。
 
 ## 私有真实配置
 

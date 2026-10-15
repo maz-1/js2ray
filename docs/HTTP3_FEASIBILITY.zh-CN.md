@@ -6,9 +6,11 @@
 
 主要难点是可用的 QUIC/HTTP3 运行时。XHTTP 路径、会话配对、三模式和 XMUX 策略已有基础；HTTP/2 的 socket/session 不能直接替换成 UDP。保留目前普通 Node 24 安装方式时，HTTP/3 需要另建底层能力，难度很高；允许使用启用 QUIC 的定制 Node 构建时，可先验证其公开 API，整体难度降为中高。
 
-本机 Windows x64 的 `node --experimental-quic` 能识别开关，但 `require('node:quic')` 返回 `ERR_UNKNOWN_BUILTIN_MODULE`；`process.config.variables.node_use_quic=false`，ngtcp2/nghttp3 版本为空。可用 `node scripts/probe-http3.js` 重现。CI 也记录这个探测，`available=false` 只表示该二进制不能提供底层能力，不算 HTTP/3 测试通过或跳过互通验收。
+本机 Windows x64 及 [Windows/Linux/macOS x64 CI](https://github.com/maz-1/js2ray/actions/runs/38744062361) 的结果一致：`node --experimental-quic` 能识别开关，但 `require('node:quic')` 返回 `ERR_UNKNOWN_BUILTIN_MODULE`；`process.config.variables.node_use_quic=false`，ngtcp2/nghttp3 版本为空。可用 `node scripts/probe-http3.js` 重现；逐平台原始能力记录随 P18 机器验收汇总保存。`available=false` 只表示该二进制不能提供底层能力，不算 HTTP/3 测试通过或跳过互通验收。
 
 Node 24.20.0 的[官方源码文档](https://github.com/nodejs/node/blob/v24.20.0/doc/api/quic.md)包含实验 QUIC 和 HTTP/3 头部/流接口，稳定性标为 Early development；[构建选项](https://github.com/nodejs/node/blob/v24.20.0/configure.py)提供编译期 `--experimental-quic`。因此“当前二进制不可用”与“该版本源码没有实现”是两个不同结论。启用该实现需要重新验收运行时、公开 API、证书验证及三个平台，不能只加一个命令行开关就承诺现有部署支持。
+
+若考虑升级 Node，应先探测候选固定发行包，而不是仅凭大版本号判断。作为源码对照，[Node 26.0.0 的 configure_quic](https://github.com/nodejs/node/blob/v26.0.0/configure.py)仍由编译选项控制 node_use_quic；本轮未测试 Node 26 二进制，也不扩大 engines 或正式兼容范围。
 
 ## 三条实现路径
 
