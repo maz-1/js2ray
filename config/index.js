@@ -6,8 +6,8 @@ const { domainToASCII } = require('node:url');
 const { Js2rayError } = require('../runtime/errors');
 const uuid = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 const supported = {
-  inbound: ['vmess', 'socks', 'vless'],
-  outbound: ['vmess', 'socks', 'vless', 'freedom'],
+  inbound: ['vmess', 'socks', 'vless', 'tcp'],
+  outbound: ['vmess', 'socks', 'vless', 'freedom', 'blackhole'],
 };
 
 function diagnostic(field, reason) {
@@ -44,16 +44,15 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     return { ok: false, diagnostics: [diagnostic('$', 'Configuration must be an object.')] };
   const adapted = require('./v2ray').adaptV2ray(input, add);
   input = adapted.input;
-  keys(input, ['inbounds', 'outbounds', 'routing', 'storage', 'debug', 'limits'], '');
+  keys(
+    input,
+    ['inbounds', 'outbounds', 'routing', 'dns', 'geodata', 'storage', 'debug', 'limits'],
+    '',
+  );
   if (input.debug !== undefined && typeof input.debug !== 'function')
     add('debug', 'Expected a logger function.');
   if (input.storage !== undefined && typeof input.storage !== 'string')
     add('storage', 'Expected a filesystem path.');
-  if (input.routing !== undefined && typeof input.routing !== 'function')
-    add(
-      'routing',
-      'Declarative routing is not implemented in P1; a library routing function is supported.',
-    );
   const tags = new Set();
   const bounds = (kind) => {
     const field = `${kind}s`;
@@ -73,7 +72,20 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         add(prefix, 'Expected an object.');
         return {};
       }
-      keys(item, ['tag', 'protocol', 'networks', 'users'], prefix);
+      keys(
+        item,
+        [
+          'tag',
+          'protocol',
+          'networks',
+          'users',
+          'redirect',
+          'domainStrategy',
+          'target',
+          'sniffing',
+        ],
+        prefix,
+      );
       const protocol = item.protocol ?? (kind === 'outbound' ? 'freedom' : undefined);
       if (!supported[kind].includes(protocol))
         add(`${prefix}.protocol`, 'Protocol is not supported by this runtime.');
@@ -82,10 +94,74 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         add(`${prefix}.tag`, 'Expected a unique nonempty tag across all bounds.');
       tags.add(tag);
       const networks = item.networks ?? [];
-      if (protocol !== 'freedom' && (!Array.isArray(networks) || !networks.length))
+      if (
+        !['freedom', 'blackhole'].includes(protocol) &&
+        (!Array.isArray(networks) || !networks.length)
+      )
         add(`${prefix}.networks`, 'At least one network is required.');
-      if (protocol === 'freedom' && (item.networks !== undefined || item.users !== undefined))
-        add(prefix, 'Freedom does not accept networks or users.');
+      if (
+        ['freedom', 'blackhole'].includes(protocol) &&
+        (item.networks !== undefined || item.users !== undefined)
+      )
+        add(prefix, 'This outbound does not accept networks or users.');
+      let redirect;
+      if (item.redirect !== undefined) {
+        if (protocol !== 'freedom' || typeof item.redirect !== 'string')
+          add(prefix + '.redirect', 'Freedom redirect requires host:port.');
+        else {
+          const match = /^(?:\[([^\]]+)\]|([^:]+)):(\d+)$/.exec(item.redirect);
+          if (!match || !host(match[1] || match[2]) || !port(Number(match[3])))
+            add(prefix + '.redirect', 'Invalid redirect target.');
+          else redirect = item.redirect;
+        }
+      }
+      if (
+        item.domainStrategy !== undefined &&
+        (protocol !== 'freedom' ||
+          !['AsIs', 'UseIP', 'UseIPv4', 'UseIPv6'].includes(item.domainStrategy))
+      )
+        add(prefix + '.domainStrategy', 'Unsupported Freedom domain strategy.');
+      if (protocol === 'tcp') {
+        if (!item.target || !host(item.target.host) || !port(item.target.port))
+          add(prefix + '.target', 'TCP inbound requires a fixed host and port.');
+        else keys(item.target, ['host', 'port'], prefix + '.target');
+      } else if (item.target !== undefined)
+        add(prefix + '.target', 'Only TCP inbounds accept target.');
+      if (item.sniffing !== undefined) {
+        const sniff = item.sniffing;
+        if (
+          kind !== 'inbound' ||
+          protocol === 'vmess' ||
+          !sniff ||
+          typeof sniff !== 'object' ||
+          Array.isArray(sniff)
+        )
+          add(prefix + '.sniffing', 'Sniffing requires a SOCKS, VLESS or TCP inbound.');
+        else {
+          keys(
+            sniff,
+            ['enabled', 'destOverride', 'routeOnly', 'timeoutMs', 'maxBytes'],
+            prefix + '.sniffing',
+          );
+          for (const field of ['enabled', 'routeOnly'])
+            if (sniff[field] !== undefined && typeof sniff[field] !== 'boolean')
+              add(prefix + '.sniffing.' + field, 'Expected a boolean.');
+          if (
+            sniff.destOverride !== undefined &&
+            (!Array.isArray(sniff.destOverride) ||
+              sniff.destOverride.some((value) => !['http', 'tls'].includes(value)))
+          )
+            add(prefix + '.sniffing.destOverride', 'Only HTTP and TLS sniffing are supported.');
+          for (const field of ['timeoutMs', 'maxBytes'])
+            if (
+              sniff[field] !== undefined &&
+              (!Number.isSafeInteger(sniff[field]) ||
+                sniff[field] < 1 ||
+                (field === 'maxBytes' && sniff[field] > 65536))
+            )
+              add(prefix + '.sniffing.' + field, 'Invalid sniffing limit.');
+        }
+      }
       const normalizedNetworks = (Array.isArray(networks) ? networks : []).map((network, j) => {
         const np = `${prefix}.networks[${j}]`;
         if (!network || typeof network !== 'object' || Array.isArray(network)) {
@@ -104,7 +180,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         if (!port(network.port, kind === 'inbound'))
           add(`${np}.port`, 'Expected an integer port in range.');
         let option = network.option ?? {};
-        if (typeof option !== 'object' || Array.isArray(option)) {
+        if (!option || typeof option !== 'object' || Array.isArray(option)) {
           add(np + '.option', 'Expected transport options.');
           option = {};
         }
@@ -249,23 +325,33 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       });
       if (['vmess', 'vless'].includes(protocol) && !normalizedUsers.length)
         add(`${prefix}.users`, 'This protocol requires explicitly configured users.');
-      return protocol === 'freedom'
-        ? { tag, protocol }
-        : { tag, protocol, networks: normalizedNetworks, users: normalizedUsers };
+      return ['freedom', 'blackhole'].includes(protocol)
+        ? {
+            tag,
+            protocol,
+            ...(redirect ? { redirect } : {}),
+            ...(item.domainStrategy ? { domainStrategy: item.domainStrategy } : {}),
+          }
+        : {
+            tag,
+            protocol,
+            networks: normalizedNetworks,
+            users: normalizedUsers,
+            ...(item.target ? { target: { ...item.target } } : {}),
+            ...(item.sniffing ? { sniffing: { ...item.sniffing } } : {}),
+          };
     });
   };
   const inbounds = bounds('inbound');
   const outbounds = bounds('outbound');
-  if (input.routing && typeof input.routing === 'object' && Array.isArray(input.routing.rules)) {
-    const outboundTags = new Set(outbounds.map((bound) => bound.tag));
-    input.routing.rules.forEach((rule, index) => {
-      if (rule && typeof rule.outboundTag === 'string' && !outboundTags.has(rule.outboundTag))
-        add(
-          `routing.rules[${index}].outboundTag`,
-          'Referenced outbound tag is missing; virtual reverse tags require reverse support.',
-        );
-    });
-  }
+  const policy = require('./policy').policy(input, {
+    baseDir,
+    add,
+    host,
+    port,
+    inbounds,
+    outbounds,
+  });
   const limits = {
     connectTimeoutMs: 10000,
     handshakeTimeoutMs: 10000,
@@ -295,7 +381,9 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
   const config = {
     inbounds,
     outbounds,
-    routing: input.routing,
+    routing: policy.routing,
+    dns: policy.dns,
+    geodata: policy.geodata,
     storage:
       typeof input.storage === 'string' && input.storage
         ? path.resolve(baseDir, input.storage)
@@ -303,6 +391,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     debug: input.debug,
     limits,
   };
+  Object.defineProperty(config, '_assets', { value: policy.assets });
   return {
     ok: diagnostics.length === 0,
     diagnostics,

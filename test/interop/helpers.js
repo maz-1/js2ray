@@ -66,7 +66,12 @@ async function runCore(t, kind, config, port) {
   const child = spawn(executable, ['run', '-config', filename], {
     windowsHide: true,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, ...(kind === 'xray' ? { 'xray.cone.disabled': 'true' } : {}) },
+    env: {
+      ...process.env,
+      XRAY_LOCATION_ASSET: path.resolve(__dirname, '../fixtures/geodata'),
+      V2RAY_LOCATION_ASSET: path.resolve(__dirname, '../fixtures/geodata'),
+      ...(kind === 'xray' ? { 'xray.cone.disabled': 'true' } : {}),
+    },
   });
   let log = '';
   let spawnError;

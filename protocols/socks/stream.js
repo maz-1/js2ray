@@ -89,8 +89,9 @@ async function server(socket, bound, dial, options) {
     };
     await terminated();
     if (dest[2] === 0 && dest[3] === 0 && dest[4] === 0 && dest[5] !== 0) host = await terminated();
+    if (options.earlyReply) await write(socket, Buffer.from([0, 90, ...dest]));
     const remote = await dial({ host, port: dest.readUInt16BE() });
-    await write(socket, Buffer.from([0, 90, ...dest]));
+    if (!options.earlyReply) await write(socket, Buffer.from([0, 90, ...dest]));
     return remote;
   }
   if (greeting[0] !== 5 || !greeting[1])
@@ -116,14 +117,15 @@ async function server(socket, bound, dial, options) {
     throw failure('ERR_UNSUPPORTED', 'Only SOCKS CONNECT is supported in this stage.', 'protocol');
   }
   const target = await readAddress(reader, request[3]);
+  if (options.earlyReply) await write(socket, Buffer.from([5, 0, 0, 1, 0, 0, 0, 0, 0, 0]));
   let remote;
   try {
     remote = await dial(target);
   } catch (error) {
-    await write(socket, Buffer.from([5, 5, 0, 1, 0, 0, 0, 0, 0, 0]));
+    if (!options.earlyReply) await write(socket, Buffer.from([5, 5, 0, 1, 0, 0, 0, 0, 0, 0]));
     throw error;
   }
-  await write(socket, Buffer.from([5, 0, 0, 1, 0, 0, 0, 0, 0, 0]));
+  if (!options.earlyReply) await write(socket, Buffer.from([5, 0, 0, 1, 0, 0, 0, 0, 0, 0]));
   return remote;
 }
 

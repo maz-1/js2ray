@@ -12,6 +12,9 @@ const { connect, createListener } = require('../transports');
 const { relay, legacyDuplex } = require('./streams');
 const { Js2rayError, failure } = require('./errors');
 const { FramedDatagram, directDatagram } = require('./datagram');
+const { Router } = require('../routing');
+const { Resolver } = require('../dns');
+const { sniff } = require('../routing/sniff');
 
 class Runtime extends EventEmitter {
   #state = 'created';
@@ -26,6 +29,8 @@ class Runtime extends EventEmitter {
   #vmess;
   #clients = new Map();
   #storage;
+  #router;
+  #resolver;
 
   constructor(config, options = {}) {
     super();
@@ -33,6 +38,17 @@ class Runtime extends EventEmitter {
       throw failure('ERR_CONFIG', 'Expected a DNS lookup function.', 'config');
     this.#config = normalizeConfig(config, options);
     this.#options = options;
+    this.#router =
+      typeof this.#config.routing === 'object'
+        ? new Router(this.#config.routing, this.#config._assets)
+        : undefined;
+    this.#resolver = new Resolver(this.#config.dns, {
+      data: this.#config._assets,
+      dial: (target) => this.dial(target),
+      openDatagram: (target) => this.openDatagram(target),
+      signal: this.#lifetime.signal,
+      lookup: options.lookup,
+    });
     this.#storage = createStorage(this.#config.storage);
     this.#storage.on('storageError', (error) => this.#report(error));
   }
@@ -137,6 +153,7 @@ class Runtime extends EventEmitter {
               this.#track(socket);
               if (handler) this.#acceptLegacy(socket, handler);
               else if (bound.protocol === 'vless') this.#acceptVless(socket, bound);
+              else if (bound.protocol === 'tcp') this.#acceptTcp(socket, bound);
               else this.#acceptSocks(socket, bound);
             },
             this.#config.limits,
@@ -199,9 +216,31 @@ class Runtime extends EventEmitter {
       const remote = await socks.server(
         socket,
         bound,
-        (target) => this.dial({ ...target, inboundTag: bound.tag }),
-        { signal: this.#lifetime.signal, timeoutMs: this.#config.limits.handshakeTimeoutMs },
+        (target) => this.#inboundDial(socket, bound, target),
+        {
+          signal: this.#lifetime.signal,
+          timeoutMs: this.#config.limits.handshakeTimeoutMs,
+          earlyReply: bound.sniffing?.enabled,
+        },
       );
+      if (socket.destroyed) remote.destroy();
+      else relay(socket, remote);
+    } catch (error) {
+      socket.destroy();
+      this.#report(error);
+    }
+  }
+
+  async #inboundDial(socket, bound, target) {
+    const name = await sniff(socket, bound.sniffing, this.#lifetime.signal);
+    if (name)
+      target = { ...target, ...(bound.sniffing.routeOnly ? { routeHost: name } : { host: name }) };
+    return this.dial({ ...target, inboundTag: bound.tag });
+  }
+
+  async #acceptTcp(socket, bound) {
+    try {
+      const remote = await this.#inboundDial(socket, bound, bound.target);
       if (socket.destroyed) remote.destroy();
       else relay(socket, remote);
     } catch (error) {
@@ -239,13 +278,13 @@ class Runtime extends EventEmitter {
         pump(remote, local).catch((error) => this.#report(error));
         return;
       }
-      const remote = await this.dial({
+      await require('./streams').write(socket, Buffer.from([0, 0]));
+      const remote = await this.#inboundDial(socket, bound, {
         host: target.host,
         port: target.port,
         inboundTag: bound.tag,
       });
       if (socket.destroyed) return remote.destroy();
-      await require('./streams').write(socket, Buffer.from([0, 0]));
       relay(socket, remote);
     } catch (error) {
       socket.destroy();
@@ -362,7 +401,7 @@ class Runtime extends EventEmitter {
       connect(network, {
         ...this.#config.limits,
         signal: AbortSignal.any([pending.signal, this.#lifetime.signal]),
-        lookup: this.#options.lookup,
+        lookup: this.#resolver.bootstrapLookup,
       }).then(
         (stream) => {
           socket = stream;
@@ -397,6 +436,13 @@ class Runtime extends EventEmitter {
   }
   openDatagram(target) {
     return this.#dial(target, true);
+  }
+  resolve(host, options) {
+    if (this.#state !== 'running')
+      return Promise.reject(
+        failure('ERR_STATE', 'Runtime must be running before resolving.', 'runtime'),
+      );
+    return this.#resolver.resolve(host, options);
   }
 
   async #dial(target, datagram) {
@@ -434,7 +480,9 @@ class Runtime extends EventEmitter {
       if (signal.aborted)
         throw failure('ERR_CANCELLED', 'Dial was cancelled.', 'transport', signal.reason);
       let tag = target.outboundTag;
-      if (tag === undefined && this.#config.routing) {
+      if (tag === undefined && this.#router)
+        tag = this.#router.select({ ...target, network: datagram ? 'udp' : 'tcp' });
+      else if (tag === undefined && typeof this.#config.routing === 'function') {
         tag = this.#config.routing(target.host, target.port, datagram ? 2 : 1, target.inboundTag);
         if (tag === true) tag = undefined;
         if (tag === false || tag === null)
@@ -445,10 +493,28 @@ class Runtime extends EventEmitter {
           ? this.#config.outbounds[0]
           : this.#config.outbounds.find((item) => item.tag === tag);
       if (!bound) throw failure('ERR_ROUTING', 'Outbound tag does not exist.', 'routing');
+      if (bound.protocol === 'blackhole')
+        throw failure('ERR_BLOCKED', 'Target blocked by routing.', 'routing');
+      if (bound.redirect) {
+        const match = /^(?:\[([^\]]+)\]|([^:]+)):(\d+)$/.exec(bound.redirect);
+        target = { ...target, host: match[1] || match[2], port: Number(match[3]) };
+      }
+      let lookup = this.#resolver.bootstrapLookup;
+      if (
+        bound.protocol === 'freedom' &&
+        !target.dnsInternal &&
+        (bound.domainStrategy ?? 'AsIs') !== 'AsIs'
+      ) {
+        const family =
+          bound.domainStrategy === 'UseIPv4' ? 4 : bound.domainStrategy === 'UseIPv6' ? 6 : 0;
+        const records = await this.#resolver.resolve(target.host, { family, signal });
+        if (!records.length) throw failure('ERR_DNS', 'No target address.', 'dns');
+        target = { ...target, host: records[0].address };
+      }
       const options = {
         ...this.#config.limits,
         signal,
-        lookup: this.#options.lookup,
+        lookup,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       };
       if (datagram && !['vless', 'freedom'].includes(bound.protocol))
@@ -610,6 +676,7 @@ class Runtime extends EventEmitter {
     this.#vmess?.close();
     this.#clients.clear();
     this.#storage.close();
+    this.#resolver.close();
   }
 }
 

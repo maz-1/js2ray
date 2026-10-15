@@ -1,0 +1,12 @@
+{
+  "geoip": {
+    "path": "test/fixtures/geodata/geoip.dat",
+    "version": "synthetic-v1",
+    "sha256": "10372c914d3451756145f789269246fee8cc937b1b2c28895847d9d399e21caa"
+  },
+  "geosite": {
+    "path": "test/fixtures/geodata/geosite.dat",
+    "version": "synthetic-v1",
+    "sha256": "cf11aeac53820c8d52b56b3c1acfbe4d52dea7b8a21facbd456e98e751ea348a"
+  }
+}

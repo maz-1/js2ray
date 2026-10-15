@@ -196,16 +196,16 @@ SOCKS 入站在样例中属于显式、可选功能。无端口库模式用另�
 
 工作内容：
 
-- [ ] 实现两种配置格式的规范化及严格能力诊断。
-- [ ] 新增 Blackhole、Freedom redirect 和 reverse Portal 测试需要的 TCP 转发入站。
-- [ ] 按规则顺序匹配 `inboundTag`、domain、IP/CIDR、port、network；同一字段的多个候选和多个字段组合遵循参考语义。
-- [ ] 支持 `full:`、`domain:` 和样例实际使用的 Geosite 类别；其他匹配形式按支持矩阵校验。
-- [ ] 实现 `domainStrategy: "AsIs"`，区分目标域名保留、路由解析与最终拨号解析。
-- [ ] 支持 hosts、普通 DNS、DoH、按 domains 选服务器、expectIPs、回退、缓存、超时及 A/AAAA。
-- [ ] 明确节点地址解析、DNS 查询及 DoH 自身连接的路径，避免 DNS 与代理递归依赖。
-- [ ] 用纯 JavaScript 加载固定版本的 GeoIP/Geosite 资源；校验资源格式、引用、大小、版本及校验值。
-- [ ] 区分 `geoip:!cn` 的取反语义与 `geosite:geolocation-!cn` 的类别名称。
-- [ ] 实现有界的 HTTP Host 和 TLS ClientHello SNI 嗅探，保留原始首包；分别验证 `routeOnly` 对路由目标和实际目标的影响。
+- [x] 实现两种配置格式的规范化及严格能力诊断。
+- [x] 新增 Blackhole、Freedom redirect 和 reverse Portal 测试需要的 TCP 转发入站。
+- [x] 按规则顺序匹配 `inboundTag`、domain、IP/CIDR、port、network；同一字段的多个候选和多个字段组合遵循参考语义。
+- [x] 支持 `full:`、`domain:` 和样例实际使用的 Geosite 类别；其他匹配形式按支持矩阵校验。
+- [x] 实现 `domainStrategy: "AsIs"`，区分目标域名保留、路由解析与最终拨号解析。
+- [x] 支持 hosts、普通 DNS、DoH、按 domains 选服务器、expectIPs、回退、缓存、超时及 A/AAAA。
+- [x] 明确节点地址解析、DNS 查询及 DoH 自身连接的路径，避免 DNS 与代理递归依赖。
+- [x] 用纯 JavaScript 加载固定版本的 GeoIP/Geosite 资源；校验资源格式、引用、大小、版本及校验值。
+- [x] 区分 `geoip:!cn` 的取反语义与 `geosite:geolocation-!cn` 的类别名称。
+- [x] 实现有界的 HTTP Host 和 TLS ClientHello SNI 嗅探，保留原始首包；分别验证 `routeOnly` 对路由目标和实际目标的影响。
 
 出口条件：脱敏组合样例通过配置检查；缺失资源及无效 tag 明确失败；同一目标集合下的路由结果与参考内核一致；私网直连、国内分流、广告阻断、UDP 443 阻断和远端出站均有验证。
 

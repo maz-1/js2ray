@@ -77,7 +77,7 @@ function adaptV2ray(input, add) {
         'protocol',
         'settings',
         'streamSettings',
-        ...(inbound ? ['port', 'listen'] : ['mux']),
+        ...(inbound ? ['port', 'listen', 'sniffing'] : ['mux']),
       ],
       prefix,
     );
@@ -87,6 +87,7 @@ function adaptV2ray(input, add) {
       settings = {};
     }
     const result = { tag: bound.tag, protocol: bound.protocol };
+    if (bound.sniffing !== undefined) result.sniffing = bound.sniffing;
     const stream = transport(bound.streamSettings, `${prefix}.streamSettings`);
     if (bound.mux) {
       checkKeys(bound.mux, ['enabled', 'concurrency'], `${prefix}.mux`);
@@ -94,14 +95,32 @@ function adaptV2ray(input, add) {
         add(`${prefix}.mux.enabled`, 'Outbound Mux is not implemented.');
     }
     if (bound.protocol === 'freedom') {
-      checkKeys(settings, [], `${prefix}.settings`);
+      checkKeys(settings, ['redirect', 'domainStrategy'], `${prefix}.settings`);
+      if (settings.redirect !== undefined) result.redirect = settings.redirect;
+      if (settings.domainStrategy !== undefined) result.domainStrategy = settings.domainStrategy;
       if (bound.streamSettings)
         add(`${prefix}.streamSettings`, 'Freedom does not accept a proxy transport.');
       return result;
     }
+    if (bound.protocol === 'blackhole') {
+      checkKeys(settings, ['response'], `${prefix}.settings`);
+      if (
+        settings.response &&
+        (settings.response.type !== 'none' ||
+          Object.keys(settings.response).some((key) => key !== 'type'))
+      )
+        add(prefix + '.settings.response', 'Only silent Blackhole responses are supported.');
+      return result;
+    }
     if (inbound) {
       result.networks = [{ ...stream, address: bound.listen ?? '127.0.0.1', port: bound.port }];
-      if (['vless', 'vmess'].includes(bound.protocol)) {
+      if (bound.protocol === 'dokodemo-door') {
+        checkKeys(settings, ['address', 'port', 'network', 'followRedirect'], prefix + '.settings');
+        if ((settings.network ?? 'tcp') !== 'tcp' || settings.followRedirect)
+          add(prefix + '.settings', 'Only fixed TCP forwarding is supported.');
+        result.protocol = 'tcp';
+        result.target = { host: settings.address, port: settings.port };
+      } else if (['vless', 'vmess'].includes(bound.protocol)) {
         checkKeys(
           settings,
           bound.protocol === 'vless' ? ['clients', 'decryption'] : ['clients'],

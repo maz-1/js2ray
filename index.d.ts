@@ -64,11 +64,69 @@ export interface SocksUser {
   user: string;
   pass: string;
 }
-export type Bound =
+export interface Sniffing {
+  enabled?: boolean;
+  routeOnly?: boolean;
+  destOverride?: Array<'http' | 'tls'>;
+  timeoutMs?: number;
+  maxBytes?: number;
+}
+export type Bound = (
   | { tag?: string; protocol: 'vmess'; networks: Network[]; users: VmessUser[] }
   | { tag?: string; protocol: 'vless'; networks: Network[]; users: VlessUser[] }
-  | { tag?: string; protocol: 'socks'; networks: Network[]; users?: SocksUser[] };
-export type Outbound = Bound | { tag?: string; protocol?: 'freedom' };
+  | { tag?: string; protocol: 'socks'; networks: Network[]; users?: SocksUser[] }
+  | { tag?: string; protocol: 'tcp'; networks: Network[]; target: { host: string; port: number } }
+) & { sniffing?: Sniffing };
+export type Outbound =
+  | Bound
+  | {
+      tag?: string;
+      protocol?: 'freedom';
+      redirect?: string;
+      domainStrategy?: 'AsIs' | 'UseIP' | 'UseIPv4' | 'UseIPv6';
+    }
+  | { tag?: string; protocol: 'blackhole' };
+export interface RoutingRule {
+  type?: 'field';
+  inboundTag?: string[];
+  domain?: string[];
+  ip?: string[];
+  port?: string | number;
+  network?: string;
+  outboundTag: string;
+}
+export interface Routing {
+  domainStrategy?: 'AsIs';
+  rules?: RoutingRule[];
+}
+export interface GeoResource {
+  path: string;
+  version: string;
+  sha256: string;
+  maxBytes?: number;
+}
+export interface DnsConfig {
+  hosts?: Record<string, string | string[]>;
+  servers?: Array<
+    | string
+    | {
+        address: string;
+        port?: number;
+        domains?: string[];
+        expectIPs?: string[];
+        skipFallback?: boolean;
+        outboundTag?: string;
+        tls?: Pick<TlsOptions, 'ca' | 'caFile' | 'serverName'>;
+      }
+  >;
+  queryStrategy?: 'UseIP' | 'UseIPv4' | 'UseIPv6';
+  disableCache?: boolean;
+  disableFallback?: boolean;
+  tag?: string;
+  timeoutMs?: number;
+  cacheSize?: number;
+  maxConcurrent?: number;
+}
 export interface Limits {
   connectTimeoutMs?: number;
   handshakeTimeoutMs?: number;
@@ -80,12 +138,16 @@ export interface Limits {
 export interface NativeConfig {
   inbounds?: Bound[];
   outbounds?: Outbound[];
-  routing?: (
-    host: string,
-    port: number,
-    command: 1 | 2,
-    inboundTag?: string,
-  ) => string | boolean | null;
+  routing?:
+    | Routing
+    | ((
+        host: string,
+        port: number,
+        command: 1 | 2,
+        inboundTag?: string,
+      ) => string | boolean | null);
+  dns?: DnsConfig;
+  geodata?: { geoip?: GeoResource; geosite?: GeoResource };
   storage?: string;
   debug?: (event: ErrorRecord) => void;
   limits?: Limits;
@@ -146,6 +208,10 @@ export class Runtime extends EventEmitter {
   readonly listenersInfo: Array<{ tag: string; address: AddressInfo | string | null }>;
   start(): Promise<this>;
   dial(target: DialTarget): Promise<ConnectionStream>;
+  resolve(
+    host: string,
+    options?: { family?: 0 | 4 | 6; signal?: AbortSignal },
+  ): Promise<Array<{ address: string; family: number; ttl: number }>>;
   openDatagram(target: DatagramTarget): Promise<DatagramSession>;
   close(options?: { drainTimeoutMs?: number }): Promise<void>;
 }

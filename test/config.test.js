@@ -91,7 +91,7 @@ test('invalid shapes always return diagnostics rather than crashing', () => {
 test('the full reference requirements remain a failing fixture until their behavior exists', () => {
   const report = checkConfig(require('./fixtures/reference-config.pending.json'));
   assert.equal(report.ok, false);
-  for (const field of ['reverse', 'dns', 'routing', 'routing.rules[1].outboundTag'])
+  for (const field of ['reverse', 'routing', 'routing.rules[1].outboundTag'])
     assert.ok(report.diagnostics.some((item) => item.path === field));
 });
 
