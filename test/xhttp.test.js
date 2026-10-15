@@ -476,6 +476,24 @@ test('XHTTP pulls coalesced HTTP bodies within its own window even after a large
   assert.equal(stream.destroyed, false);
   assert.ok(stream.readableLength <= 1024);
   assert.deepEqual(await readBytes(stream, payload.length), payload);
+  // A normal read(n) within the byte limit must still be able to accumulate n bytes.
+  const wholeBody = new PassThrough();
+  const whole = new XhttpStream(
+    { maxBytes: 65536 },
+    { finish: (callback) => callback(), dispose: () => wholeBody.destroy() },
+  );
+  t.after(() => whole.destroy());
+  attachBody(wholeBody, whole);
+  const full = randomBytes(65536);
+  const received = new Promise((resolve, reject) => {
+    whole.on('readable', () => {
+      const data = whole.read(full.length);
+      if (data) resolve(data);
+    });
+    whole.once('error', reject);
+  });
+  wholeBody.end(full);
+  assert.deepEqual(await received, full);
 });
 
 test('XHTTP connects to IPv6 and injected domain addresses over HTTP/1.1 and h2c', async (t) => {
@@ -511,16 +529,22 @@ test(
   { timeout: 10000 },
   async (t) => {
     const fixtures = await Promise.all([
-      fixture(t, variants[1], {}, undefined, { maxConnections: 128 }),
-      fixture(t, variants[3], {}, undefined, { maxConnections: 128 }),
+      fixture(t, variants[1], {}, undefined, { maxConnections: 128, handshakeTimeoutMs: 5000 }),
+      fixture(t, variants[3], {}, undefined, { maxConnections: 128, handshakeTimeoutMs: 5000 }),
     ]);
     const clients = await Promise.all(
       Array.from({ length: 100 }, (_, index) => {
         const { network } = fixtures[index % 2];
-        return connect({
-          ...network,
-          option: { ...network.option, mode: ['packet-up', 'stream-up', 'stream-one'][index % 3] },
-        });
+        return connect(
+          {
+            ...network,
+            option: {
+              ...network.option,
+              mode: ['packet-up', 'stream-up', 'stream-one'][index % 3],
+            },
+          },
+          { handshakeTimeoutMs: 5000 },
+        );
       }),
     );
     t.after(() => {

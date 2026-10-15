@@ -93,7 +93,9 @@ class XhttpStream extends Duplex {
       return false;
     }
     this.activity();
-    return this.push(data) && this.readableLength < Math.min(16384, this.maxBytes);
+    return (
+      this.push(data) && this.readableLength < Math.min(this.readableHighWaterMark, this.maxBytes)
+    );
   }
   setTimeout(milliseconds, callback) {
     this.idleMs = milliseconds;
@@ -134,7 +136,7 @@ function attachBody(body, stream) {
   // pull only available space; a native HTTP body may coalesce a much larger chunk.
   const pull = () => {
     if (stream.destroyed) return;
-    const window = Math.min(16384, stream.maxBytes);
+    const window = Math.min(stream.readableHighWaterMark, stream.maxBytes);
     while (stream.readableLength < window && body.readableLength) {
       const data = body.read(Math.min(window - stream.readableLength, body.readableLength));
       if (!data || !stream.receive(data)) break;
