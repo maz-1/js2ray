@@ -233,7 +233,13 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         }
         keys(
           option,
-          ['path', 'headers', 'tls', ...(type === 'xhttp' ? require('./xhttp').fields : [])],
+          [
+            'path',
+            'headers',
+            'tls',
+            'reality',
+            ...(type === 'xhttp' ? require('./xhttp').fields : []),
+          ],
           np + '.option',
         );
         if (type === 'xhttp')
@@ -269,6 +275,26 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             add(np + '.option.headers', 'Invalid or reserved WebSocket header.');
         }
         const tls = option.tls;
+        let reality;
+        if (option.reality !== undefined) {
+          if (type !== 'tcp' || protocol !== 'vless')
+            add(np + '.option.reality', 'REALITY supports VLESS over raw TCP only.');
+          if (tls !== undefined)
+            add(np + '.option.reality', 'TLS and REALITY are mutually exclusive.');
+          require('./reality').validate(option.reality, {
+            add,
+            prefix: np + '.option.reality',
+            inbound: kind === 'inbound',
+            host,
+            port,
+          });
+          if (
+            option.reality &&
+            typeof option.reality === 'object' &&
+            !Array.isArray(option.reality)
+          )
+            reality = require('./reality').normalize(option.reality, kind === 'inbound');
+        }
         let normalizedTls;
         if (tls !== undefined) {
           if (!tls || typeof tls !== 'object' || Array.isArray(tls))
@@ -314,6 +340,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             ...option,
             headers: option.headers ? { ...option.headers } : undefined,
             tls: normalizedTls,
+            ...(reality ? { reality } : {}),
           },
         };
       });
@@ -398,8 +425,12 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         protocol === 'vless' &&
         normalizedUsers.some((user) => user.flow?.startsWith('xtls-rprx-vision'));
       if (vision) {
-        if (normalizedNetworks.some((network) => network.type !== 'tcp' || !network.option.tls))
-          add(prefix + '.networks', 'Vision requires raw TCP with TLS (outer TLS 1.3).');
+        if (
+          normalizedNetworks.some(
+            (network) => network.type !== 'tcp' || !(network.option.tls || network.option.reality),
+          )
+        )
+          add(prefix + '.networks', 'Vision requires raw TCP with TLS 1.3 or REALITY.');
         if (item.mux?.enabled)
           add(prefix + '.mux', 'Vision permits UDP/XUDP only; TCP Mux is unsupported.');
         if (item.packetEncoding === 'none')
@@ -494,7 +525,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     config,
     capabilities: {
       protocols: { inbound: [...supported.inbound], outbound: [...supported.outbound] },
-      transports: ['tcp', 'tls', 'ws', 'wss', 'xhttp'],
+      transports: ['tcp', 'tls', 'ws', 'wss', 'xhttp', 'reality'],
       udp: ['vless', 'freedom', 'socks', 'vmess', 'mux', 'xudp', 'reverse'],
       reverse: true,
       mux: true,
@@ -515,7 +546,9 @@ function redact(value) {
   return JSON.parse(
     JSON.stringify(value, (key, entry) => {
       if (
-        /^(id|user|pass|password|email|key|cert|ca|pfx|headers)$/i.test(key) ||
+        /^(id|user|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers)$/i.test(
+          key,
+        ) ||
         /token|secret|authorization|cookie/i.test(key)
       )
         return '<redacted>';

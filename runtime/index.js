@@ -195,6 +195,10 @@ class Runtime extends EventEmitter {
             ? this.#vmess.server(bound, this.#legacyDial(bound))
             : undefined;
         for (const network of bound.networks) {
+          const listenerOptions = {
+            ...this.#config.limits,
+            lookup: this.#resolver.bootstrapLookup,
+          };
           if (this.#lifetime.signal.aborted)
             throw failure('ERR_CANCELLED', 'Startup was cancelled.', 'runtime');
           const accept = (socket) => {
@@ -214,12 +218,12 @@ class Runtime extends EventEmitter {
               network,
               bound.tag,
               bound.networks.indexOf(network),
-              this.#config.limits,
+              listenerOptions,
               accept,
             );
             continue;
           }
-          const listener = createListener(network, accept, this.#config.limits);
+          const listener = createListener(network, accept, listenerOptions);
           const { server } = listener;
           server.on('error', (error) =>
             this.#report(failure('ERR_LISTEN', 'Inbound listener failed.', 'inbound', error)),

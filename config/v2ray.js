@@ -14,16 +14,29 @@ function adaptV2ray(input, add) {
     }
     checkKeys(
       stream,
-      ['network', 'security', 'tlsSettings', 'wsSettings', 'tcpSettings', 'xhttpSettings'],
+      [
+        'network',
+        'security',
+        'tlsSettings',
+        'realitySettings',
+        'wsSettings',
+        'tcpSettings',
+        'xhttpSettings',
+      ],
       prefix,
     );
-    const network = stream.network ?? 'tcp';
+    const network = stream.network === 'raw' ? 'tcp' : (stream.network ?? 'tcp');
     if (!['tcp', 'ws', 'xhttp'].includes(network))
       add(`${prefix}.network`, 'Transport is not implemented.');
     const security = stream.security ?? 'none';
-    if (!['none', 'tls'].includes(security))
-      add(`${prefix}.security`, 'Only none and TLS transport security are implemented.');
+    if (!['none', 'tls', 'reality'].includes(security))
+      add(`${prefix}.security`, 'Supported transport security: none, TLS and REALITY.');
     const option = {};
+    if (security === 'reality') {
+      if (network !== 'tcp') add(prefix + '.security', 'REALITY requires raw TCP.');
+      option.reality = stream.realitySettings ?? {};
+    } else if (stream.realitySettings !== undefined)
+      add(prefix + '.realitySettings', 'REALITY settings require security reality.');
     if (stream.xhttpSettings !== undefined) {
       const xhttp = stream.xhttpSettings;
       if (network !== 'xhttp')

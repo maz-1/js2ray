@@ -3,12 +3,13 @@ const { failure } = require('./errors');
 
 // Read only requested bytes. Surplus stays on the paused stream for its next owner.
 class StreamReader {
-  constructor(stream, { signal, timeoutMs = 10000, maxBytes = 65536 } = {}) {
+  constructor(stream, { signal, timeoutMs = 10000, maxBytes = 65536, onRead } = {}) {
     this.stream = stream;
     this.signal = signal;
     this.maxBytes = maxBytes;
     this.deadline = Date.now() + timeoutMs;
     this.total = 0;
+    this.onRead = onRead;
     stream.pause();
   }
   async read(size) {
@@ -22,6 +23,7 @@ class StreamReader {
         throw failure('ERR_CANCELLED', 'Handshake was cancelled.', 'protocol', this.signal.reason);
       const chunk = this.stream.read(Math.min(remaining, this.stream.readableLength || remaining));
       if (chunk) {
+        this.onRead?.(chunk);
         parts.push(chunk);
         remaining -= chunk.length;
         continue;

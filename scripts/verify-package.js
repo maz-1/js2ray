@@ -107,6 +107,34 @@ try {
     inner.destroy(); tunnel.destroy();
     await visionClient.close(); await visionServer.close();
     await new Promise(resolve => tlsTarget.close(resolve));
+    const coverSockets = new Set();
+    const cover = tls.createServer({cert,key,minVersion:'TLSv1.3',maxVersion:'TLSv1.3',ecdhCurve:'X25519'}, socket => socket.pipe(socket));
+    cover.on('tlsClientError',()=>{});
+    cover.on('connection',socket=>{coverSockets.add(socket);socket.on('error',()=>{});socket.once('close',()=>coverSockets.delete(socket));});
+    await new Promise(resolve=>cover.listen(0,'127.0.0.1',resolve));
+    const crypto = require('node:crypto'), pair = crypto.generateKeyPairSync('x25519');
+    const privateKey = pair.privateKey.export({type:'pkcs8',format:'der'}).subarray(-32).toString('base64url');
+    const publicKey = pair.publicKey.export({type:'spki',format:'der'}).subarray(-32).toString('base64url');
+    const realityTarget = tls.createServer({cert,key,minVersion:'TLSv1.3',allowHalfOpen:true},socket=>socket.pipe(socket));
+    await new Promise(resolve=>realityTarget.listen(0,'127.0.0.1',resolve));
+    const realityServer = api.createRuntime({inbounds:[{protocol:'vless',users:[{id,flow}],networks:[{port:0,option:{reality:{privateKey,serverNames:['js2ray.test'],shortIds:['abcd'],dest:'127.0.0.1:'+cover.address().port,maxTimeDiff:60000}}}]}]});
+    await realityServer.start();
+    const realityClient = api.createRuntime({outbounds:[{protocol:'vless',users:[{id,flow,encryption:'none'}],networks:[{address:'127.0.0.1',port:realityServer.listenersInfo[0].address.port,option:{reality:{publicKey,serverName:'js2ray.test',shortId:'abcd',fingerprint:'chrome120'}}}]}]});
+    await realityClient.start();
+    const realityTunnel = await realityClient.dial({host:'127.0.0.1',port:realityTarget.address().port});
+    const realityInner = tls.connect({socket:realityTunnel,ca:cert,servername:'js2ray.test',minVersion:'TLSv1.3'});
+    realityInner.on('error',()=>{}); await once(realityInner,'secureConnect');
+    realityInner.write('packed-reality-vision');
+    const realityReply = []; let realityTotal = 0;
+    for await(const chunk of realityInner){realityReply.push(chunk);realityTotal+=chunk.length;if(realityTotal>=21)break;}
+    assert.equal(Buffer.concat(realityReply).toString(),'packed-reality-vision');
+    for(const instance of [realityClient,realityServer]){
+      assert.equal(instance.metrics.visionReadSwitches,1);assert.equal(instance.metrics.visionWriteSwitches,1);
+    }
+    realityInner.destroy(); realityTunnel.destroy();
+    await realityClient.close(); await realityServer.close();
+    for(const socket of coverSockets)socket.destroy();
+    await Promise.all([new Promise(resolve=>cover.close(resolve)),new Promise(resolve=>realityTarget.close(resolve))]);
     console.log('package-ok');
   })().catch(error => { console.error(error); process.exitCode = 1; });`,
     ],

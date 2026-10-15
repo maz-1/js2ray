@@ -124,10 +124,22 @@ XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；pac
 
 ## Vision（P15）
 
-VLESS 用户设置 `flow: 'xtls-rprx-vision'`，所有节点必须使用原始 TCP 与 TLS。出站及含 Vision 用户的入站监听器强制外层 TLS 1.3；同一监听器的空 flow 用户也使用 TLS 1.3，继续按普通 VLESS 处理。支持原生配置及传统 JSON 的 users/clients.flow，示例见 `examples/vless-vision-client.json`。WS/XHTTP、REALITY、TCP Mux 和未知 flow 明确拒绝。
+VLESS 用户设置 `flow: 'xtls-rprx-vision'`，所有节点必须使用原始 TCP 与 TLS 或 P16 的 REALITY。出站及含 Vision 用户的入站监听器强制外层 TLS 1.3；同一监听器的空 flow 用户也使用 TLS 1.3，继续按普通 VLESS 处理。支持原生配置及传统 JSON 的 users/clients.flow，示例见 `examples/vless-vision-client.json`。WS/XHTTP、TCP Mux 和未知 flow 明确拒绝。
 
 两个方向分别处理 UUID、Continue/End/Direct、内容长度与随机填充。VLESS 请求/响应头与初始空填充合并写入，避免独立暴露短头部。内层 TLS 1.3 协商及符合条件的密码套件触发 Direct；普通流量、TLS 1.2 保留外层 TLS。Direct 只绕过外层封装，内层目标 TLS 继续验证和加密。实现只使用 Node.js 公开 Duplex、TLS 和内存 keylog 事件，读取秘密不写文件或日志；切换前以记录明文字节数和解析器确认阻止后续原始字节进入 OpenSSL。外层 AES-128-GCM、AES-256-GCM、ChaCha20-Poly1305 及切换前 KeyUpdate 有测试。Direct 写方向建立后若 TLS 试图追加控制记录，连接以 ERR_TLS 结束，避免把控制记录混入业务流。
 
 UDP 自动采用独占承载的 XUDP，默认拒绝 UDP/443；仅出站可以设置 `xtls-rprx-vision-udp443` 显式允许，线上仍发送基础 Vision flow。Vision 入站的 Mux 只接受 UDP，传统 UDP 命令及 TCP Mux 会话拒绝。与 Xray 25.3.6 的 UDP 对照使用 1400 字节，并明确验证 8193 字节被该内核拒绝；不能把 JS 两端的大包能力外推到参考内核，空 UDP 包也不属于该版本 Xray 的互通承诺。
 
 `runtime.metrics` 增加 `visionSessions`、`visionReadSwitches`、`visionWriteSwitches`；这些是实例累计值，业务字节统计不包含填充。Direct 保留 TCP 半关闭、取消、背压及连接关闭；无需原生模块、外部内核进程或 WASM，不提供 Linux splice 优化。同端口 Vision 监听器支持用户及证书轮换、已认证旧流排空和失败回滚；普通 TLS 监听器与 Vision 记录门控监听器之间的类型切换需使用不同端口，原端口上的不兼容变更返回 ERR_ROTATION。
+
+## REALITY（P16）
+
+VLESS 原始 TCP 的 `network.option.reality` 与 `option.tls` 互斥。客户端设置 `publicKey`、`serverName`、`shortId`，可选 `fingerprint: 'chrome120'`（默认，`chrome` 是同一固定模板的别名）及 `clientVersion: '4.0.0'`。密钥为规范的 32 字节 base64url，short ID 为 0–8 字节偶数位十六进制；域名规范化为小写 ASCII。地址与 SNI 独立，必须显式指定 SNI。传统 JSON 接受 `security: 'reality'`、`realitySettings` 和 `network: 'tcp'|'raw'`；合成客户端示例为 `examples/vless-reality-client.json`。
+
+服务端设置 `privateKey`、`serverNames`、`shortIds` 和固定 `dest: 'host:port'`（IPv6 使用 `[host]:port`）。名称和 short ID 列表分别为 1–128 项，short ID 按补零后的八字节值检查重复。可选 `minClientVer`/`maxClientVer` 为三个版本字节，`maxTimeDiff` 为毫秒，0–86400000，默认 0 与固定 Xray 一致，表示不检查时间差；需要时钟窗口时显式设置，例如 60000。`xver` 仅支持 0，`show` 仅支持 false。密钥与 short ID 在 CLI/日志脱敏；不产生密钥文件、keylog 或凭据日志。
+
+客户端执行 X25519、ClientHello Session ID 的 AEAD 认证、TLS 1.3 密钥派生、REALITY Ed25519 证书 HMAC、CertificateVerify 和 Finished 校验；任何一项失败都在发送 VLESS 请求或业务字节前关闭。不会用公开 CA 证书替代 REALITY 认证，也不实现 Xray 的 spiderX 爬虫回退。密码套件支持 AES-128-GCM/SHA256、AES-256-GCM/SHA384 和 ChaCha20-Poly1305/SHA256；证书 Brotli 解压及握手/记录缓冲均有上限。记录层支持序号、认证、TLS 填充、close_notify、KeyUpdate 和半关闭，不支持 TLS 会话恢复与 0-RTT。
+
+服务端将收到的 ClientHello 发送到固定 dest，认证通过后镜像目标 ServerHello 与首个加密握手 flight 的记录长度，替换 X25519 与 REALITY 认证材料。目标必须接受所提供 SNI、TLS 1.3、X25519、上述套件和兼容 CCS，不能要求 HelloRetryRequest 或客户端证书；握手 flight 必须为单个合并记录或 EE/Certificate/CertificateVerify/Finished 四记录布局，且容纳 REALITY 握手材料。不镜像额外 SessionTicket 的时序，也不承诺任意网站的流量特征。目标域名仅经 hosts/系统引导解析，避免代理递归。未认证及畸形 ClientHello 的已消费与剩余字节完整转发到固定 dest，普通 TLS 客户端可实际访问该目标。未完成握手及转发连接受连接数、握手期限、缓冲限制约束；未认证转发的空闲预算使用非零 idleTimeoutMs，否则使用 handshakeTimeoutMs。
+
+空 flow 支持普通 VLESS TCP/传统 UDP；Vision 支持真实双向 Direct 与 XUDP，内层 TLS 1.2/普通流量保持外层记录保护。Vision 指标和 UDP/443 策略沿用 P15。同端口可原子轮换 REALITY 私钥、short IDs、用户、dest、名称和限制，已认证旧流继续排空；候选失败保留当前配置。TLS 与 REALITY 监听类型切换需迁移端口。WS/XHTTP REALITY、PQ/Kyber、任意 uTLS 指纹、PROXY protocol、spiderX 均明确拒绝。固定 Chrome 120 模板的对照只证明与固定版本字段一致，不代表最新版浏览器指纹或抗识别保证。测试与实际证据见 [P16 验收](P16_REALITY_ACCEPTANCE.zh-CN.md)。

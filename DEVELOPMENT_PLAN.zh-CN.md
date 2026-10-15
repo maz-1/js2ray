@@ -29,7 +29,7 @@
 
 首轮运行时基线采用 Node.js 24，其他 Node.js 主版本在 CI 验证后再列入正式支持矩阵。
 
-后续独立扩展项包括 REALITY、XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
+后续独立扩展项包括 XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，P16 扩展 REALITY 及 Vision 组合，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
 ## 2 当前实现与优先修复项
 
@@ -352,7 +352,19 @@ P14 全部验收通过：XHTTP 专项 37/37、Xray 25.3.6 对照 21/21；Windows
 
 P15 全部验收通过：功能验收提交 `fd294a63e80abb5808ab31092682523e11f33491` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194)。公开 API 原型 8/8、Vision 协议及运行时 16/16、固定 Xray 25.3.6 双向互通 8/8；100 并发、同端口凭据及证书轮换、实际发布包内的双向 Direct 均通过。69 个产品源码的 Git 规范化 SHA256 汇总与逐平台作业/日志核对结果保存于 [机器可读证据](docs/acceptance/vision-2026-10-15.json)，隐私审计无敏感字段匹配。运行依赖仍仅 ws，产品无原生扩展、WASM 或参考内核进程。
 
-## 12 参考资料
+## 12 REALITY 扩展 P16（2026-10-15）
+
+先验证纯 Node.js 24 的公开 crypto/stream/net API 能否实现 REALITY 握手，固定 Xray 25.3.6 及其 REALITY 依赖提交 `48f0b2d5ed6d`。原型须验证 X25519、Session ID 认证、TLS 1.3 密钥派生、REALITY 证书认证、CertificateVerify/Finished 以及双向真实加密数据；不能仅以 TCP 连通或跳过服务端认证判定可行。
+
+- [x] 纯 Node.js 握手原型 4/4：三种 TLS 1.3 密码套件客户端对 Xray，Xray Chrome 客户端对 Node 服务端，均完成认证及加密数据往返。
+- [x] 完整客户端/服务端、目标握手镜像、未认证连接转发、配置/类型/文档与明确限制。
+- [x] 与 Vision 组合，实际双向 Direct、缓冲保序和 XUDP。
+- [x] 固定 Xray 双向互通 21/21（含 4 项原型），普通专项 27/27：认证拒绝、取消/限额、轮换与资源回收；100 并发真实内层 TLS 1.3 双向 Direct。
+- [ ] Windows、Linux、macOS 全量回归、互通、配置/类型/格式及发布包验收。
+
+原型通过后继续实现；实际支持边界、命令及验收证据在本节逐项更新。所有凭据、目标和密钥均使用独立合成 fixture，不读取真实节点配置进行 REALITY 试探。
+
+## 13 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

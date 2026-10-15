@@ -47,6 +47,7 @@ export interface Network {
     path?: string;
     headers?: Record<string, string>;
     tls?: TlsOptions;
+    reality?: RealityClientOptions | RealityServerOptions;
     host?: string;
     mode?: 'auto' | 'packet-up' | 'stream-up' | 'stream-one';
     httpVersion?: 'auto' | '1.1' | '2';
@@ -57,6 +58,25 @@ export interface Network {
     scMaxBufferedPosts?: number;
     scStreamUpServerSecs?: number;
   };
+}
+export interface RealityClientOptions {
+  publicKey: string;
+  serverName: string;
+  shortId: string;
+  fingerprint?: 'chrome' | 'chrome120';
+  clientVersion?: string;
+  show?: false;
+}
+export interface RealityServerOptions {
+  dest: string;
+  privateKey: string;
+  serverNames: string[];
+  shortIds: string[];
+  maxTimeDiff?: number;
+  minClientVer?: string;
+  maxClientVer?: string;
+  xver?: 0;
+  show?: false;
 }
 export interface VmessUser {
   id: string;

@@ -1,0 +1,31 @@
+{
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "users": [
+        {
+          "id": "5945fc2c-45b7-48cc-a19c-4cd28dbd6237",
+          "encryption": "none",
+          "flow": "xtls-rprx-vision"
+        }
+      ],
+      "networks": [
+        {
+          "type": "tcp",
+          "address": "127.0.0.1",
+          "port": 10443,
+          "option": {
+            "reality": {
+              "publicKey": "B6N8vBQgk8i3VdwbEOhstCY3StFqqFPtC9_AsrhtHHw",
+              "serverName": "synthetic.test",
+              "shortId": "abcd",
+              "fingerprint": "chrome120"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

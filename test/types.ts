@@ -23,6 +23,31 @@ const xhttp = createRuntime({
   ],
 });
 void xhttp;
+import { RealityClientOptions, RealityServerOptions } from '..';
+const reality: RealityClientOptions = {
+  publicKey: 'B6N8vBQgk8i3VdwbEOhstCY3StFqqFPtC9_AsrhtHHw',
+  serverName: 'synthetic.test',
+  shortId: 'abcd',
+  fingerprint: 'chrome120',
+};
+const realityServer: RealityServerOptions = {
+  privateKey: 'AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA',
+  shortIds: ['abcd'],
+  serverNames: ['synthetic.test'],
+  dest: 'cover.test:443',
+  maxTimeDiff: 60000,
+  xver: 0,
+};
+void createRuntime({
+  outbounds: [
+    {
+      protocol: 'vless',
+      users: [{ id: '5945fc2c-45b7-48cc-a19c-4cd28dbd6237', flow: 'xtls-rprx-vision' }],
+      networks: [{ port: 443, option: { reality } }],
+    },
+  ],
+});
+void realityServer;
 async function example() {
   await runtime.start();
   const stream = await runtime.dial({ host: 'example.test', port: 443 });

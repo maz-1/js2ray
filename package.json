@@ -21,7 +21,7 @@
     "start": "node cli/index.js",
     "test": "node --test --test-timeout=15000 test/*.test.js",
     "check": "node scripts/check.js",
-    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json && node cli/index.js check examples/vless-xhttp-client.json && node cli/index.js check examples/vless-vision-client.json && node cli/index.js check examples/combined.json",
+    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json && node cli/index.js check examples/vless-xhttp-client.json && node cli/index.js check examples/vless-vision-client.json && node cli/index.js check examples/vless-reality-client.json && node cli/index.js check examples/combined.json",
     "test:interop": "node --test --test-concurrency=1 --test-timeout=15000 test/interop/*.test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

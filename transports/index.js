@@ -144,6 +144,7 @@ async function connect(network, options = {}) {
     socket.connect({ host: network.address, port: network.port, lookup });
     await connecting;
     const option = network.option ?? {};
+    if (option.reality) return await require('./reality').client(socket, network, options);
     if (option.tls) {
       const raw = socket;
       const name = option.tls.serverName ?? network.address;
@@ -209,6 +210,8 @@ async function connect(network, options = {}) {
   }
 }
 function createListener(network, onConnection, options = {}) {
+  if (network.option?.reality)
+    return require('./reality').createListener(network, onConnection, options);
   if (network.type === 'xhttp')
     return require('./xhttp').createListener(network, onConnection, options, tlsOptions);
   let option = network.option ?? {};
