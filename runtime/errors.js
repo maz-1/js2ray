@@ -23,7 +23,7 @@ function failure(code, message, phase, cause) {
 }
 function normalizeError(cause, phase = 'transport') {
   if (cause instanceof Js2rayError) return cause;
-  const code = cause?.code;
+  const code = typeof cause?.code === 'string' ? cause.code : undefined;
   if (code === 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH')
     return failure('ERR_LIMIT', 'WebSocket message exceeded its limit.', 'websocket', cause);
   if (code?.startsWith('WS_ERR_'))

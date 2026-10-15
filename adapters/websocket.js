@@ -89,17 +89,38 @@ function createWebSocket(runtime, address, options = {}) {
   });
   const send = socket.send;
   socket.send = function (data, settings, callback) {
+    const done = typeof settings === 'function' ? settings : callback;
+    if (this.readyState !== WebSocket.OPEN) {
+      const error =
+        this.readyState === WebSocket.CONNECTING
+          ? failure('ERR_STATE', 'WebSocket is not open yet.', 'websocket')
+          : failure('ERR_CLOSED', 'WebSocket is closed.', 'websocket');
+      if (done && this.readyState !== WebSocket.CONNECTING) {
+        queueMicrotask(() => done(error));
+        return;
+      }
+      throw error;
+    }
     const length =
       data == null ? 0 : Buffer.byteLength(typeof data === 'number' ? String(data) : data);
     if (this.bufferedAmount + length > maxBufferBytes) {
       const error = failure('ERR_LIMIT', 'WebSocket send queue exceeded its limit.', 'websocket');
-      const done = typeof settings === 'function' ? settings : callback;
       if (done) queueMicrotask(() => done(error));
       else throw error;
       return;
     }
-    if (length <= 8192) return send.call(this, data, settings, callback);
-    const done = typeof settings === 'function' ? settings : callback;
+    if (length <= 8192) {
+      const completed = done
+        ? (error) => done(error ? normalizeError(error, 'websocket') : undefined)
+        : undefined;
+      try {
+        return typeof settings === 'function'
+          ? send.call(this, data, completed)
+          : send.call(this, data, settings, completed);
+      } catch (cause) {
+        throw normalizeError(cause, 'websocket');
+      }
+    }
     const flags = typeof settings === 'object' ? settings : {};
     const bytes =
       typeof data === 'string' || typeof data === 'number'

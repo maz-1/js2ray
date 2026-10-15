@@ -152,3 +152,18 @@ test('WebSocket pending Upgrade timeout/abort, receive limit and runtime close a
   await closed;
   assert.equal(runtime.stats.connections, 0);
 });
+test('WebSocket send state errors and callbacks use structured errors', async (t) => {
+  const runtime = createRuntime();
+  await runtime.start();
+  t.after(() => runtime.close());
+  const url = await origin(t, false);
+  const ws = createWebSocket(runtime, url, { headers: { Authorization: 'Bearer synthetic' } });
+  assert.throws(() => ws.send('too early'), { code: 'ERR_STATE' });
+  await once(ws, 'open');
+  const closed = once(ws, 'close');
+  ws.close();
+  await closed;
+  const error = await new Promise((resolve) => ws.send('too late', resolve));
+  assert.ok(error instanceof Js2rayError);
+  assert.equal(error.code, 'ERR_CLOSED');
+});
