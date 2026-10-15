@@ -101,9 +101,13 @@ test('REALITY check-cover CLI creates no inbound listener and prints no destinat
   const cover = await fixture.cover(t),
     fs = require('node:fs'),
     path = require('node:path');
-  const directory = fs.mkdtempSync(path.resolve('test-results/p17-cover-')),
+  const tempRoot = path.resolve(require('node:os').tmpdir());
+  const directory = fs.mkdtempSync(path.join(tempRoot, 'js2ray-cover-')),
     filename = path.join(directory, 'config.json');
-  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  t.after(() => {
+    assert.equal(path.dirname(directory), tempRoot);
+    fs.rmSync(directory, { recursive: true, force: true });
+  });
   // Bind the configured listener first: preflight must not try to open it.
   const occupied = require('node:net').createServer();
   const port = await listen(occupied);

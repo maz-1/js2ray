@@ -107,7 +107,10 @@ test('privacy audit detects deleted historical REALITY credentials without print
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'js2ray-audit-')),
     repository = path.join(directory, 'repo');
   fs.mkdirSync(repository);
-  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  t.after(() => {
+    assert.equal(path.dirname(directory), path.resolve(os.tmpdir()));
+    fs.rmSync(directory, { recursive: true, force: true });
+  });
   const git = (...args) =>
     execFileSync('git', args, { cwd: repository, windowsHide: true, stdio: 'pipe' })
       .toString()
