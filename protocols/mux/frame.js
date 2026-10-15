@@ -4,11 +4,11 @@ const { iptoBuffer, iptoString } = require('../../core/utils');
 const { host: validHost } = require('../../config');
 const { failure } = require('../../runtime/errors');
 const invalid = () => failure('ERR_PROTOCOL', 'Invalid Mux frame.', 'mux');
-function encode({ id, status, error = false, target, data }) {
+function encode({ id, status, error = false, target, data, globalId }) {
   if (!Number.isInteger(id) || id < 0 || id > 65535 || ![1, 2, 3, 4].includes(status))
     throw invalid();
   let address = Buffer.alloc(0);
-  if (status === 1) {
+  if (status === 1 || (status === 2 && target?.network === 'udp')) {
     if (
       !target ||
       !validHost(target.host) ||
@@ -29,6 +29,11 @@ function encode({ id, status, error = false, target, data }) {
       prefix,
       family ? iptoBuffer(target.host) : Buffer.concat([Buffer.from([name.length]), name]),
     ]);
+    if (status === 1 && globalId !== undefined) {
+      if (!Buffer.isBuffer(globalId) || globalId.length !== 8 || target.network !== 'udp')
+        throw invalid();
+      address = Buffer.concat([address, globalId]);
+    }
   }
   if (data !== undefined && (!Buffer.isBuffer(data) || data.length > 65535)) throw invalid();
   const head = Buffer.alloc(6);
@@ -51,7 +56,7 @@ function decode(buffer) {
     flags = metadata[3];
   if (![1, 2, 3, 4].includes(status) || flags & ~3) throw invalid();
   let target;
-  if (status === 1) {
+  if (status === 1 || (status === 2 && length > 4 && metadata[4] === 2)) {
     if (length < 8 || ![1, 2].includes(metadata[4])) throw invalid();
     const port = metadata.readUInt16BE(5),
       type = metadata[7];

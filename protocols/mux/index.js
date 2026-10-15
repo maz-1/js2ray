@@ -4,6 +4,50 @@ const { EventEmitter } = require('node:events');
 const { encode, decode } = require('./frame');
 const { failure } = require('../../runtime/errors');
 const { write, relay } = require('../../runtime/streams');
+const { DatagramSession, serveDatagrams } = require('../../runtime/datagram');
+
+class MuxDatagram extends DatagramSession {
+  constructor(stream, target) {
+    super(target, stream.parent.sessionLimit);
+    this.stream = stream;
+    this.multiTarget = stream.parent.server;
+    this.pendingBytes = 0;
+    stream.on('packet', (data, source) => this.receive(data, source));
+    stream.once('error', (error) => this.destroy(error));
+    stream.once('end', () => this.destroy());
+    stream.once('close', () => {
+      this.destroy();
+      this.finish();
+    });
+    stream.resume();
+    stream.datagram = this;
+    for (const message of stream.packets.splice(0)) this.receive(message.data, message.source);
+    stream.packetBytes = 0;
+  }
+  async send(data, target) {
+    this.validate(data, target);
+    if (this.pendingBytes + data.length + 32 > this.maxBufferBytes)
+      throw failure('ERR_LIMIT', 'Mux datagram send queue exceeded its limit.', 'mux');
+    this.pendingBytes += data.length + 32;
+    this.stream.touch();
+    try {
+      await this.stream.parent.send({
+        id: this.stream.id,
+        status: 2,
+        data,
+        ...(this.multiTarget || this.stream.target.xudp
+          ? { target: { ...(target ?? this.stream.target), network: 'udp' } }
+          : {}),
+      });
+    } finally {
+      this.pendingBytes -= data.length + 32;
+    }
+  }
+  dispose() {
+    this.stream.destroy();
+    this.finish();
+  }
+}
 
 class Session extends Duplex {
   constructor(parent, id, target) {
@@ -13,6 +57,8 @@ class Session extends Duplex {
     this.target = target;
     this.sentEnd = false;
     this.remoteEnd = false;
+    this.packets = [];
+    this.packetBytes = 0;
     this.on('error', () => {});
   }
   _read() {}
@@ -42,19 +88,28 @@ class Session extends Duplex {
     if (!this.parent.closed && !this.sentEnd && !this.remoteEnd)
       this.parent.send({ id: this.id, status: 3, error: Boolean(error) }).catch(() => {});
     this.parent.sessions.delete(this.id);
+    this.packets = [];
+    this.packetBytes = 0;
     this.parent.emit('sessionClosed', this.id);
     callback(error);
   }
-  receive(data) {
+  receive(data, source = this.target) {
     if (this.destroyed) return;
     if (
-      this.readableLength + data.length > this.parent.sessionLimit ||
+      this.readableLength + this.packetBytes + data.length > this.parent.sessionLimit ||
       this.parent.receivedBytes + data.length > this.parent.maxBufferBytes
     )
       return this.destroy(failure('ERR_LIMIT', 'Mux receive queues exceeded their limit.', 'mux'));
     this.touch();
-    if (this.target?.network === 'udp') this.emit('packet', Buffer.from(data));
-    else this.push(Buffer.from(data));
+    if (this.target?.network === 'udp') {
+      if (this.listenerCount('packet')) this.emit('packet', Buffer.from(data), source);
+      else {
+        if (this.packets.length >= 1024)
+          return this.destroy(failure('ERR_LIMIT', 'Too many queued Mux datagrams.', 'mux'));
+        this.packets.push({ data: Buffer.from(data), source });
+        this.packetBytes += data.length;
+      }
+    } else this.push(Buffer.from(data));
   }
   setTimeout(ms, callback) {
     this.timeout = ms;
@@ -146,7 +201,8 @@ class Mux extends EventEmitter {
   }
   get receivedBytes() {
     let bytes = 0;
-    for (const stream of this.sessions.values()) bytes += stream.readableLength;
+    for (const stream of this.sessions.values())
+      bytes += stream.readableLength + stream.packetBytes + (stream.datagram?.bytes ?? 0);
     return bytes;
   }
   async send(frame) {
@@ -169,11 +225,6 @@ class Mux extends EventEmitter {
       throw failure('ERR_CLOSED', 'Mux transport is unavailable.', 'mux');
     if (this.sessions.size >= this.maxSessions)
       throw failure('ERR_LIMIT', 'Mux concurrency limit reached.', 'mux');
-    if (
-      target.network === 'udp' &&
-      !(this.allowControl && target.host === 'reverse.internal.v2fly.org' && target.port === 0)
-    )
-      throw failure('ERR_UNSUPPORTED', 'Mux UDP/XUDP business sessions are unsupported.', 'mux');
     let id;
     for (let attempt = 0; attempt < 65536; attempt++) {
       const next = this.nextId;
@@ -194,6 +245,9 @@ class Mux extends EventEmitter {
     this.send({ id, status: 1, target }).catch((error) => stream.destroy(error));
     return stream;
   }
+  openDatagram(target) {
+    return new MuxDatagram(this.open({ ...target, network: 'udp' }), target);
+  }
   frame(frame) {
     if (frame.status === 4) return;
     let session = this.sessions.get(frame.id);
@@ -205,7 +259,7 @@ class Mux extends EventEmitter {
         frame.target.host === 'reverse.internal.v2fly.org' &&
         frame.target.port === 0 &&
         frame.target.network === 'udp';
-      if (this.sessions.size >= this.maxSessions || (frame.target.network !== 'tcp' && !control)) {
+      if (this.sessions.size >= this.maxSessions) {
         this.send({ id: frame.id, status: 3, error: true }).catch(() => {});
         return;
       }
@@ -217,7 +271,10 @@ class Mux extends EventEmitter {
           session.destroy(failure('ERR_TIMEOUT', 'Mux session idle timeout.', 'mux')),
         );
       if (control) this.emit('control', session);
-      else {
+      else if (frame.target.network === 'udp') {
+        const local = new MuxDatagram(session, frame.target);
+        serveDatagrams(local, this.dispatch).catch((error) => session.destroy(error));
+      } else {
         const pending = new AbortController();
         session.once('close', () => pending.abort());
         Promise.resolve()
@@ -247,7 +304,7 @@ class Mux extends EventEmitter {
       }
       return;
     }
-    if (frame.data !== undefined) session.receive(frame.data);
+    if (frame.data !== undefined) session.receive(frame.data, frame.target ?? session.target);
   }
   close(error) {
     if (this.closed) return;
@@ -261,4 +318,4 @@ class Mux extends EventEmitter {
     this.emit('close');
   }
 }
-module.exports = { Mux, Session };
+module.exports = { Mux, Session, MuxDatagram };

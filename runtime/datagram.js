@@ -18,13 +18,13 @@ class DatagramSession extends EventEmitter {
     this.closed = false;
     this.on('error', () => {});
   }
-  receive(data) {
+  receive(data, source = this.target) {
     if (this.destroyed) return;
-    const message = { data, ...this.target };
+    const message = { data, host: source.host, port: source.port };
     this.touch();
     const waiter = this.waiters.shift();
     if (waiter) waiter.resolve({ value: message, done: false });
-    if (this.listenerCount('message')) return this.emit('message', data, this.target);
+    if (this.listenerCount('message')) return this.emit('message', data, source);
     if (waiter) return;
     if (this.bytes + data.length > this.maxBufferBytes || this.queue.length >= 1024)
       return this.destroy(
@@ -56,7 +56,11 @@ class DatagramSession extends EventEmitter {
     if (this.destroyed) throw failure('ERR_CLOSED', 'Datagram session is closed.', 'protocol');
     if (!Buffer.isBuffer(data) || data.length > 65535)
       throw failure('ERR_TARGET', 'Datagrams must be Buffers of at most 65535 bytes.', 'protocol');
-    if (target && (target.host !== this.target.host || target.port !== this.target.port))
+    if (
+      !this.multiTarget &&
+      target &&
+      (target.host !== this.target.host || target.port !== this.target.port)
+    )
       throw failure('ERR_TARGET', 'Traditional UDP sessions have one fixed target.', 'protocol');
     this.touch();
   }
@@ -219,4 +223,61 @@ async function directDatagram(target, { signal, lookup = dns.lookup, maxBufferBy
   return session;
 }
 
-module.exports = { FramedDatagram, directDatagram };
+async function relayDatagrams(left, right) {
+  const pump = async (source, destination) => {
+    for await (const message of source) await destination.send(message.data);
+  };
+  try {
+    await Promise.race([pump(left, right), pump(right, left)]);
+  } finally {
+    left.destroy();
+    right.destroy();
+  }
+}
+async function serveDatagrams(local, dispatch, maxTargets = 128) {
+  const sessions = new Map(),
+    pending = new AbortController();
+  local.once('close', () => {
+    pending.abort();
+    for (const remote of sessions.values()) remote.destroy();
+  });
+  try {
+    for await (const message of local) {
+      const target = {
+        host: message.host,
+        port: message.port,
+        network: 'udp',
+        signal: pending.signal,
+      };
+      const key = `${target.host}:${target.port}`;
+      let remote = sessions.get(key);
+      if (!remote) {
+        if (sessions.size >= maxTargets)
+          throw failure('ERR_LIMIT', 'UDP association target limit reached.', 'protocol');
+        remote = await dispatch(target);
+        if (local.destroyed) {
+          remote.destroy();
+          break;
+        }
+        sessions.set(key, remote);
+        remote.once('close', () => sessions.delete(key));
+        remote.on('message', (data) =>
+          local.send(data, target).catch((error) => local.destroy(error)),
+        );
+        remote.on('error', (error) => local.destroy(error));
+      }
+      await remote.send(message.data);
+    }
+  } finally {
+    pending.abort();
+    for (const remote of sessions.values()) remote.destroy();
+    local.destroy();
+  }
+}
+module.exports = {
+  DatagramSession,
+  FramedDatagram,
+  directDatagram,
+  relayDatagrams,
+  serveDatagrams,
+};

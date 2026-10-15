@@ -62,7 +62,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 
-`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、Mux UDP/XUDP、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
+`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
 
 ## 运行指标（P9）
 
@@ -75,3 +75,9 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 ## DNS 联动路由（P11）
 
 AsIs 不为规则解析域名；IPIfNonMatch 先以原始域名完整匹配，未命中再解析并重试；IPOnDemand 按序遇到 IP 条件时才解析。一次决策复用全部 A/AAAA 结果，任一地址符合即可，IP/域名等字段仍需同时满足。解析地址仅参与路由，代理请求保留原始 host（嗅探 routeOnly 保留实际目标）；显式 outboundTag 跳过规则和额外路由解析。DNS/DoH 自身目标使用 hosts/系统引导解析，避免递归；路由查询支持总拨号预算、取消和 DNS 错误，不隐式直连回退。
+
+## UDP 扩展（P12）
+
+`openDatagram` 继续使用固定逻辑目标，支持 Freedom、VLESS 传统 UDP、VMess、SOCKS5、VLESS Mux 和传统 reverse。SOCKS 入站显式启用 `udp: true`（传统 JSON 为 settings.udp），控制承载仅 TCP/TLS；认证成功后分配独立 UDP 端口，限制来源为控制连接的 IP，并锁定首个有效数据报的源端口；控制关闭即释放关联。分片 SOCKS UDP 包丢弃。单关联最多 128 个目标，单会话队列最多 1024 个数据报且受 maxBufferBytes 限制。
+
+VLESS 出站 `packetEncoding: "xudp"` 使用 Xray 的 Mux UDP 封装及每包地址；未启用普通 Mux 时每个数据报会话独占承载。入站接受 XUDP NEW 全局 ID 字段和 KEEP 每包地址，但不跨断开的承载恢复 NAT 身份或重放数据。Mux/reverse 保留数据报边界，慢消费者超限只关闭对应会话。VMess 每包独立编码，不按 TCP 块拆包；安全上限 65455 字节。Freedom UDP 上限 65507，SOCKS 上限需再减地址头；Mux/VLESS 帧最大 65535。实际互通上限受参考内核限制：固定 V2Ray 大包边界仍不由 JS 自测外推，新增对照使用 1024 字节，Xray 使用 1400 字节；JS 两端另测空包和 60000 字节。UDP 网络本身仍可丢包；库不自动重试。

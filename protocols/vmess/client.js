@@ -118,7 +118,13 @@ module.exports = function createProtocol(validator, log = () => {}, maxBufferByt
         if (header) {
           if (app.user.deactive) return;
           app.user.bytesRead += buffer.length;
-          const chunks = common.getChunks(buffer, 0x3fff).map(resolveChunk.bind(app));
+          const chunks = (
+            app._cmd === 2 && !buffer.length
+              ? []
+              : app._cmd === 2
+                ? [buffer]
+                : common.getChunks(buffer, 0x3fff)
+          ).map(resolveChunk.bind(app));
           this.message(Buffer.concat([header, ...chunks]));
         }
       } else {
@@ -130,7 +136,9 @@ module.exports = function createProtocol(validator, log = () => {}, maxBufferByt
             1,
           );
         app.user.bytesRead += buffer.length;
-        const chunks = common.getChunks(buffer, 0x3fff).map(resolveChunk.bind(app));
+        const chunks = (app._cmd === 2 ? [buffer] : common.getChunks(buffer, 0x3fff)).map(
+          resolveChunk.bind(app),
+        );
         this.message(Buffer.concat(chunks));
       }
     }

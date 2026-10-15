@@ -75,8 +75,14 @@ export interface Sniffing {
 }
 export type Bound = (
   | { tag?: string; protocol: 'vmess'; networks: Network[]; users: VmessUser[] }
-  | { tag?: string; protocol: 'vless'; networks: Network[]; users: VlessUser[] }
-  | { tag?: string; protocol: 'socks'; networks: Network[]; users?: SocksUser[] }
+  | {
+      tag?: string;
+      protocol: 'vless';
+      networks: Network[];
+      users: VlessUser[];
+      packetEncoding?: 'none' | 'xudp';
+    }
+  | { tag?: string; protocol: 'socks'; networks: Network[]; users?: SocksUser[]; udp?: boolean }
   | { tag?: string; protocol: 'tcp'; networks: Network[]; target: { host: string; port: number } }
 ) & { sniffing?: Sniffing };
 export type Outbound =

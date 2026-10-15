@@ -45,7 +45,7 @@ async function freePort(udp = false) {
   await new Promise((resolve) => server.close(resolve));
   return port;
 }
-async function runCore(t, kind, config, port) {
+async function runCore(t, kind, config, port, { cone = false } = {}) {
   const executable =
     process.env[`JS2RAY_${kind.toUpperCase()}_BIN`] ??
     path.resolve(
@@ -74,7 +74,7 @@ async function runCore(t, kind, config, port) {
       ...process.env,
       XRAY_LOCATION_ASSET: path.resolve(__dirname, '../fixtures/geodata'),
       V2RAY_LOCATION_ASSET: path.resolve(__dirname, '../fixtures/geodata'),
-      ...(kind === 'xray' ? { 'xray.cone.disabled': 'true' } : {}),
+      ...(kind === 'xray' ? { 'xray.cone.disabled': cone ? 'false' : 'true' } : {}),
     },
   });
   let log = '';

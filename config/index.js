@@ -86,6 +86,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
           'mux',
           'service',
           'allow',
+          'udp',
+          'packetEncoding',
         ],
         prefix,
       );
@@ -110,6 +112,18 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       }
       if (!supported[kind].includes(protocol))
         add(`${prefix}.protocol`, 'Protocol is not supported by this runtime.');
+      if (
+        item.udp !== undefined &&
+        (protocol !== 'socks' || kind !== 'inbound' || typeof item.udp !== 'boolean')
+      )
+        add(prefix + '.udp', 'UDP enablement requires a SOCKS inbound boolean.');
+      if (
+        item.packetEncoding !== undefined &&
+        (protocol !== 'vless' ||
+          kind !== 'outbound' ||
+          !['none', 'xudp'].includes(item.packetEncoding))
+      )
+        add(prefix + '.packetEncoding', 'Expected VLESS outbound packetEncoding none or xudp.');
       const tag = item.tag ?? `${kind}-${i}`;
       if (typeof tag !== 'string' || !tag || tags.has(tag))
         add(`${prefix}.tag`, 'Expected a unique nonempty tag across all bounds.');
@@ -290,6 +304,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
           },
         };
       });
+      if (item.udp && normalizedNetworks.some((network) => network.type !== 'tcp'))
+        add(prefix + '.udp', 'SOCKS UDP association requires TCP/TLS control transports.');
       const users = item.users ?? [];
       if (!Array.isArray(users)) add(`${prefix}.users`, 'Expected an array.');
       const normalizedUsers = (Array.isArray(users) ? users : []).map((user, j) => {
@@ -371,6 +387,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             protocol,
             networks: normalizedNetworks,
             users: normalizedUsers,
+            ...(item.udp !== undefined ? { udp: item.udp } : {}),
+            ...(item.packetEncoding ? { packetEncoding: item.packetEncoding } : {}),
             ...(item.mux ? { mux: { ...item.mux } } : {}),
             ...(item.target ? { target: { ...item.target } } : {}),
             ...(item.sniffing ? { sniffing: { ...item.sniffing } } : {}),
@@ -440,7 +458,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     capabilities: {
       protocols: { inbound: [...supported.inbound], outbound: [...supported.outbound] },
       transports: ['tcp', 'tls', 'ws', 'wss'],
-      udp: ['vless', 'freedom'],
+      udp: ['vless', 'freedom', 'socks', 'vmess', 'mux', 'xudp', 'reverse'],
       reverse: true,
       mux: true,
     },

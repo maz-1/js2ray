@@ -12,7 +12,9 @@ const { connect, createListener } = require('../transports');
 const { relay, legacyDuplex } = require('./streams');
 const { Js2rayError, failure, normalizeError, normalizeEmitter } = require('./errors');
 const { Metrics } = require('./metrics');
-const { FramedDatagram, directDatagram } = require('./datagram');
+const { FramedDatagram, directDatagram, serveDatagrams } = require('./datagram');
+const socksDatagram = require('../protocols/socks/datagram');
+const { VMessDatagram } = require('../protocols/vmess/datagram');
 const { Router } = require('../routing');
 const { Resolver } = require('../dns');
 const { sniff } = require('../routing/sniff');
@@ -58,7 +60,7 @@ class Runtime extends EventEmitter {
       lookup: options.lookup,
     });
     this.#reverse = new Reverse(this.#config.reverse, {
-      dial: (target) => this.dial(target),
+      dial: (target) => (target.network === 'udp' ? this.openDatagram(target) : this.dial(target)),
       signal: this.#lifetime.signal,
       limits: this.#config.limits,
       event: (event) => {
@@ -263,8 +265,21 @@ class Runtime extends EventEmitter {
           signal: this.#lifetime.signal,
           timeoutMs: this.#config.limits.handshakeTimeoutMs,
           earlyReply: bound.sniffing?.enabled,
+          ...(bound.udp
+            ? {
+                associate: async (target) => {
+                  const local = this.#track(
+                    await socksDatagram.association(socket, target, this.#config.limits),
+                  );
+                  serveDatagrams(local, (destination) =>
+                    this.openDatagram({ ...destination, inboundTag: bound.tag }),
+                  ).catch((error) => this.#report(error));
+                },
+              }
+            : {}),
         },
       );
+      if (!remote) return;
       if (socket.destroyed) remote.destroy();
       else relay(socket, remote);
     } catch (error) {
@@ -302,7 +317,10 @@ class Runtime extends EventEmitter {
         this.#trackMux(
           new Mux(socket, {
             server: true,
-            dispatch: (target) => this.dial({ ...target, inboundTag: bound.tag }),
+            dispatch: (target) =>
+              target.network === 'udp'
+                ? this.openDatagram({ ...target, inboundTag: bound.tag })
+                : this.dial({ ...target, inboundTag: bound.tag }),
             maxBufferBytes: this.#config.limits.maxBufferBytes,
           }),
         );
@@ -373,7 +391,7 @@ class Runtime extends EventEmitter {
       clearTimeout(timer);
       connection.close();
     });
-    socket.once('end', () => socket.app?.remote?.end());
+    socket.once('end', () => socket.app?.remote?.end?.());
   }
 
   #legacyDial(bound) {
@@ -382,6 +400,37 @@ class Runtime extends EventEmitter {
       let remote;
       let destroyed = false;
       const inbound = this;
+      if (cmd === 2) {
+        runtime.openDatagram({ host: address, port: destinationPort, inboundTag: bound.tag }).then(
+          (session) => {
+            remote = session;
+            if (destroyed) return remote.destroy();
+            remote.on('message', (data) => {
+              if (data.length > 65455)
+                return remote.destroy(
+                  failure('ERR_LIMIT', 'VMess UDP response exceeds its frame limit.', 'protocol'),
+                );
+              try {
+                message(data);
+              } catch (error) {
+                remote.destroy(error);
+              }
+            });
+            remote.once('close', closed);
+            connected();
+          },
+          () => closed(),
+        );
+        return {
+          message(data) {
+            remote?.send(data).catch((error) => remote.destroy(error));
+          },
+          close() {
+            destroyed = true;
+            remote?.destroy();
+          },
+        };
+      }
       if (cmd !== 1) {
         queueMicrotask(closed);
         return { message() {}, close() {} };
@@ -659,18 +708,16 @@ class Runtime extends EventEmitter {
         lookup,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       };
-      if (datagram && bound.mux?.enabled)
-        throw failure('ERR_UNSUPPORTED', 'Ordinary Mux only supports TCP.', 'mux');
-      if (datagram && !['vless', 'freedom'].includes(bound.protocol))
+      if (
+        datagram &&
+        !this.#reverse.portals.has(bound.tag) &&
+        !['vless', 'freedom', 'vmess', 'socks'].includes(bound.protocol)
+      )
         throw failure('ERR_UNSUPPORTED', 'UDP is supported by VLESS and Freedom only.', 'protocol');
       if (this.#reverse.portals.has(bound.tag)) {
-        if (datagram)
-          throw failure(
-            'ERR_UNSUPPORTED',
-            'Reverse supports TCP business sessions only.',
-            'reverse',
-          );
-        socket = this.#track(this.#reverse.connect(bound.tag, target));
+        socket = this.#track(
+          this.#reverse.connect(bound.tag, { ...target, network: datagram ? 'udp' : 'tcp' }),
+        );
       } else if (bound.protocol === 'service') {
         if (datagram || target.host !== bound.allow.host || target.port !== bound.allow.port)
           throw failure('ERR_BLOCKED', 'Target is outside service scope.', 'routing');
@@ -687,10 +734,31 @@ class Runtime extends EventEmitter {
         if (!(service instanceof require('node:stream').Duplex))
           throw failure('ERR_PROTOCOL', 'Service handler must return a Duplex.', 'reverse');
         socket = this.#track(service);
-      } else if (bound.mux?.enabled) {
-        socket = this.#track((await abortable(this.#outboundMux(bound), signal)).open(target));
+      } else if (bound.mux?.enabled || (datagram && bound.packetEncoding === 'xudp')) {
+        const dedicated = !bound.mux?.enabled;
+        const mux = await abortable(
+          this.#outboundMux(
+            dedicated ? { ...bound, tag: Symbol(), mux: { concurrency: 1 } } : bound,
+          ),
+          signal,
+        );
+        socket = this.#track(
+          datagram
+            ? mux.openDatagram({ ...target, xudp: bound.packetEncoding === 'xudp' })
+            : mux.open(target),
+        );
+        if (dedicated) socket.once('close', () => mux.close());
       } else if (datagram && bound.protocol === 'freedom') {
         socket = this.#track(await directDatagram(target, options));
+      } else if (datagram && bound.protocol === 'vmess') {
+        socket = this.#track(
+          new VMessDatagram(
+            this.#clients.get(bound.tag),
+            target,
+            this.#config.limits.maxBufferBytes,
+          ),
+        );
+        await abortable(socket.ready, signal);
       } else if (bound.protocol === 'vmess') {
         const client = this.#clients.get(bound.tag);
         const wrapped = legacyDuplex((callbacks) => {
@@ -725,7 +793,10 @@ class Runtime extends EventEmitter {
             ? { address: target.host, port: target.port }
             : bound.networks[Math.floor(Math.random() * bound.networks.length)];
         socket = this.#track(await this.#connect(network, options));
-        if (bound.protocol === 'socks')
+        if (datagram && bound.protocol === 'socks') {
+          const control = socket;
+          socket = this.#track(await socksDatagram.clientDatagram(control, bound, target, options));
+        } else if (bound.protocol === 'socks')
           await this.#metrics.measure('protocol', () =>
             socks.client(socket, bound, target, options),
           );

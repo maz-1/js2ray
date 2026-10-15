@@ -30,7 +30,7 @@ async function readAddress(reader, type) {
   return { host, port: (await reader.read(2)).readUInt16BE() };
 }
 
-async function client(socket, bound, target, options) {
+async function client(socket, bound, target, options, command = 1) {
   const reader = new StreamReader(socket, options);
   const user = bound.users[0];
   await write(socket, Buffer.from([5, 1, user ? 2 : 0]));
@@ -55,13 +55,13 @@ async function client(socket, bound, target, options) {
   }
   await write(
     socket,
-    Buffer.concat([Buffer.from([5, 1, 0]), encodeAddress(target.host, target.port)]),
+    Buffer.concat([Buffer.from([5, command, 0]), encodeAddress(target.host, target.port)]),
   );
   const reply = await reader.read(4);
   if (reply[0] !== 5 || reply[1] !== 0 || reply[2] !== 0)
     throw failure('ERR_PROTOCOL', 'SOCKS connection rejected.', 'protocol');
-  await readAddress(reader, reply[3]);
-  return socket;
+  const endpoint = await readAddress(reader, reply[3]);
+  return command === 3 ? endpoint : socket;
 }
 
 async function server(socket, bound, dial, options) {
@@ -112,11 +112,20 @@ async function server(socket, bound, dial, options) {
     if (!accepted) throw failure('ERR_AUTH', 'SOCKS credentials rejected.', 'authentication');
   }
   const request = await reader.read(4);
-  if (request[0] !== 5 || request[2] !== 0 || request[1] !== 1) {
+  if (
+    request[0] !== 5 ||
+    request[2] !== 0 ||
+    ![1, 3].includes(request[1]) ||
+    (request[1] === 3 && !options.associate)
+  ) {
     await write(socket, Buffer.from([5, 7, 0, 1, 0, 0, 0, 0, 0, 0]));
     throw failure('ERR_UNSUPPORTED', 'Only SOCKS CONNECT is supported in this stage.', 'protocol');
   }
   const target = await readAddress(reader, request[3]);
+  if (request[1] === 3) {
+    await options.associate(target);
+    return;
+  }
   if (options.earlyReply) await write(socket, Buffer.from([5, 0, 0, 1, 0, 0, 0, 0, 0, 0]));
   let remote;
   try {

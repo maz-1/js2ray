@@ -130,7 +130,7 @@ function adaptV2ray(input, add) {
           add(`${prefix}.settings.decryption`, 'VLESS requires decryption none.');
       } else if (bound.protocol === 'socks') {
         checkKeys(settings, ['auth', 'accounts', 'udp', 'allowTransparent'], `${prefix}.settings`);
-        if (settings.udp) add(`${prefix}.settings.udp`, 'SOCKS UDP is not implemented.');
+        if (settings.udp !== undefined) result.udp = settings.udp;
         if (settings.allowTransparent)
           add(`${prefix}.settings.allowTransparent`, 'Transparent SOCKS is not implemented.');
         if (!['noauth', 'password'].includes(settings.auth ?? 'noauth'))

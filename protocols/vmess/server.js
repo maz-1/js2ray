@@ -341,12 +341,16 @@ module.exports = function createProtocol(validator, log = () => {}, maxBufferByt
         app._isHeaderSent = true;
         const header = EncodeResponseHeader(app);
         app.user.bytesRead += buffer.length;
-        const chunks = common.getChunks(buffer, 0x3fff).map(resolveChunk.bind(app));
+        const chunks = (app._cmd === 2 ? [buffer] : common.getChunks(buffer, 0x3fff)).map(
+          resolveChunk.bind(app),
+        );
         // this.localMessage(header)
         this.localMessage(Buffer.concat([header, ...chunks]));
       } else {
         app.user.bytesRead += buffer.length;
-        const chunks = common.getChunks(buffer, 0x3fff).map(resolveChunk.bind(app));
+        const chunks = (app._cmd === 2 ? [buffer] : common.getChunks(buffer, 0x3fff)).map(
+          resolveChunk.bind(app),
+        );
         this.localMessage(Buffer.concat(chunks));
       }
     }

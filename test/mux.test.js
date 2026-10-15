@@ -93,13 +93,10 @@ test('a slow Mux consumer is terminated at its queue cap while another session r
     server.close();
   }
 });
-test('Mux rejects UDP and bounds per-session receive and overall send queues', () => {
+test('Mux bounds per-session receive and overall send queues', () => {
   const { PassThrough } = require('node:stream');
   const raw = new PassThrough();
   const mux = new Mux(raw, { sessionLimit: 8, maxBufferBytes: 128, idleTimeoutMs: 0 });
-  assert.throws(() => mux.open({ host: 'test', port: 53, network: 'udp' }), {
-    code: 'ERR_UNSUPPORTED',
-  });
   // Avoid loopback parsing of our own NEW frame in this controlled sink.
   raw.removeAllListeners('data');
   const stream = mux.open({ host: 'test', port: 80 });

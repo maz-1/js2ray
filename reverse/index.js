@@ -215,7 +215,7 @@ class Reverse {
       .sort((a, b) => a.sessions.size - b.sessions.size);
     if (!workers.length)
       throw failure('ERR_REVERSE', 'No reverse Bridge transport is available.', 'reverse');
-    return workers[0].open(target);
+    return target.network === 'udp' ? workers[0].openDatagram(target) : workers[0].open(target);
   }
   close() {
     this.closed = true;
