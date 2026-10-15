@@ -8,9 +8,13 @@ const { sha, digest, sourceEvidence, verify } = require('./acceptance-evidence')
 const git = (...args) =>
   execFileSync('git', args, { encoding: 'utf8', windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
 async function main() {
-  const ids = process.argv.slice(2);
-  if (ids.length !== 5 || !ids.every((id) => /^\d+$/.test(id)))
-    throw Error('Expected five run IDs: regression, policy, split, XMUX, mixed.');
+  const args = process.argv.slice(2),
+    ids = args.slice(0, 5),
+    nativeId = args[5];
+  if (![5, 6].includes(args.length) || !args.every((id) => /^\d+$/.test(id)))
+    throw Error(
+      'Expected regression, policy, split, XMUX, mixed and optional native lifecycle run IDs.',
+    );
   const remote = git('remote', 'get-url', 'origin').trim();
   assert.match(remote, /github\.com[/:]maz-1\/js2ray(?:\.git)?$/);
   const credential = process.env.GITHUB_TOKEN
@@ -204,6 +208,52 @@ async function main() {
     };
   }
   const [policy, split, xmux, transport] = await Promise.all([load(1), load(2), load(3), load(4)]);
+  let nativeLifecycle;
+  if (nativeId) {
+    const run = await api(`actions/runs/${nativeId}`),
+      data = await api(`actions/runs/${nativeId}/jobs?per_page=100`),
+      artifacts = await api(`actions/runs/${nativeId}/artifacts?per_page=100`);
+    assert.equal(run.status, 'completed');
+    assert.equal(run.conclusion, 'success');
+    assert.equal(data.jobs.length, 1);
+    assert.equal(artifacts.artifacts.length, 1);
+    const job = data.jobs[0];
+    assert.equal(job.conclusion, 'success');
+    for (const [file, value] of Object.entries(source.sources))
+      assert.equal(sha(git('show', `${run.head_sha}:${file}`).replace(/\r\n/g, '\n')), value);
+    for (const file of ['test/xmux.test.js', '.github/workflows/http2-native-diagnostics.yml'])
+      assert.equal(
+        digest(file),
+        sha(git('show', `${run.head_sha}:${file}`).replace(/\r\n/g, '\n')),
+      );
+    const log = await api(`actions/jobs/${job.id}/logs`, 'text');
+    fs.writeFileSync(`test-results/p20-native-${job.id}.log`, log);
+    for (const field of ['tests', 'pass', 'fail', 'cancelled', 'skipped']) {
+      const counts = [
+        ...log.matchAll(new RegExp('# ' + field + ' (\\d+)\\s*(?=\\r?\\n|$)', 'g')),
+      ].map((match) => Number(match[1]));
+      assert.deepEqual(counts, Array(13).fill(['tests', 'pass'].includes(field) ? 41 : 0));
+    }
+    assert.match(log, /ERROR SUMMARY: 0 errors from 0 contexts/);
+    const artifact = artifacts.artifacts[0];
+    assert.equal(artifact.expired, false);
+    assert.equal(artifact.name, 'http2-native-diagnostics');
+    nativeLifecycle = {
+      id: run.id,
+      url: run.html_url,
+      commit: run.head_sha,
+      conclusion: run.conclusion,
+      job: { id: job.id, url: job.html_url },
+      artifact: { id: artifact.id, name: artifact.name, digest: artifact.digest },
+      logSha256: sha(log),
+      sourceSha256: source.sourceSha256,
+      testSha256: digest('test/xmux.test.js'),
+      workflowSha256: digest('.github/workflows/http2-native-diagnostics.yml'),
+      normalWorkerRuns: 12,
+      testsPerRun: 41,
+      nativeMemoryErrors: 0,
+    };
+  }
   const harnessFiles = [
     'scripts/acceptance-evidence.js',
     'scripts/policy-stability.js',
@@ -268,6 +318,7 @@ async function main() {
     splitStability: split,
     xmuxStability: xmux,
     transportStability: transport,
+    ...(nativeLifecycle ? { nativeLifecycle } : {}),
     privacy,
   };
   fs.writeFileSync('docs/acceptance/p20-2026-10-16.json', JSON.stringify(result, null, 2) + '\n');

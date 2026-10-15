@@ -43,13 +43,17 @@ hosts 别名最多 16 层并检测循环；固定内核的 hosts 展开深度为
 
 专项命令：`node --test --test-concurrency=1 test/policy-compat.test.js test/dns-compat.test.js`；固定对照：`node --test --test-concurrency=1 test/interop/policy-compat.test.js`。完整验收使用全量 CI 和 `npm run test:stability:policy`，后者 100 个持续 TCP 业务会话、另 4 个持续 UDP 会话、30 分钟、DNS/缓存/超时回退、每分钟凭据轮换和新连接，并记录源码/依赖/脚本/配置摘要、延迟、内存、队列及清理结果。短跑不能计作正式验收。P17/P18/P19 长时负载因共享产品变化继续全量重跑。
 
-验收状态：全部通过，正式结果见下表和机器汇总。
+验收状态：最终产品的三平台 375 项普通/228 项固定内核互通及原生进程门禁已通过，12 项正式长时按修正后源码重跑中。下方旧源码结果保留为历史记录，不计作当前版本完成。
 
 中间回归曾在本机和 Linux 固定 Xray 的 TLS HTTP/2 packet-up 路径出现超时。已以真实 HTTP/2 流构造确定性时序：空确认的 EOF 先于异步续体恢复，旧代码只等未来 end 事件导致误超时。修复后接受已完成响应，提前关闭仍失败，所有监听器/计时器统一清理；不更改原有预算。失败运行 38788191414 不作为通过证据。
 
 另一次 macOS 互通失败来自超大 XUDP 拒绝的过窄错误码断言。固定 Xray 的 [PacketReader](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/common/mux/reader.go) 对超过 buf.Size 的包报错；[ServerWorker.run 与 handle](https://github.com/XTLS/Xray-core/blob/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/common/mux/server.go) 并发清理承载和响应写入，不能跨平台保证 error END 先于 EOF。测试现仅接受会话级 ERR_MUX_SESSION 或承载级 ERR_TRANSPORT 两种明确拒绝，并新增目标零超大包、会话关闭、新会话恢复及 Mux 会话归零检查。产品不将承载关闭伪装成已收到会话错误；作业 38789667818 的失败不计入最终通过结果。
 
-## 正式验收结果
+归档后回归曾在普通断言全部通过后发生 Linux SIGSEGV。GDB 堆栈落在 GC/退出清理阶段，随后本地 Linux Valgrind 确认 nghttp2 在接收 DATA 时访问已被重入 RST_STREAM 释放的流，符合 Node 上游 [#64166](https://github.com/nodejs/node/pull/64166)。客户端请求取消、XMUX 客户端退役与监听器关闭现均在 setImmediate 阶段销毁原生对象，逻辑关闭立即生效；HTTP/2 会话负责自己的 socket。三个读取回调内取消/关闭专项验证调度与同连接其他流的字节完整性；旧客户端会被定向测试拦下。修正前 Valgrind 报告 4 次非法访问，修正后为 0。
+
+新增 [Linux 原生生命周期门禁](https://github.com/maz-1/js2ray/actions/runs/38799630151)：正常测试子进程连续 12 轮，每轮 41 项全部通过并正常退出；另用 Valgrind 执行同 41 项，非法内存访问 0。内存诊断保留普通断言，使用较长诊断预算适应解释执行，常规回归仍为原有 15 秒预算。门禁只上传测试文本和内存报告，不上传可能含环境凭据的原始 core。
+
+## 上一轮历史验收（等待最终源码结果替换）
 
 P20 全部验收通过：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。
 

@@ -190,3 +190,5 @@ VLESS 原始 TCP 的 `network.option.reality` 与 `option.tls` 互斥。客户�
 完整字段、固定版本差异、JS 扩展和边界见 [P20 支持矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。根字段 compatibility 选择 native、v2ray-5.14.1 或 xray-25.3.6；传统 JSON 与原生字段均接受。来源和用户使用已认证入站上下文；HTTP/TLS/BitTorrent 需开启嗅探，VMess 已支持纯文本嗅探与首包保序。库 dial/openDatagram 可传入 sourceIP、sourcePort、userEmail、protocol、attrs，调用者负责上下文可信性。实际代理请求不能伪造这些外层属性。
 
 支持 ECS、TCP/local DNS、每服务器查询/缓存/回退/标签等控制；正则通过纯 JS re2js 2.8.6 执行，ws 8.22.0 继续用于 WebSocket。HTTP/3、DoQ 暂缓。示例见 examples/policy-compat.json。
+
+迁移已有客户端 JSON 时，先为 geosite/geoip/ext 条件提供包含对应类别的固定 Geo 资源，并补齐规则引用的入站/出站 tag；缺失资源或悬空引用仍会明确报错。js2ray 不自动读取其他客户端的资源目录。兼容范围是上述静态路由和 DNS 字段，尚未包含动态负载均衡、observatory、脚本表达式、FakeDNS 或按进程路由。

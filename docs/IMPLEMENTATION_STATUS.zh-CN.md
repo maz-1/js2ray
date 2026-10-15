@@ -93,6 +93,6 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 
 用户授权的 `node scripts/smoke-private.js v2ray-config.json` 仅提取 proxy 出站和 hosts，引导 VLESS/WSS 请求 example.com；前次结果 HTTP 200，本地代理监听器 0，严格 TLS 开启。它不证明公网服务端的内核版本或完整 reverse 部署兼容性。`scripts/check-private.js` 仅在本地检查已跟踪文件是否出现私有地址、UUID、邮箱、Host、SNI、路径，只输出文件名而不输出值。私有文件始终 gitignored，未进入 CI/发布包；没有修改 ChatRoom。
 
-## P20 常用配置兼容（已验收）
+## P20 常用配置兼容（最终长时重验中）
 
-固定 V2Ray 5.14.1 与 Xray 25.3.6，新增常用路由与 DNS 字段及显式语义档案；详见 [支持矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。当前产品纯 JS 运行依赖为 ws 8.22.0 与 re2js 2.8.6；上文只有 ws 的描述为历史验收记录。三平台各 372 项普通/228 项固定内核互通、实际安装包，以及四组共 12 项 100 会话/30 分钟长时验收全部通过；详见 [验收与字段矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](acceptance/p20-2026-10-16.json)。HTTP/3、DoQ 继续暂缓。
+固定 V2Ray 5.14.1 与 Xray 25.3.6，新增常用路由与 DNS 字段及显式语义档案；详见 [支持矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。当前产品纯 JS 运行依赖为 ws 8.22.0 与 re2js 2.8.6；上文只有 ws 的描述为历史验收记录。修正 Node 24.20.0 HTTP/2 接收回调内重入销毁后，三平台各 375 项普通/228 项固定内核互通、实际安装包及 Linux 原生门禁已通过；四组共 12 项 100 会话/30 分钟长时按最终源码重新执行，旧机器汇总仅是历史证据。详见 [验收与字段矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。HTTP/3、DoQ 继续暂缓。
