@@ -107,3 +107,33 @@ test('Mux rejects UDP and bounds per-session receive and overall send queues', (
   assert.equal(stream.destroyed, true);
   mux.close();
 });
+test('carrier failure terminates every active Mux session without replay', async (t) => {
+  let peer;
+  const { PassThrough } = require('node:stream');
+  const server = net.createServer((socket) => {
+    peer = new Mux(socket, { server: true, dispatch: async () => new PassThrough() });
+  });
+  const port = await listen(server);
+  t.after(() => {
+    peer?.close();
+    return new Promise((resolve) => server.close(resolve));
+  });
+  const raw = net.connect(port, '127.0.0.1');
+  await once(raw, 'connect');
+  const client = new Mux(raw);
+  t.after(() => client.close());
+  const sessions = [
+    client.open({ host: 'a.test', port: 80 }),
+    client.open({ host: 'b.test', port: 80 }),
+  ];
+  for (const stream of sessions) {
+    stream.write('before');
+    assert.equal((await readBytes(stream, 6)).toString(), 'before');
+  }
+  const failures = sessions.map(
+    (stream) => new Promise((resolve) => stream.once('error', resolve)),
+  );
+  peer.stream.destroy(Error('synthetic carrier failure'));
+  for (const error of await Promise.all(failures)) assert.equal(error.code, 'ERR_TRANSPORT');
+  assert.equal(client.sessions.size, 0);
+});
