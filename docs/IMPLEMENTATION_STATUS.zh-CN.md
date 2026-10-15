@@ -83,6 +83,8 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 
 六字段参数、共享客户端池、请求/复用/时长退役、packet-up 上行切换、GOAWAY 排空、HTTP/2 FIN 清理、真实读取空闲保活和 ref/unref 隔离已实现。新增 37 项普通专项、12 项严格 TLS 双向参考互通、安装包池复用检查和 100 会话/30 分钟专用长时脚本；三平台完整证据在 [P18](P18_XMUX_ACCEPTANCE.zh-CN.md) 更新。[HTTP/3 评估](HTTP3_FEASIBILITY.zh-CN.md)记录当前 Node 二进制能力、定制运行时和纯 JS QUIC 路线的难度；HTTP/3 未实现。
 
+[最终三平台回归](https://github.com/maz-1/js2ray/actions/runs/38749322344) 每平台 312 项普通/170 项参考互通及实际安装包通过；[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38749322880) 与 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38749322553) 均完成每平台 100 会话/30 分钟/29 次轮换，关闭后资源归零。最终 80 个产品源码摘要、六份原始 JSON 和逐平台 QUIC 能力探测保存在 [P18 汇总](acceptance/p18-2026-10-15.json)。
+
 ## 私有真实配置
 
 用户授权的 `node scripts/smoke-private.js v2ray-config.json` 仅提取 proxy 出站和 hosts，引导 VLESS/WSS 请求 example.com；前次结果 HTTP 200，本地代理监听器 0，严格 TLS 开启。它不证明公网服务端的内核版本或完整 reverse 部署兼容性。`scripts/check-private.js` 仅在本地检查已跟踪文件是否出现私有地址、UUID、邮箱、Host、SNI、路径，只输出文件名而不输出值。私有文件始终 gitignored，未进入 CI/发布包；没有修改 ChatRoom。

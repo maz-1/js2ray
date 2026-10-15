@@ -1,0 +1,11 @@
+{
+  "node": "v24.20.0",
+  "platform": "linux",
+  "arch": "x64",
+  "compiledWithQuic": false,
+  "ngtcp2": null,
+  "nghttp3": null,
+  "available": false,
+  "errorCode": "ERR_UNKNOWN_BUILTIN_MODULE",
+  "probeOnly": true
+}
