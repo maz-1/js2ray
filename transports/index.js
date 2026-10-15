@@ -219,11 +219,48 @@ function createListener(network, onConnection, options = {}) {
   let server;
   let wss;
   const connections = new Set();
+  const observations = new Map(),
+    peers = new Map();
+  const peerKey = (socket) => `${socket.remoteAddress}:${socket.remotePort}`;
+  const observed = (socket) => observations.get(socket) ?? peers.get(peerKey(socket));
+  const ready = (socket) => {
+    observed(socket)?.success();
+    onConnection(socket);
+  };
   const rawConnection = (socket) => {
+    const observer = require('./inbound').watch(
+      socket,
+      options,
+      network.type === 'ws' ? (option.tls ? 'wss' : 'ws') : option.tls ? 'tls' : 'tcp',
+    );
+    observations.set(socket, observer);
+    observer.clearSocketTimeout = () => socket.setTimeout(0);
+    const key = peerKey(socket);
+    peers.set(key, observer);
     connections.add(socket);
     socket.on('error', () => {});
-    socket.once('close', () => connections.delete(socket));
-    if (connections.size > options.maxConnections) socket.destroy();
+    let timer;
+    if (option.tls || network.type === 'ws') {
+      timer = setTimeout(() => {
+        observer.timeout();
+        socket.destroy();
+      }, options.handshakeTimeoutMs ?? 10000);
+      const complete = observer.success;
+      observer.success = () => {
+        clearTimeout(timer);
+        complete();
+      };
+    }
+    socket.once('close', () => {
+      clearTimeout(timer);
+      connections.delete(socket);
+      observations.delete(socket);
+      if (peers.get(key) === observer) peers.delete(key);
+    });
+    if (connections.size > (options.maxConnections ?? 1024)) {
+      observer.reject();
+      socket.destroy();
+    }
   };
   if (network.type === 'ws') {
     const request = (req, res) => {
@@ -248,9 +285,28 @@ function createListener(network, onConnection, options = {}) {
       if (
         request.url !== (option.path ?? '/') ||
         (expectedHost && request.headers.host !== expectedHost)
-      )
+      ) {
+        observed(socket)?.fail(
+          failure('ERR_PROTOCOL', 'Inbound WebSocket Upgrade rejected.', 'inbound'),
+        );
         return socket.destroy();
-      wss.handleUpgrade(request, socket, head, (ws) => onConnection(wsStream(ws, options)));
+      }
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        observed(socket)?.success();
+        onConnection(wsStream(ws, options));
+      });
+    });
+    wss.on('wsClientError', (cause, socket) => {
+      observed(socket)?.fail(
+        failure('ERR_PROTOCOL', 'Invalid inbound WebSocket handshake.', 'inbound', cause),
+      );
+      socket.destroy();
+    });
+    server.on('clientError', (cause, socket) => {
+      observed(socket)?.fail(
+        failure('ERR_PROTOCOL', 'Invalid inbound HTTP handshake.', 'inbound', cause),
+      );
+      socket.destroy();
     });
   } else if (option.tls) {
     if (network[Symbol.for('js2ray.vision')]) {
@@ -266,9 +322,18 @@ function createListener(network, onConnection, options = {}) {
           { secureContext: context },
           { ...options, server: true },
         );
-        const timer = setTimeout(() => stream.destroy(), options.handshakeTimeoutMs ?? 10000);
+        const timer = setTimeout(() => {
+          observed(raw)?.timeout();
+          stream.destroy();
+        }, options.handshakeTimeoutMs ?? 10000);
+        stream.once('error', (cause) =>
+          observed(raw)?.fail(
+            failure('ERR_TLS', 'Inbound Vision TLS handshake failed.', 'inbound', cause),
+          ),
+        );
         stream.once('secureConnect', () => {
           clearTimeout(timer);
+          observed(raw)?.success();
           onConnection(stream);
         });
         stream.once('close', () => clearTimeout(timer));
@@ -283,18 +348,34 @@ function createListener(network, onConnection, options = {}) {
           allowHalfOpen: true,
           handshakeTimeout: options.handshakeTimeoutMs,
         },
-        onConnection,
+        ready,
       );
-  } else server = net.createServer({ allowHalfOpen: true }, onConnection);
-  server.on('connection', rawConnection);
-  server.on('tlsClientError', () => {});
+  } else server = net.createServer({ allowHalfOpen: true }, ready);
+  server.prependListener('connection', rawConnection);
+  server.on('tlsClientError', (cause, socket) => {
+    observed(socket)?.fail(
+      failure(
+        cause.code?.includes('TIMEOUT') ? 'ERR_TIMEOUT' : 'ERR_TLS',
+        'Inbound TLS handshake failed.',
+        'inbound',
+        cause,
+      ),
+    );
+    socket.destroy();
+  });
   // HTTP sockets that never finish an Upgrade must also have a bounded lifetime.
   if (network.type === 'ws')
     server.on('connection', (socket) =>
-      socket.setTimeout(options.handshakeTimeoutMs, () => socket.destroy()),
+      socket.setTimeout(options.handshakeTimeoutMs, () => {
+        observed(socket)?.timeout();
+        socket.destroy();
+      }),
     );
   if (network.type === 'ws')
-    server.on('upgrade', (request) => request.socket.setTimeout(options.idleTimeoutMs ?? 0));
+    server.on('upgrade', (request) => {
+      observed(request.socket)?.clearSocketTimeout();
+      request.socket.setTimeout(options.idleTimeoutMs ?? 0);
+    });
   return {
     server,
     prepareUpdate(nextNetwork, nextOptions) {
@@ -335,7 +416,10 @@ function createListener(network, onConnection, options = {}) {
       };
     },
     destroy() {
-      for (const socket of connections) socket.destroy();
+      for (const socket of connections) {
+        observations.get(socket)?.cancel();
+        socket.destroy();
+      }
       wss?.close();
     },
   };

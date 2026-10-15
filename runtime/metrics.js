@@ -19,6 +19,56 @@ class Metrics {
     this.reverse = {};
     this.seen = new WeakSet();
     this.observed = new WeakSet();
+    this.inbound = {
+      accepted: 0,
+      active: 0,
+      pending: 0,
+      succeeded: 0,
+      failed: 0,
+      rejected: 0,
+      cancelled: 0,
+      fallback: 0,
+      fallbackActive: 0,
+      coverDials: 0,
+      coverFailures: 0,
+      diagnosticsSuppressed: 0,
+    };
+    this.diagnosticWindow = { start: 0, count: 0 };
+  }
+  beginInbound(transport, report) {
+    const counts = this.inbound;
+    counts.accepted++;
+    counts.active++;
+    counts.pending++;
+    let outcome;
+    return {
+      finish: (value, error) => {
+        if (outcome) return;
+        outcome = value;
+        counts.pending--;
+        counts[value]++;
+        if (value === 'fallback') counts.fallbackActive++;
+        if (error) {
+          error.context = { ...error.context, transport };
+          const window = this.diagnosticWindow,
+            now = performance.now();
+          if (now - window.start >= 1000) {
+            window.start = now;
+            window.count = 0;
+          }
+          const diagnostic = window.count++ < 8;
+          if (!diagnostic) counts.diagnosticsSuppressed++;
+          report(error, { diagnostic });
+        }
+      },
+      cover: (failed) => {
+        counts[failed ? 'coverFailures' : 'coverDials']++;
+      },
+      close: () => {
+        counts.active--;
+        if (outcome === 'fallback') counts.fallbackActive--;
+      },
+    };
   }
   error(error) {
     if (this.seen.has(error)) return false;
@@ -89,6 +139,7 @@ class Metrics {
       errors: this.errors,
       timings: this.timings,
       reverseEvents: this.reverse,
+      inbound: this.inbound,
     });
   }
 }

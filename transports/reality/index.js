@@ -4,6 +4,7 @@ const { once } = require('node:events');
 const { failure } = require('../../runtime/errors');
 const handshake = require('./handshake');
 const { RealityStream } = require('./stream');
+const { watch } = require('../inbound');
 async function client(raw, network, options) {
   try {
     const result = await handshake.client(raw, network.option.reality, options);
@@ -48,7 +49,8 @@ function createListener(network, onConnection, options = {}) {
     const controller = new AbortController();
     const limits = options,
       settings = network.option.reality;
-    const entry = { raw, target: undefined, controller };
+    const observer = watch(raw, limits, 'reality');
+    const entry = { raw, target: undefined, controller, observer };
     connections.add(entry);
     raw.on('error', () => {});
     const stop = () => {
@@ -61,11 +63,33 @@ function createListener(network, onConnection, options = {}) {
       controller.abort();
       entry.target?.destroy();
     });
-    if (connections.size > (limits.maxConnections ?? 1024)) return stop();
-    const timer = setTimeout(stop, limits.handshakeTimeoutMs ?? 10000);
+    if (connections.size > (limits.maxConnections ?? 1024)) {
+      observer.reject();
+      return stop();
+    }
+    const timer = setTimeout(() => {
+      observer.timeout();
+      stop();
+    }, limits.handshakeTimeoutMs ?? 10000);
     const pending = (async () => {
       try {
-        const target = await targetConnect(settings.dest, limits, controller.signal);
+        observer.cover();
+        let target;
+        try {
+          target = await targetConnect(settings.dest, limits, controller.signal);
+        } catch (cause) {
+          observer.cover(true);
+          throw failure(
+            cause.code === 'ERR_CANCELLED'
+              ? 'ERR_CANCELLED'
+              : cause.code === 'ERR_TIMEOUT'
+                ? 'ERR_TIMEOUT'
+                : 'ERR_TRANSPORT',
+            'REALITY cover connection failed.',
+            'inbound',
+            cause,
+          );
+        }
         entry.target = target;
         const result = await handshake.server(raw, settings, target, {
           ...limits,
@@ -74,6 +98,7 @@ function createListener(network, onConnection, options = {}) {
         clearTimeout(timer);
         if (raw.destroyed || controller.signal.aborted) return;
         if (result.fallback) {
+          observer.fallback();
           raw.setTimeout(limits.idleTimeoutMs || limits.handshakeTimeoutMs || 10000, stop);
           raw.once('end', () => target.end());
           target.once('end', () => raw.end());
@@ -89,8 +114,14 @@ function createListener(network, onConnection, options = {}) {
         target.destroy();
         entry.target = undefined;
         const stream = new RealityStream(raw, result, { ...limits, manual: true });
+        observer.success();
         onConnection(stream);
-      } catch {
+      } catch (cause) {
+        observer.fail(
+          cause.phase
+            ? cause
+            : failure('ERR_TLS', 'Inbound REALITY handshake failed.', 'inbound', cause),
+        );
         stop();
       } finally {
         clearTimeout(timer);
@@ -122,6 +153,7 @@ function createListener(network, onConnection, options = {}) {
     },
     destroy() {
       for (const entry of connections) {
+        entry.observer.cancel();
         entry.controller.abort();
         entry.target?.destroy();
         entry.raw.destroy();
@@ -129,4 +161,47 @@ function createListener(network, onConnection, options = {}) {
     },
   };
 }
-module.exports = { client, createListener };
+async function inspectCover(config, options = {}) {
+  const crypto = require('node:crypto'),
+    keys = require('./crypto');
+  const privateKey = keys.privateKey(Buffer.from(config.privateKey, 'base64url'));
+  const publicKey = crypto
+    .createPublicKey(privateKey)
+    .export({ format: 'der', type: 'spki' })
+    .subarray(-32)
+    .toString('base64url');
+  const results = [];
+  for (const serverName of config.serverNames) {
+    const signal = AbortSignal.any([
+      AbortSignal.timeout(
+        (options.connectTimeoutMs ?? 10000) + (options.handshakeTimeoutMs ?? 10000),
+      ),
+      ...(options.signal ? [options.signal] : []),
+    ]);
+    const raw = await targetConnect(config.dest, options, signal);
+    const own = handshake.clientHello(
+      { publicKey, serverName, shortId: config.shortIds[0], fingerprint: 'chrome120' },
+      keys.keyPair(),
+    );
+    try {
+      const wire = require('./wire');
+      await require('../../runtime/streams').write(raw, wire.record(22, own.hello));
+      const flight = await handshake.targetFlight(
+        handshake.reader(raw, { ...options, signal }),
+        wire.hello(own.hello),
+      );
+      results.push({
+        ok: true,
+        suite: flight.suite.algorithm,
+        layout: flight.layout,
+        recordLengths: flight.lengths,
+        requiredLengths: flight.requiredLengths,
+      });
+    } finally {
+      own.auth.fill(0);
+      raw.destroy();
+    }
+  }
+  return results;
+}
+module.exports = { client, createListener, inspectCover };

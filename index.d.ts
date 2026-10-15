@@ -289,6 +289,26 @@ export interface RuntimeMetrics {
   errors: Record<string, number>;
   timings: Record<string, { count: number; totalMs: number; minMs: number; maxMs: number }>;
   reverseEvents: Record<string, number>;
+  inbound: {
+    accepted: number;
+    active: number;
+    pending: number;
+    succeeded: number;
+    failed: number;
+    rejected: number;
+    cancelled: number;
+    fallback: number;
+    fallbackActive: number;
+    coverDials: number;
+    coverFailures: number;
+    diagnosticsSuppressed: number;
+  };
+  transport: {
+    streams: number;
+    readableBytes: number;
+    writableBytes: number;
+    bufferedBytes: number;
+  };
   dns: {
     queries: number;
     cacheHits: number;

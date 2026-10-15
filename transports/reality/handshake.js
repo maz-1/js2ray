@@ -173,6 +173,39 @@ function appKeys(suite, master, transcript, server = false) {
   );
   return { tx, rx };
 }
+function minimumFlight(suite, layout) {
+  const certificate = certs.certificate(certs.identity(), Buffer.alloc(32));
+  const sizes = [6, certificate.length + 13, 72, suite.size + 4];
+  return layout === 'single'
+    ? [sizes.reduce((sum, size) => sum + size, 0) + 22]
+    : sizes.map((size) => size + 22);
+}
+async function targetFlight(input, client) {
+  const template = await readHello(input, true);
+  const { suite, share } = validateServer(template.parsed, client);
+  const ccs = await readRecord(input);
+  if (ccs[0] !== 20 || !ccs.subarray(5).equals(Buffer.from([1])))
+    throw failure('ERR_TLS', 'REALITY target requires a TLS 1.3 compatibility flight.', 'reality');
+  const first = await readRecord(input);
+  if (first[0] !== 23) throw failure('ERR_TLS', 'Invalid REALITY target flight.', 'reality');
+  const lengths = [first.length];
+  if (first.length <= 512)
+    for (let i = 0; i < 3; i++) {
+      const next = await readRecord(input);
+      if (next[0] !== 23)
+        throw failure('ERR_TLS', 'Invalid REALITY target record layout.', 'reality');
+      lengths.push(next.length);
+    }
+  const layout = lengths.length === 1 ? 'single' : 'four',
+    requiredLengths = minimumFlight(suite, layout);
+  if (lengths.some((size, index) => size < requiredLengths[index]))
+    throw failure(
+      'ERR_TLS',
+      'REALITY target records cannot contain the authenticated flight.',
+      'reality',
+    );
+  return { template, suite, share, ccs, lengths, layout, requiredLengths };
+}
 async function client(socket, config, options = {}) {
   const pair = keys.keyPair(),
     own = clientHello(config, pair, options);
@@ -298,26 +331,10 @@ async function server(socket, config, target, options = {}) {
     captured.length = 0;
     input.onRead = undefined;
     if (!auth) return { fallback: true };
-    const template = await readHello(targetInput, true);
-    const { suite, share } = validateServer(template.parsed, incoming.parsed);
-    const ccs = await readRecord(targetInput);
-    if (ccs[0] !== 20 || !ccs.subarray(5).equals(Buffer.from([1])))
-      throw failure(
-        'ERR_TLS',
-        'REALITY target requires a TLS 1.3 compatibility flight.',
-        'reality',
-      );
-    const first = await readRecord(targetInput);
-    if (first[0] !== 23) throw failure('ERR_TLS', 'Invalid REALITY target flight.', 'reality');
-    const lengths = [first.length];
-    if (first.length <= 512) {
-      for (let i = 0; i < 3; i++) {
-        const next = await readRecord(targetInput);
-        if (next[0] !== 23)
-          throw failure('ERR_TLS', 'Invalid REALITY target record layout.', 'reality');
-        lengths.push(next.length);
-      }
-    }
+    const { template, suite, share, ccs, lengths } = await targetFlight(
+      targetInput,
+      incoming.parsed,
+    );
     const pair = keys.keyPair();
     pair.publicKey.copy(share.data);
     const serverHello = template.bytes;
@@ -395,4 +412,4 @@ async function server(socket, config, target, options = {}) {
     master?.fill(0);
   }
 }
-module.exports = { clientHello, authenticate, client, server, reader, readHello };
+module.exports = { clientHello, authenticate, client, server, reader, readHello, targetFlight };

@@ -22,7 +22,7 @@
 
 写入者必须处理 `write()` 的布尔返回值或使用 `pipeline()`。协议读队列、握手缓冲和数据报队列受 `maxBufferBytes` 限制；调用方无视标准流背压反复写入，仍可能在调用方的 Node.js Writable 队列中积压数据。
 
-`await runtime.openDatagram({ host, port, network: "udp", outboundTag, inboundTag, signal })` 支持 Freedom 与 VLESS 的固定目标会话。它不是任意字节流：`send(Buffer)` 发送一个数据报，异步迭代产生 `{ data, host, port }`。也可以监听 `message(data, target)`。`close()`/`destroy()` 幂等；更换目标需要另建会话。入站 SOCKS UDP 与 VMess UDP 尚未通过新运行时验收，显式拒绝。
+`await runtime.openDatagram({ host, port, network: "udp", outboundTag, inboundTag, signal })` 支持 Freedom、VLESS、SOCKS5、VMess、Mux/XUDP 和传统 reverse 的固定目标会话，具体范围见 P12。它不是任意字节流：`send(Buffer)` 发送一个数据报，异步迭代产生 `{ data, host, port }`。也可以监听 `message(data, target)`。`close()`/`destroy()` 幂等；更换目标需要另建会话。
 
 传统 VLESS 帧最大为 65535 字节，直接 UDP 发送最多为 65507 字节；单次写入还受队列限制。对 V2Ray 5.14.1 的兼容记录仅承诺不超过 2046 字节的 UDP 数据报，该版本会拆分或丢弃较大数据报，不能将本库两端互通的长度范围套用到该参考内核。
 
@@ -62,7 +62,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 
-`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
+`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、透明 TCP、API 管理入站均显式不支持；Vision/REALITY 的支持边界分别见 P15/P16。
 
 ## 运行指标（P9）
 
@@ -143,3 +143,13 @@ VLESS 原始 TCP 的 `network.option.reality` 与 `option.tls` 互斥。客户�
 服务端将收到的 ClientHello 发送到固定 dest，认证通过后镜像目标 ServerHello 与首个加密握手 flight 的记录长度，替换 X25519 与 REALITY 认证材料。目标必须接受所提供 SNI、TLS 1.3、X25519、上述套件和兼容 CCS，不能要求 HelloRetryRequest 或客户端证书；握手 flight 必须为单个合并记录或 EE/Certificate/CertificateVerify/Finished 四记录布局，且容纳 REALITY 握手材料。不镜像额外 SessionTicket 的时序，也不承诺任意网站的流量特征。目标域名仅经 hosts/系统引导解析，避免代理递归。未认证及畸形 ClientHello 的已消费与剩余字节完整转发到固定 dest，普通 TLS 客户端可实际访问该目标。未完成握手及转发连接受连接数、握手期限、缓冲限制约束；未认证转发的空闲预算使用非零 idleTimeoutMs，否则使用 handshakeTimeoutMs。
 
 空 flow 支持普通 VLESS TCP/传统 UDP；Vision 支持真实双向 Direct 与 XUDP，内层 TLS 1.2/普通流量保持外层记录保护。Vision 指标和 UDP/443 策略沿用 P15。同端口可原子轮换 REALITY 私钥、short IDs、用户、dest、名称和限制，已认证旧流继续排空；候选失败保留当前配置。TLS 与 REALITY 监听类型切换需迁移端口。WS/XHTTP REALITY、PQ/Kyber、任意 uTLS 指纹、PROXY protocol、spiderX 均明确拒绝。固定 Chrome 120 模板的对照只证明与固定版本字段一致，不代表最新版浏览器指纹或抗识别保证。测试与实际证据见 [P16 验收](P16_REALITY_ACCEPTANCE.zh-CN.md)。
+
+## 入站握手与验收加固（P17）
+
+`runtime.metrics.inbound` 按物理连接统计 accepted/active/pending、succeeded/failed/rejected/cancelled、fallback/fallbackActive、coverDials/coverFailures 与 diagnosticsSuppressed。succeeded 表示传输握手已完成，不代替 VLESS/VMess/SOCKS 应用协议认证成功；应用协议失败继续进入稳定 errors 计数。REALITY 未认证流量访问固定 cover 属于 fallback，不计为错误；已连接后的 cover 握手失败属于 failed，只有 TCP 建连失败才增加 coverFailures。关闭取消和限额拒绝有独立结果，每条物理连接只有一次传输握手结果。错误计数不采样，握手 diagnostic/logger 输出每实例每秒最多 8 项，其余增加 diagnosticsSuppressed；不记录对端地址、SNI、密钥或原始异常文本。轮换前已接受的连接保留原指标归属。
+
+`metrics.transport` 提供 streams、readableBytes、writableBytes、bufferedBytes，统计 Runtime 持有的传输流可见读写队列、REALITY 记录/控制缓冲和 Vision 门控/底层 Socket 队列。它不等同于内核或 OpenSSL 内部内存；与逻辑流队列可能有重叠，不能相加解释为网卡字节。关闭后对应流与队列归零。
+
+`js2ray check-cover server-config.json` 校验配置并主动连接每个 REALITY 入站的固定 dest，逐个检查所配置 serverNames 的 TLS 1.3/X25519、CCS、单记录/四记录布局及可容纳认证 flight 的长度。它不创建业务入站监听，不输出目标名称或凭据；成功表示当前模板可镜像，不代替实际节点认证和业务验收。HRR、缺少 CCS、空间不足、截断和超时明确失败。固定 Node/OpenSSL cover 与 Xray 25.3.6 Go TLS cover 均有测试。
+
+长时脚本 `npm run test:stability:transports` 默认 100 会话/30 分钟，混合 XHTTP 两种 HTTP 版本三模式、Vision TLS、REALITY 空 flow/Vision、TLS 1.2/1.3 和普通流量，包含慢消费者、每分钟两端轮换、cover 故障、逐次字节比较和读写 Direct 断言。每秒采集队列/内存，每分钟保存样本，记录延迟直方图与最大值；保留原始 JSON、源码/配置摘要和关闭状态。少于 30 分钟的脚本检查标记 formalAcceptance=false，不计作正式长时证据。P17 的实际三平台结果见验收记录。

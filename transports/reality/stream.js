@@ -35,6 +35,9 @@ class RealityStream extends Duplex {
         return this;
       };
     Object.defineProperty(this, 'remoteAddress', { get: () => raw.remoteAddress });
+    Object.defineProperty(this, 'transportBufferBytes', {
+      get: () => this.buffer.length + this.control.length + raw.readableLength + raw.writableLength,
+    });
     this.schedule();
   }
   _read() {

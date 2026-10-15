@@ -31,9 +31,9 @@
 
 后续独立扩展项包括 XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，P16 扩展 REALITY 及 Vision 组合，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
-## 2 当前实现与优先修复项
+## 2 历史源码基线与当时的优先修复项
 
-当前仓库提供了协议层与传输层的基本分离，但没有完整的 VLESS 和传统 reverse 实现，也没有测试脚本及测试目录。
+本节记录最初源码基线，不能当作 P0–P17 之后的当前能力说明。最初仓库提供了协议层与传输层的基本分离，但没有完整的 VLESS 和传统 reverse 实现，也没有测试脚本及测试目录；当前状态以各阶段验收及 API 文档为准。
 
 | 位置 | 当前情况 | 更新方向 |
 | --- | --- | --- |
@@ -366,7 +366,22 @@ P15 全部验收通过：功能验收提交 `fd294a63e80abb5808ab31092682523e11f
 
 P16 全部验收通过：功能提交 `0abc16233d50b3b23373fab72bd729253395b449` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38719238453)。纯 Node.js 握手原型 4/4、协议与运行时专项 27/27、固定 Xray 25.3.6 对照合计 21/21。100 并发双向 Direct、同端口私钥/short ID/UUID/dest 轮换与回滚、实际安装包的 REALITY + Vision 均通过。77 个产品源码的 Git 规范化 SHA256 汇总为 `56f744db79b6c4866a90098f1b7125c7ba0a63e704454988793b2bbbd2106526`；[验收说明](docs/P16_REALITY_ACCEPTANCE.zh-CN.md) 与 [机器可读证据](docs/acceptance/reality-2026-10-15.json) 保存逐平台作业、测试数和隐私审计。支持原始 TCP、TLS 1.3、固定非 PQ Chrome 120 模板；WS/XHTTP REALITY、PQ、其他任意指纹和 PROXY protocol 明确不支持，详见 API。
 
-## 13 参考资料
+## 13 验收与可观测性加固 P17（2026-10-15）
+
+按顺序补齐 P14–P16 验收盲区，保留既有固定参考基线；所有故障注入及负载使用合成凭据。
+
+- [x] 入站传输握手指标与脱敏诊断：成功、失败、超时、限额、关闭取消、REALITY cover 建连和正常未认证转发，单次计数、实例/轮换隔离及有界诊断输出。`test/inbound-metrics.test.js` 10/10；诊断每实例每秒最多 8 项，错误累计不采样，正常转发不冒充错误。
+- [x] REALITY 安全负向：CertificateVerify/Finished 篡改、压缩证书边界、随机分片与非法输入；认证前业务零泄露，队列和生命周期有界。新增 11 项确定性用例，包含双向 Finished 拒绝、Brotli 压缩炸弹/声明长度/算法/畸形数据、四个固定分片种子与 512 次 ClientHello 变异。
+- [x] cover 兼容性：强制单记录/四记录布局、三套件服务端方向、HRR/CCS/记录空间/断连等边界；本机专项 12/12。新增 CLI `check-cover`，不创建入站监听、不输出目标/凭据，检查所有配置名称的镜像布局与记录空间；另以固定 Xray 25.3.6 的 Go TLS cover 验证双向互通。
+- [ ] P14–P16 长时混合负载：至少 100 并发、持续 30 分钟，涵盖 XHTTP 三模式、Vision/REALITY、慢消费者、轮换、cover 故障、延迟/内存/内部队列及关闭归零；保存原始证据。
+- [x] 修正文档冲突，扩展原生/传统配置和 REALITY 密钥/short IDs 隐私审计；合成敏感字段与已删除历史 blob 测试 2/2。实际安装的 tarball 在本地额外逐文件执行私有字段检查，CI 继续保持不接触真实凭据。
+- [ ] 全量回归、固定内核互通及 Windows/Linux/macOS 验收，保存逐平台作业、源码摘要与机器可读证据，无跳过。
+
+长时负载先用短运行检查脚本，再在固定功能提交上执行完整 30 分钟；短运行不得计作正式长时验收。实现与验收逐项更新本节。
+
+短负载发现并修复 WSS/XHTTP 握手计时器移交问题：TCP、TLS 与 HTTP/2 session 各自持有超时，传输就绪后必须清除父 TCP 计时器，HTTP/2 后续预算交给 session。新增 4 项持续读写超过握手预算的回归通过；修复后的 100 会话短运行完成 4 次全端点轮换与 4 次 cover 故障恢复。该结果不计作正式 30 分钟证据。
+
+## 14 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

@@ -6,8 +6,8 @@ const { createRuntime, checkConfig, redact } = require('../');
 
 async function main(args) {
   const [command, file] = args;
-  if (!['check', 'run'].includes(command) || !file) {
-    process.stderr.write('Usage: js2ray <check|run> <config.json>\n');
+  if (!['check', 'run', 'check-cover'].includes(command) || !file) {
+    process.stderr.write('Usage: js2ray <check|run|check-cover> <config.json>\n');
     process.exitCode = 2;
     return;
   }
@@ -18,6 +18,39 @@ async function main(args) {
     const report = checkConfig(config, options);
     process.stdout.write(JSON.stringify(redact(report), null, 2) + '\n');
     process.exitCode = report.ok ? 0 : 1;
+    return;
+  }
+  if (command === 'check-cover') {
+    const normalized = require('../config').normalizeConfig(config, options);
+    const controller = new AbortController();
+    const { Resolver } = require('../dns');
+    const resolver = new Resolver(normalized.dns, {
+      data: normalized._assets,
+      signal: controller.signal,
+    });
+    try {
+      const results = [];
+      for (const inbound of normalized.inbounds)
+        for (const network of inbound.networks)
+          if (network.option.reality)
+            results.push(
+              ...(await require('../transports/reality').inspectCover(network.option.reality, {
+                ...normalized.limits,
+                signal: controller.signal,
+                lookup: resolver.bootstrapLookup,
+              })),
+            );
+      if (!results.length)
+        throw require('../runtime/errors').failure(
+          'ERR_CONFIG',
+          'No REALITY inbound cover is configured.',
+          'config',
+        );
+      process.stdout.write(JSON.stringify({ ok: true, covers: results }) + '\n');
+    } finally {
+      controller.abort();
+      resolver.close();
+    }
     return;
   }
   const runtime = createRuntime(config, {

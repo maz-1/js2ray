@@ -42,6 +42,7 @@ class Runtime extends EventEmitter {
   #muxClients = new Map();
   #reverse;
   #metrics = new Metrics();
+  #transportStreams = new Set();
 
   constructor(config, options = {}) {
     super();
@@ -102,6 +103,24 @@ class Runtime extends EventEmitter {
     return {
       ...this.#metrics.snapshot(),
       dns: this.#resolver.stats,
+      transport: {
+        streams: this.#transportStreams.size,
+        readableBytes: [...this.#transportStreams].reduce(
+          (n, stream) => n + (stream.readableLength ?? 0),
+          0,
+        ),
+        writableBytes: [...this.#transportStreams].reduce(
+          (n, stream) => n + (stream.writableLength ?? 0),
+          0,
+        ),
+        bufferedBytes: [...this.#transportStreams].reduce(
+          (n, stream) =>
+            n +
+            (stream.transportBufferBytes ??
+              (stream.buffer?.length ?? 0) + (stream.control?.length ?? 0)),
+          0,
+        ),
+      },
       mux: {
         transports: muxes.length,
         sessions: muxes.reduce((n, mux) => n + mux.sessions.size, 0),
@@ -122,9 +141,10 @@ class Runtime extends EventEmitter {
     this.#state = state;
     this.emit('state', state);
   }
-  #report(error) {
+  #report(error, { diagnostic = true } = {}) {
     error = normalizeError(error);
     if (!this.#metrics.error(error)) return;
+    if (!diagnostic) return;
     const logger = this.#options.logger ?? this.#config.debug;
     try {
       if (typeof logger === 'function')
@@ -152,6 +172,13 @@ class Runtime extends EventEmitter {
       stream.setTimeout(idle, () =>
         stream.destroy(failure('ERR_TIMEOUT', 'Connection was idle.', 'transport')),
       );
+    return stream;
+  }
+  #observeTransport(stream) {
+    if (!this.#transportStreams.has(stream)) {
+      this.#transportStreams.add(stream);
+      stream.once('close', () => this.#transportStreams.delete(stream));
+    }
     return stream;
   }
 
@@ -198,10 +225,15 @@ class Runtime extends EventEmitter {
           const listenerOptions = {
             ...this.#config.limits,
             lookup: this.#resolver.bootstrapLookup,
+            inbound: (transport) =>
+              this.#metrics.beginInbound(transport, (error, options) =>
+                this.#report(error, options),
+              ),
           };
           if (this.#lifetime.signal.aborted)
             throw failure('ERR_CANCELLED', 'Startup was cancelled.', 'runtime');
           const accept = (socket) => {
+            this.#observeTransport(socket);
             if (
               this.#state !== 'running' ||
               this.#streams.size >= this.#config.limits.maxConnections
@@ -575,7 +607,9 @@ class Runtime extends EventEmitter {
     return this.#operation(target, false);
   }
   #connect(network, options) {
-    return this.#metrics.measure('transport', () => connect(network, options));
+    return this.#metrics.measure('transport', async () =>
+      this.#observeTransport(await connect(network, options)),
+    );
   }
   #trackMux(mux) {
     this.#muxes.add(mux);

@@ -49,6 +49,21 @@ try {
   assert.equal(installed.scripts.install, undefined);
   assert.equal(installed.scripts.postinstall, undefined);
   assert.deepEqual(Object.keys(installed.dependencies), ['ws']);
+  const privateConfig = path.join(root, 'v2ray-config.json');
+  if (fs.existsSync(privateConfig)) {
+    const audit = require('./private-audit');
+    const material = audit.collect(JSON.parse(fs.readFileSync(privateConfig, 'utf8')));
+    for (const entry of packed.files) {
+      const contents = fs
+        .readFileSync(path.join(directory, 'node_modules/js2ray', entry.path))
+        .toString('utf8');
+      assert.equal(
+        audit.scan(material, entry.path, contents).matches.length,
+        0,
+        'Installed package contains a private field.',
+      );
+    }
+  }
   command(
     [
       '-e',

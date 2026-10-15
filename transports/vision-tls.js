@@ -315,6 +315,14 @@ function wrap(raw, tlsConfig, { server = false, maxBufferBytes = 1048576 } = {})
     gate.writeDirect = true;
   };
   stream.getProtocol = () => secure.getProtocol();
+  Object.defineProperty(stream, 'transportBufferBytes', {
+    get: () =>
+      gate.buffer.length +
+      secure.readableLength +
+      secure.writableLength +
+      raw.readableLength +
+      raw.writableLength,
+  });
   stream.visionState = () => ({
     readDirect: gate.direct,
     writeDirect: directWrite,

@@ -15,6 +15,10 @@ function createListener(network, onConnection, limits, tlsOptions) {
     sockets = new Set(),
     h2sessions = new Set();
   const bodies = new Set();
+  const observations = new Map(),
+    peers = new Map();
+  const peerKey = (socket) => `${socket.remoteAddress}:${socket.remotePort}`;
+  const observed = (socket) => observations.get(socket) ?? peers.get(peerKey(socket));
   const effectiveVersion = (value) =>
     value.httpVersion === 'auto' && !value.tls ? '1.1' : value.httpVersion;
   const version = effectiveVersion(config);
@@ -41,15 +45,52 @@ function createListener(network, onConnection, limits, tlsOptions) {
         : http2.createServer(serverOptions, handle);
   server.headersTimeout = config.timeout;
   server.requestTimeout = 0; // Streaming uploads are bounded by logical idle/handshake limits instead.
-  server.on('connection', (socket) => {
+  server.prependListener('connection', (socket) => {
+    const observer = require('../inbound').watch(socket, limits, secure ? 'xhttp-tls' : 'xhttp');
+    observations.set(socket, observer);
+    observer.clearSocketTimeout = () => socket.setTimeout(0);
+    const key = peerKey(socket);
+    peers.set(key, observer);
     sockets.add(socket);
     socket.on('error', () => {});
-    socket.once('close', () => sockets.delete(socket));
-    if (sockets.size > config.maxSessions * 3 + 2) socket.destroy();
-    else socket.setTimeout(config.timeout, () => socket.destroy());
+    socket.once('close', () => {
+      sockets.delete(socket);
+      observations.delete(socket);
+      if (peers.get(key) === observer) peers.delete(key);
+    });
+    if (sockets.size > config.maxSessions * 3 + 2) {
+      observer.reject();
+      socket.destroy();
+    } else {
+      socket.setTimeout(config.timeout, () => {
+        observer.timeout();
+        socket.destroy();
+      });
+      if (!secure) observer.success();
+    }
   });
-  server.on('tlsClientError', () => {});
+  server.on('secureConnection', (socket) => {
+    const observer = observed(socket);
+    observer?.clearSocketTimeout();
+    observer?.success();
+    // TLSSocket and its accepted TCP socket have separate timeout ownership.
+    // Subsequent HTTP handling clears this public TLS socket's header budget.
+    if (socket.alpnProtocol !== 'h2') socket.setTimeout(config.timeout, () => socket.destroy());
+  });
+  server.on('tlsClientError', (cause, socket) => {
+    observed(socket)?.fail(
+      failure(
+        cause.code?.includes('TIMEOUT') ? 'ERR_TIMEOUT' : 'ERR_TLS',
+        'Inbound XHTTP TLS handshake failed.',
+        'inbound',
+        cause,
+      ),
+    );
+    socket.destroy();
+  });
   server.on('session', (session) => {
+    observed(session.socket)?.clearSocketTimeout();
+    session.setTimeout(config.timeout, () => session.destroy());
     h2sessions.add(session);
     session.on('error', () => {});
     session.once('close', () => h2sessions.delete(session));
@@ -406,22 +447,26 @@ function createListener(network, onConnection, limits, tlsOptions) {
       } catch (cause) {
         throw failure('ERR_TLS', 'Candidate XHTTP TLS material is invalid.', 'rotation', cause);
       }
-      const previous = { config, secure };
-      const apply = (value, material) => {
+      const previous = { config, secure, limits };
+      const apply = (value, material, nextLimits) => {
         if (material) server.setSecureContext(material);
         config = value;
         secure = material;
+        limits = nextLimits;
         server.headersTimeout = config.timeout;
       };
       return {
-        commit: () => apply(next, nextSecure),
-        rollback: () => apply(previous.config, previous.secure),
+        commit: () => apply(next, nextSecure, nextLimits),
+        rollback: () => apply(previous.config, previous.secure, previous.limits),
       };
     },
     destroy() {
       for (const stream of streams) stream.destroy();
       for (const session of h2sessions) session.destroy();
-      for (const socket of sockets) socket.destroy();
+      for (const socket of sockets) {
+        observations.get(socket)?.cancel();
+        socket.destroy();
+      }
     },
   };
 }

@@ -26,6 +26,12 @@ test('metrics count logical stream bytes without starting flowing, snapshots and
   assert.equal(runtime.metrics.errors.injected, undefined);
   await runtime.close();
   assert.equal(runtime.metrics.mux.queuedBytes, 0);
+  assert.deepEqual(runtime.metrics.transport, {
+    streams: 0,
+    readableBytes: 0,
+    writableBytes: 0,
+    bufferedBytes: 0,
+  });
 });
 
 test('post-connect native errors and write callbacks normalize before subscribers and logs are sanitized', async (t) => {
