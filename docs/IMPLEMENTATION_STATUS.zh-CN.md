@@ -93,6 +93,12 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 
 用户授权的 `node scripts/smoke-private.js v2ray-config.json` 仅提取 proxy 出站和 hosts，引导 VLESS/WSS 请求 example.com；前次结果 HTTP 200，本地代理监听器 0，严格 TLS 开启。它不证明公网服务端的内核版本或完整 reverse 部署兼容性。`scripts/check-private.js` 仅在本地检查已跟踪文件是否出现私有地址、UUID、邮箱、Host、SNI、路径，只输出文件名而不输出值。私有文件始终 gitignored，未进入 CI/发布包；没有修改 ChatRoom。
 
+2026-10-16 另完成两次完整配置冷启动验收，保留所有入站、出站、DNS、Geo、路由及 Bridge；在 WSL 使用原监听端口，通过临时中继接回真实 Windows 后端。仅增加 3 个代理路径 DNS 服务器的 15 秒预算，修复实际网络中偶发的默认 3 秒超时。5 个 DNS 端点、优先级/hosts/缓存、直连/代理/SOCKS/阻断均通过；用户完成 OAuth PKCE 授权后，远程 MCP 共 6 次成功，11 项工具定义与本地一致，实际观察到 24 次 js2ray 反向业务会话。无认证/无效令牌均 401，关闭资源全部归零，未执行业务工具。详见 [脱敏验收记录](acceptance/private-runtime-2026-10-16.json)；完整原始记录和认证材料留在本地 `.private/`，验收不等同持久部署，也不推断公网内核版本。
+
+隐私审计补齐 DNS 字符串服务器、hosts 键值、OAuth 凭据和 IPv4/IPv6 端点；依据 [公开服务文档](https://developers.google.com/speed/public-dns/docs/doh) 对显式列举的公共 DNS 身份分类，避免配置字符串改为对象后的误报。豁免不延伸到代理出站或自定义端口、路径、查询和凭据，报告只输出字段路径；新增 2 项回归，隐私专项 4/4。
+
 ## P20 常用配置兼容（已验收）
+
+2026-10-16 按用户授权补齐本地真实配置：GeoIP/GeoSite 使用本机 v2rayN 当前文件的固定快照，保存 SHA256/version/maxBytes；删除无对应 API 服务的孤立路由，保留其余设置并备份原文件。完整配置检查 0 诊断，真实 Geo 分类、路由及资源摘要/悬空 tag 负向验证通过；Runtime 构造与关闭通过，代理出站冒烟返回 HTTP 200。私有配置、资源清单和恢复文件保存在本地 `.private/`，被 Git 与格式化工具忽略，未进入 npm 包；私有字段审计零匹配。
 
 固定 V2Ray 5.14.1 与 Xray 25.3.6，补齐常用静态路由和 DNS 字段及显式语义档案。当前纯 JS 运行依赖为 ws 8.22.0 与 re2js 2.8.6，上文只有 ws 的描述为历史记录。最终产品三平台每平台 375 项普通/228 项固定内核互通、类型/格式/示例、实际安装包及四组共 12 项 100 会话/30 分钟长时全部通过，管理器资源归零，Caddy 退出。HTTP/2 原生回调重入已修正，新增 Linux 12 轮子进程与 Valgrind 零非法访问门禁。详见 [字段矩阵与验收](P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](acceptance/p20-2026-10-16.json)。HTTP/3、DoQ 继续暂缓。

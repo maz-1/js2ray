@@ -1,0 +1,326 @@
+{
+  "date": "2026-10-16",
+  "scope": "User-authorized complete private configuration; live DNS, routing and real MCP reverse proxy",
+  "passed": true,
+  "node": "24.20.0",
+  "runtimePlatform": "WSL Ubuntu / Linux",
+  "backendPlatform": "Windows",
+  "fullConfiguration": {
+    "diagnostics": 0,
+    "inbounds": 1,
+    "outbounds": 4,
+    "routingRules": 11,
+    "dnsServers": 5,
+    "bridges": 1,
+    "configurationCropped": false,
+    "listenerPortOverridden": false,
+    "originalClientLeftRunning": true
+  },
+  "fixes": {
+    "proxyDnsServerTimeoutMs": 15000,
+    "proxyDnsServersChanged": 3,
+    "dnsAddressesAndRoutingRulesPreserved": true,
+    "backendStartedByUser": true,
+    "oauthRegistrationEnabledByUser": true,
+    "oauthPkceAuthorizationCompletedByUser": true
+  },
+  "runs": [
+    {
+      "index": 1,
+      "at": "2026-10-15T23:31:00.153Z",
+      "passed": true,
+      "checks": [
+        {
+          "name": "fullConfigStarted",
+          "passed": true
+        },
+        {
+          "name": "realBackendFromIsolatedLoopback",
+          "passed": true
+        },
+        {
+          "name": "dns:preferredDomestic",
+          "passed": true
+        },
+        {
+          "name": "dns:preferredForeign",
+          "passed": true
+        },
+        {
+          "name": "dns:fallbackPublic",
+          "passed": true
+        },
+        {
+          "name": "dns:cache",
+          "passed": true
+        },
+        {
+          "name": "dns:hosts",
+          "passed": true
+        },
+        {
+          "name": "dns:server-0",
+          "passed": true
+        },
+        {
+          "name": "dns:server-1",
+          "passed": true
+        },
+        {
+          "name": "dns:server-2",
+          "passed": true
+        },
+        {
+          "name": "dns:server-3",
+          "passed": true
+        },
+        {
+          "name": "dns:server-4",
+          "passed": true
+        },
+        {
+          "name": "route:directHttp",
+          "passed": true
+        },
+        {
+          "name": "route:proxyHttp",
+          "passed": true
+        },
+        {
+          "name": "route:socksInbound",
+          "passed": true
+        },
+        {
+          "name": "route:block",
+          "passed": true
+        },
+        {
+          "name": "reverse:active",
+          "passed": true
+        },
+        {
+          "name": "reverse:realRemoteMcp",
+          "passed": true
+        },
+        {
+          "name": "reverse:jsBusinessObserved",
+          "passed": true
+        },
+        {
+          "name": "cleanup",
+          "passed": true
+        },
+        {
+          "name": "configUnchanged",
+          "passed": true
+        }
+      ],
+      "dns": {
+        "serversPassed": 5,
+        "udpServers": 4,
+        "dohServers": 1,
+        "cacheVerified": true,
+        "hostsVerified": true,
+        "domesticAndForeignPriorityVerified": true
+      },
+      "routing": {
+        "directStatus": 301,
+        "proxyStatus": 200,
+        "socksStatus": 200,
+        "blockedCode": "ERR_BLOCKED"
+      },
+      "reverse": {
+        "activeWorkers": 1,
+        "observedBusinessSessions": 12,
+        "mcpSessions": 3,
+        "toolCount": 11,
+        "toolsIdentical": true,
+        "metadataStatus": 200,
+        "unauthenticatedStatus": 401,
+        "invalidTokenStatus": 401
+      },
+      "cleanup": {
+        "state": "closed",
+        "listeners": 0,
+        "connections": 0,
+        "pendingDials": 0,
+        "reverseTransports": 0,
+        "reverseSessions": 0,
+        "dnsPending": 0,
+        "transportStreams": 0,
+        "relaySockets": 0
+      },
+      "configurationUnchangedDuringRun": true
+    },
+    {
+      "index": 2,
+      "at": "2026-10-15T23:32:17.848Z",
+      "passed": true,
+      "checks": [
+        {
+          "name": "fullConfigStarted",
+          "passed": true
+        },
+        {
+          "name": "realBackendFromIsolatedLoopback",
+          "passed": true
+        },
+        {
+          "name": "dns:preferredDomestic",
+          "passed": true
+        },
+        {
+          "name": "dns:preferredForeign",
+          "passed": true
+        },
+        {
+          "name": "dns:fallbackPublic",
+          "passed": true
+        },
+        {
+          "name": "dns:cache",
+          "passed": true
+        },
+        {
+          "name": "dns:hosts",
+          "passed": true
+        },
+        {
+          "name": "dns:server-0",
+          "passed": true
+        },
+        {
+          "name": "dns:server-1",
+          "passed": true
+        },
+        {
+          "name": "dns:server-2",
+          "passed": true
+        },
+        {
+          "name": "dns:server-3",
+          "passed": true
+        },
+        {
+          "name": "dns:server-4",
+          "passed": true
+        },
+        {
+          "name": "route:directHttp",
+          "passed": true
+        },
+        {
+          "name": "route:proxyHttp",
+          "passed": true
+        },
+        {
+          "name": "route:socksInbound",
+          "passed": true
+        },
+        {
+          "name": "route:block",
+          "passed": true
+        },
+        {
+          "name": "reverse:active",
+          "passed": true
+        },
+        {
+          "name": "reverse:realRemoteMcp",
+          "passed": true
+        },
+        {
+          "name": "reverse:jsBusinessObserved",
+          "passed": true
+        },
+        {
+          "name": "cleanup",
+          "passed": true
+        },
+        {
+          "name": "configUnchanged",
+          "passed": true
+        }
+      ],
+      "dns": {
+        "serversPassed": 5,
+        "udpServers": 4,
+        "dohServers": 1,
+        "cacheVerified": true,
+        "hostsVerified": true,
+        "domesticAndForeignPriorityVerified": true
+      },
+      "routing": {
+        "directStatus": 301,
+        "proxyStatus": 200,
+        "socksStatus": 200,
+        "blockedCode": "ERR_BLOCKED"
+      },
+      "reverse": {
+        "activeWorkers": 1,
+        "observedBusinessSessions": 12,
+        "mcpSessions": 3,
+        "toolCount": 11,
+        "toolsIdentical": true,
+        "metadataStatus": 200,
+        "unauthenticatedStatus": 401,
+        "invalidTokenStatus": 401
+      },
+      "cleanup": {
+        "state": "closed",
+        "listeners": 0,
+        "connections": 0,
+        "pendingDials": 0,
+        "reverseTransports": 0,
+        "reverseSessions": 0,
+        "dnsPending": 0,
+        "transportStreams": 0,
+        "relaySockets": 0
+      },
+      "configurationUnchangedDuringRun": true
+    }
+  ],
+  "productSourceSha256": "f765dbc3c712e19a79f372858a12e6361ab74ad6192cecc84e47af97e752213f",
+  "productSourcesMatchP20": true,
+  "privateArtifactsExcluded": true,
+  "publicRecordContainsNoEndpointOrCredentialValues": true,
+  "limitations": [
+    "The remote core version is not inferred from the live deployment; fixed-core acceptance is recorded separately in P20.",
+    "The unchanged SOCKS listener and backend redirect were isolated with WSL; a temporary process-pipe relay connected the real Windows backend.",
+    "Real runtime and temporary relay were closed after each acceptance run; this is not a persistent deployment.",
+    "MCP acceptance only initialized sessions and listed tools; it did not execute business tools."
+  ],
+  "localRegression": {
+    "platform": "Windows",
+    "unit": {
+      "passed": 377,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "fixedCoreInterop": {
+      "passed": 228,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "privacyTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "package": {
+      "passed": true,
+      "files": 159,
+      "nativeRuntimeAssets": 0
+    },
+    "format": true,
+    "types": true,
+    "syntax": true,
+    "privateConfigAndOAuthAudit": {
+      "passed": true,
+      "trackedAndHistoricalFiles": true,
+      "installedPackage": true,
+      "matches": 0
+    }
+  }
+}

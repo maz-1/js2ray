@@ -108,6 +108,8 @@ test('privacy audit covers native/traditional fields and REALITY encoded credent
     '43216',
     'private-header-regex',
     'private-routing-user',
+    'private-hosts.audit.test',
+    '198.51.100.123',
   ]) {
     const result = scan(material, 'synthetic', value);
     assert.ok(result.matches.length, value.length + '-byte synthetic field was missed.');
@@ -122,6 +124,73 @@ test('privacy audit covers native/traditional fields and REALITY encoded credent
   });
   assert.equal(scan(short, 'safe', 'stable abcdef').matches.length, 0);
   assert.equal(scan(short, 'leak', '"ab"').matches.length, 1);
+});
+test('DNS string and object endpoints are audited equally, with private hosts mappings and OAuth credentials', () => {
+  const material = collect({
+    oauth: {
+      client_id: 'synthetic-oauth-client-marker',
+      access_token: 'synthetic-access-marker',
+      refresh_token: 'synthetic-refresh-marker',
+      client_secret: 'synthetic-client-secret-marker',
+      code_verifier: 'synthetic-verifier-marker',
+    },
+    dns: {
+      servers: [
+        'tcp://string-resolver.audit.test:43215',
+        { address: 'https://object-resolver.audit.test/private-dns-path' },
+        '192.0.2.125:43213',
+        '[2001:db8::125]:43212',
+      ],
+      hosts: { 'full:mapped-private.audit.test': ['198.51.100.124', 'mapped-alias.audit.test'] },
+    },
+  });
+  for (const value of [
+    'string-resolver.audit.test',
+    '43215',
+    'object-resolver.audit.test',
+    'private-dns-path',
+    'mapped-private.audit.test',
+    '198.51.100.124',
+    'mapped-alias.audit.test',
+    '192.0.2.125',
+    '43213',
+    '2001:db8::125',
+    '43212',
+    'synthetic-oauth-client-marker',
+    'synthetic-access-marker',
+    'synthetic-refresh-marker',
+    'synthetic-client-secret-marker',
+    'synthetic-verifier-marker',
+  ]) {
+    const result = scan(material, 'synthetic', value);
+    assert.ok(result.matches.length);
+    assert.equal(JSON.stringify(result).includes(value), false);
+  }
+});
+test('public DNS identity exemptions are limited to DNS and preserve custom endpoint secrets', () => {
+  const publicOnly = collect({
+    dns: {
+      servers: ['8.8.8.8', { address: 'https://dns.google/dns-query' }],
+      hosts: { 'dns.google': '8.8.8.8' },
+    },
+  });
+  const result = scan(publicOnly, 'public', '8.8.8.8 https://dns.google/dns-query');
+  assert.equal(result.matches.length, 0);
+  assert.equal(result.publicDnsFields.length, 4);
+  const custom = collect({
+    dns: { servers: ['https://dns.google:43214/private-dns-token?key=private-query-token'] },
+    outbounds: [
+      { networks: [{ address: '8.8.8.8', option: { tls: { serverName: 'dns.google' } } }] },
+    ],
+  });
+  for (const value of [
+    '43214',
+    'private-dns-token',
+    'private-query-token',
+    '8.8.8.8',
+    'dns.google',
+  ])
+    assert.ok(scan(custom, 'private', value).matches.length);
 });
 test('privacy audit detects deleted historical REALITY credentials without printing values', (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'js2ray-audit-')),

@@ -4,4 +4,5 @@ coverage/
 .test-tools/
 test-results/
 v2ray-config.json
+.private/
 

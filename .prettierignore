@@ -4,6 +4,7 @@ test-results
 docs/acceptance/stability-2026-10-15.json
 coverage
 v2ray-config.json
+.private
 DEVELOPMENT_PLAN.zh-CN.md
 package-lock.json
 core/api.js

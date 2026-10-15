@@ -8,11 +8,13 @@ const material = audit.collect(JSON.parse(fs.readFileSync(filename, 'utf8')));
 const git = (args) =>
   execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
 const matches = [],
-  genericPorts = new Set();
+  genericPorts = new Set(),
+  publicDnsFields = new Set();
 function scan(file, text, object) {
   const result = audit.scan(material, file, text, object);
   matches.push(...result.matches);
   for (const field of result.genericPorts) genericPorts.add(field);
+  for (const field of result.publicDnsFields) publicDnsFields.add(field);
 }
 const files = git(['ls-files', '-z']).split('\0').filter(Boolean);
 for (const file of files)
@@ -65,7 +67,8 @@ process.stdout.write(
     ],
     matches,
     genericPortFields: [...genericPorts],
-    note: 'Only protocol-standard DNS/HTTP/HTTPS port numbers and local endpoint identities are excluded; matched values are never printed.',
+    publicDnsFields: [...publicDnsFields],
+    note: 'Only protocol-standard ports, local endpoint identities, and explicitly catalogued public DNS identities are excluded; custom DNS paths, query values and ports remain checked. Matched values are never printed.',
   }) + '\n',
 );
 if (matches.length) process.exitCode = 1;

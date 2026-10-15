@@ -1,9 +1,15 @@
 'use strict';
 // Matched values stay in memory. Reports contain field paths only.
 const net = require('node:net');
+// Public service identities only, restricted to DNS endpoints. Never exempt
+// outbound identities, custom paths, query values, credentials, or ports.
+// https://developers.google.com/speed/public-dns/docs/doh
+const publicDnsIPs = new Set(['8.8.8.8', '8.8.4.4']);
+const publicDnsHosts = new Set(['dns.google']);
 function collect(input) {
   const secrets = [],
-    ports = [];
+    ports = [],
+    publicDns = [];
   function add(field, value, { key = false, short = false } = {}) {
     if (
       typeof value !== 'string' ||
@@ -52,6 +58,45 @@ function collect(input) {
       port(field + '.port', Number(match[3]));
     }
   }
+  function dnsEndpoint(field, value) {
+    if (typeof value !== 'string') return;
+    if (publicDnsIPs.has(value)) {
+      publicDns.push({ field, value });
+      return;
+    }
+    let url;
+    try {
+      url = new URL(
+        /^(?:\[[^\]]+\]|[\d.]+):\d+$/.test(value)
+          ? 'udp://' + value
+          : value.replace(/^(tcp|https)\+local:/, '$1:'),
+      );
+    } catch {}
+    const standard =
+      url &&
+      url.protocol === 'https:' &&
+      publicDnsHosts.has(url.hostname) &&
+      !url.port &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash &&
+      url.pathname === '/dns-query';
+    if (standard) publicDns.push({ field, value });
+    else add(field, value);
+    if (url) {
+      const hostname = url.hostname.replace(/^\[|\]$/g, '');
+      if (!publicDnsHosts.has(hostname)) add(field + '.host', hostname);
+      if (url.port) port(field + '.port', Number(url.port));
+      if (!standard) {
+        for (const part of url.pathname.split('/'))
+          if (part.length >= 6 && part !== 'dns-query') add(field + '.path', part);
+        for (const entry of url.searchParams.values()) add(field + '.query', entry);
+        add(field + '.username', url.username);
+        add(field + '.password', url.password);
+      }
+    }
+  }
   function walk(value, prefix, inBound = false, outbound = false) {
     if (!value || typeof value !== 'object') return;
     for (const [name, item] of Object.entries(value)) {
@@ -59,7 +104,7 @@ function collect(input) {
         lower = name.toLowerCase();
       if (
         /prefix/i.test(name) ||
-        /^(id|user|useremail|clientip|source|sourceip|sourceport|pass|password|email|privatekey|publickey|shortid|shortids|key|token|secret|authorization|cookie)$/.test(
+        /^(id|user|useremail|clientip|source|sourceip|sourceport|pass|password|email|privatekey|publickey|shortid|shortids|key|token|secret|authorization|cookie|client_?id|(?:access|refresh|id)_?token|client_?secret|code_?verifier)$/.test(
           lower,
         )
       )
@@ -69,13 +114,23 @@ function collect(input) {
             short: /^shortids?$/.test(lower),
           });
       if (prefix.startsWith('$.dns')) {
+        if (lower === 'servers' && Array.isArray(item))
+          for (const [index, server] of item.entries())
+            if (typeof server === 'string') dnsEndpoint(field + `[${index}]`, server);
+        if (lower === 'hosts' && item && typeof item === 'object')
+          for (const [pattern, addresses] of Object.entries(item)) {
+            if (publicDnsHosts.has(pattern.replace(/^full:/, '')))
+              publicDns.push({ field: field + '.pattern', value: pattern });
+            else {
+              add(field + '.pattern', pattern);
+              add(field + '.pattern.host', pattern.replace(/^(full|domain):/, ''));
+            }
+            for (const address of Array.isArray(addresses) ? addresses : [addresses])
+              dnsEndpoint(field + '.value', address);
+          }
         if (['address', 'clientip', 'servername'].includes(lower) && typeof item === 'string') {
-          add(field, item);
-          try {
-            const url = new URL(item.replace(/^(tcp|https)\+local:/, '$1:'));
-            add(field + '.host', url.hostname);
-            if (url.port) port(field + '.port', Number(url.port));
-          } catch {}
+          if (lower === 'address') dnsEndpoint(field, item);
+          else add(field, item);
         }
         if (lower === 'port') port(field, item);
       }
@@ -106,11 +161,12 @@ function collect(input) {
     }
   }
   walk(input, '$');
-  return { secrets, ports };
+  return { secrets, ports, publicDns };
 }
 function scan(material, file, text, object) {
   const matches = [],
-    genericPorts = [];
+    genericPorts = [],
+    publicDnsFields = [];
   for (const secret of material.secrets)
     if (
       secret.variants.some((value) => {
@@ -125,6 +181,8 @@ function scan(material, file, text, object) {
       if ([53, 80, 443].includes(port.value)) genericPorts.push(port.field);
       else matches.push({ file, field: port.field, ...(object ? { object } : {}) });
     }
-  return { matches, genericPorts };
+  for (const entry of material.publicDns ?? [])
+    if (text.includes(entry.value)) publicDnsFields.push(entry.field);
+  return { matches, genericPorts, publicDnsFields };
 }
 module.exports = { collect, scan };
