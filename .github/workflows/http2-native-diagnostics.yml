@@ -1,0 +1,45 @@
+name: HTTP2 native diagnostics
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/http2-native-diagnostics.yml'
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.20.0
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Ensure debugger is available
+        run: |
+          if ! command -v gdb >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y gdb
+          fi
+      - name: Capture native failure without test worker isolation
+        shell: bash
+        run: |
+          mkdir -p test-results/http2-native
+          for attempt in $(seq 1 12); do
+            log="test-results/http2-native/gdb-${attempt}.txt"
+            gdb --batch -ex 'set pagination off' -ex 'handle SIGPIPE nostop noprint pass' -ex run -ex 'thread apply all bt' --args node --test --test-isolation=none --test-timeout=15000 test/xmux.test.js > "$log" 2>&1
+            tail -n 12 "$log"
+            if rg -q 'received signal SIG(SEGV|ABRT)' "$log"; then
+              echo "Native failure captured on attempt ${attempt}"
+              exit 1
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: http2-native-diagnostics
+          path: test-results/http2-native
+          if-no-files-found: error
+          retention-days: 30

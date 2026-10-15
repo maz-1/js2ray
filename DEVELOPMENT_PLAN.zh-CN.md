@@ -426,9 +426,11 @@ P19 全部验收通过：[全量回归](https://github.com/maz-1/js2ray/actions/
 - [x] 常用路由：domain/domains 别名、ruleTag、匹配算法、受控正则、外部 Geo 资源；来源 IP/端口、认证用户、协议及 Xray HTTP attrs，覆盖 TCP/UDP/Mux/reverse 与库模式。
 - [x] 常用 DNS：每服务器 queryStrategy/timeout/cache/tag、ECS、TCP/local 模式、域名和 IP 过滤、回退策略、缓存与引导解析；按固定内核明确支持与差异。
 - [x] 原生/传统配置、类型、示例、诊断和脱敏；逐项专项、固定内核对照与真实应用链路回归。
-- [x] Windows/Linux/macOS 全量、固定内核对照、实际 tarball 和 100 会话/30 分钟长时验收，保存原始记录、产品/配置/脚本摘要与资源清理结果；新增自动核验门禁。
+- [ ] Windows/Linux/macOS 全量、固定内核对照、实际 tarball 和 100 会话/30 分钟长时验收，保存原始记录、产品/配置/脚本摘要与资源清理结果；新增自动核验门禁。
 
-P20 全部验收通过：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。 逐项字段与差异、修复过程、原始记录链接见 [P20 验收与支持矩阵](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](docs/acceptance/p20-2026-10-16.json)。短跑及中间失败/取消运行均未计作正式通过；HTTP/3 和 DoQ 继续暂缓。
+P20 功能与 12 项正式长时已通过，归档后的最终进程级验收重新打开：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。 逐项字段与差异、修复过程、原始记录链接见 [P20 验收与支持矩阵](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](docs/acceptance/p20-2026-10-16.json)。短跑及中间失败/取消运行均未计作正式通过；HTTP/3 和 DoQ 继续暂缓。
+
+归档后最终 Linux 回归在全部 372 个断言通过后发生 SIGSEGV；TAP 已确认是原生崩溃，不能计作通过。新增独立 GDB 诊断作业定位根因，完成前保留此项未完成。
 
 ## 17 参考资料
 
