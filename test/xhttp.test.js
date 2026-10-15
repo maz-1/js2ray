@@ -76,7 +76,7 @@ for (const variant of variants)
         const closed = once(stream, 'close');
         stream.destroy();
         await closed;
-        await new Promise((resolve) => setTimeout(resolve, 25));
+        await eventually(() => listener.stats.sessions === 0 && listener.stats.queuedBytes === 0);
         assert.equal(listener.stats.sessions, 0);
         assert.equal(listener.stats.queuedBytes, 0);
       },
@@ -92,6 +92,18 @@ test('XHTTP native/V2Ray configuration validation and unsupported behavior diagn
     ],
   });
   assert.equal(checkConfig(native({ mode: 'stream-up', httpVersion: '2' })).ok, true);
+  assert.equal(checkConfig(native({ host: '', headers: { 'Test-Header': 'synthetic' } })).ok, true);
+  const defaults = checkConfig({
+    outbounds: [
+      {
+        protocol: 'socks',
+        settings: { servers: [{ address: '127.0.0.1', port: 10080 }] },
+        streamSettings: { network: 'xhttp', xhttpSettings: { host: '', path: '', mode: '' } },
+      },
+    ],
+  });
+  assert.equal(defaults.ok, true, JSON.stringify(defaults.diagnostics));
+  assert.equal(defaults.config.outbounds[0].networks[0].option.path, '/');
   for (const option of [
     { mode: 'unknown' },
     { httpVersion: '3' },
@@ -337,11 +349,12 @@ for (const variant of [variants[0], variants[2]]) {
           ),
         );
     })();
+    writing.catch(() => {});
     await new Promise((resolve) => setTimeout(resolve, 80));
     assert.ok(stream.readableLength <= 65536);
     const reading = readBytes(stream, body.length);
-    await writing;
-    assert.deepEqual(await reading, body);
+    const [, received] = await Promise.all([writing, reading]);
+    assert.deepEqual(received, body);
   });
 }
 test('XHTTP packet body, sequence gap and incomplete upload limits clean resources', async (t) => {
@@ -445,6 +458,52 @@ test('XHTTP rejects ALPN and mode mismatches', async (t) => {
   await assert.rejects(connect({ ...network, option: { ...network.option, mode: 'stream-one' } }), {
     code: 'ERR_TRANSPORT',
   });
+});
+
+test('XHTTP pulls coalesced HTTP bodies within its own window even after a large read(n)', async (t) => {
+  const { PassThrough } = require('node:stream');
+  const { XhttpStream, attachBody } = require('../transports/xhttp/common');
+  const body = new PassThrough();
+  const stream = new XhttpStream(
+    { maxBytes: 1024 },
+    { finish: (callback) => callback(), dispose: () => body.destroy() },
+  );
+  t.after(() => stream.destroy());
+  attachBody(body, stream);
+  const payload = randomBytes(8192);
+  body.end(payload);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(stream.destroyed, false);
+  assert.ok(stream.readableLength <= 1024);
+  assert.deepEqual(await readBytes(stream, payload.length), payload);
+});
+
+test('XHTTP connects to IPv6 and injected domain addresses over HTTP/1.1 and h2c', async (t) => {
+  for (const httpVersion of ['1.1', '2'])
+    for (const host of ['::1', 'localhost']) {
+      const listener = createListener(
+        { type: 'xhttp', option: { httpVersion } },
+        (stream) => stream.pipe(stream),
+        { handshakeTimeoutMs: 2000 },
+      );
+      const port = await listen(listener.server, host === '::1' ? host : '127.0.0.1');
+      t.after(() => {
+        listener.destroy();
+        return new Promise((resolve) => listener.server.close(resolve));
+      });
+      const lookup = (_name, options, callback) =>
+        options.all
+          ? callback(null, [{ address: '127.0.0.1', family: 4 }])
+          : callback(null, '127.0.0.1', 4);
+      const stream = await connect(
+        { type: 'xhttp', address: host, port, option: { httpVersion } },
+        { lookup },
+      );
+      t.after(() => stream.destroy());
+      stream.write('address');
+      assert.equal((await readBytes(stream, 7)).toString(), 'address');
+      stream.destroy();
+    }
 });
 
 test(

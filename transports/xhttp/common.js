@@ -12,6 +12,7 @@ function settings(option = {}, limits = {}) {
   const [from, to = from] = String(padding).split('-').map(Number);
   return {
     ...option,
+    host: option.host || undefined,
     path: path.endsWith('/') ? path : path + '/',
     query,
     mode: option.mode ?? 'auto',
@@ -46,7 +47,16 @@ class XhttpStream extends Duplex {
     this.on('error', () => {});
   }
   _read() {
-    this.resumeSource?.();
+    if (this.readScheduled) return;
+    this.readScheduled = true;
+    // Node invokes _read before removing the bytes requested by read(n).
+    // Pull after that removal so the available window reflects actual capacity.
+    queueMicrotask(() => {
+      this.readScheduled = false;
+      if (this.destroyed) return;
+      this.pullBody?.();
+      this.resumeSource?.();
+    });
   }
   write(data, encoding, callback) {
     const length =
@@ -83,7 +93,7 @@ class XhttpStream extends Duplex {
       return false;
     }
     this.activity();
-    return this.push(data);
+    return this.push(data) && this.readableLength < Math.min(16384, this.maxBytes);
   }
   setTimeout(milliseconds, callback) {
     this.idleMs = milliseconds;
@@ -120,11 +130,25 @@ function attachBody(body, stream) {
   body.on('aborted', () =>
     stream.destroy(failure('ERR_CLOSED', 'XHTTP body was aborted.', 'transport')),
   );
-  body.on('data', (data) => {
-    if (!stream.receive(data)) body.pause();
+  // read(n) can raise a Readable's highWaterMark. Enforce our own window and
+  // pull only available space; a native HTTP body may coalesce a much larger chunk.
+  const pull = () => {
+    if (stream.destroyed) return;
+    const window = Math.min(16384, stream.maxBytes);
+    while (stream.readableLength < window && body.readableLength) {
+      const data = body.read(Math.min(window - stream.readableLength, body.readableLength));
+      if (!data || !stream.receive(data)) break;
+    }
+  };
+  stream.pullBody = pull;
+  body.on('readable', pull);
+  stream.once('close', () => {
+    body.removeListener('readable', pull);
+    stream.pullBody = undefined;
   });
   body.once('end', () => {
     if (!stream.destroyed) stream.push(null);
   });
+  pull();
 }
 module.exports = { settings, padding, transportError, XhttpStream, attachBody };

@@ -11,7 +11,7 @@ const fields = [
   'scStreamUpServerSecs',
 ];
 function validate(option, add, prefix, inbound) {
-  if (option.host !== undefined) {
+  if (option.host !== undefined && option.host !== '') {
     try {
       if (!new URL('http://' + option.host).hostname) throw Error();
     } catch {
@@ -20,7 +20,7 @@ function validate(option, add, prefix, inbound) {
   }
   if (
     option.host !== undefined &&
-    (typeof option.host !== 'string' || !option.host || /[\s/\\?#@]/.test(option.host))
+    (typeof option.host !== 'string' || /[\s/\\?#@]/.test(option.host))
   )
     add(prefix + '.host', 'Expected an HTTP authority without whitespace or URL components.');
   if (!['auto', 'packet-up', 'stream-up', 'stream-one'].includes(option.mode ?? 'auto'))

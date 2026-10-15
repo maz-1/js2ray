@@ -336,7 +336,7 @@ P9–P13 五项实现、专项及发布验收全部通过：三平台各 148 项
 
 验收命令：`node --test test/xhttp.test.js`、`node --test test/interop/xhttp.test.js`、`npm test`、`npm run test:interop` 及现有三平台 CI。HTTP/3、REALITY、浏览器指纹、跨节点上下行分离和完整 XMUX 参数不属于本阶段；配置必须明确拒绝尚未支持的行为字段。实现和测试通过后在本节记录实际数量及证据。
 
-本机 Windows：XHTTP 专项 35/35、Xray 25.3.6 互通 21/21，完整普通回归 183/183、参考互通 127/127；100 条并发 TLS 连接涵盖三模式且关闭后资源归零。实际 tarball 已安装并通过包内 XHTTP 拨号，运行依赖仍仅 ws，无原生运行资产。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md)。三平台 CI 继续执行中。
+本机 Windows：XHTTP 专项 37/37、Xray 25.3.6 互通 21/21，完整普通回归 185/185、参考互通 127/127；100 条并发 TLS 连接涵盖三模式且关闭后资源归零。实际 tarball 已安装并通过包内 XHTTP 拨号，运行依赖仍仅 ws，无原生运行资产。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md)。三平台 CI 继续执行中。
 
 ## 11 参考资料
 

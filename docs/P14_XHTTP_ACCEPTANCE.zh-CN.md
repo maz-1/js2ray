@@ -30,6 +30,7 @@ Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`。官方归档�
 - 支持原生配置、传统 JSON `xhttpSettings`/`extra`、TLS ALPN、独立连接地址/SNI/Host/path、固定查询串和 Referer/旧查询参数 padding。
 - 分包按序组合，拒绝重复、非法序号、超出窗口、超大请求和超量会话；未配对、缺包、未完成单包上传和响应等待均有期限。
 - 顺序 packet-up 确认等待可读队列空间，流式上传和下载沿 HTTP body 传递背压；HTTP/2 单条物理连接上的逻辑会话相互隔离。
+- 接收按独立窗口主动读取 HTTP body，不依赖可能被 read(n) 扩大的 Node 高水位；大块合并的确定性回归与慢消费者测试验证上限，跨平台关闭等待实际资源事件。
 - 关闭幂等，释放请求、逻辑会话、物理连接、HTTP/2 session 和计时器；HTTP/2 共享请求/响应只销毁一次，避开 nghttp2 回调重入。
 - HTTP/1.1 流式 POST 使用专属 `Connection: close`，避免固定 Go HTTP 服务端先消耗未结束的请求体再发送响应头造成死锁。
 - 同端口轮换路径、UUID、TLS 证书后，旧 packet-up 会话继续使用原 HTTP/2 连接并排空，新连接使用新参数。HTTP 版本或 TLS 开关改变需要新端口。
@@ -41,9 +42,9 @@ Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`。官方归档�
 
 | 命令                                                           | 结果                                                                                |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `node --test test/xhttp.test.js`                               | 35/35，包括 100 条并发 TLS 连接、两种 HTTP 版本、三模式及关闭后所有内部资源计数归零 |
+| `node --test test/xhttp.test.js`                               | 37/37，包括 100 条并发 TLS 连接、两种 HTTP 版本、三模式及关闭后所有内部资源计数归零 |
 | `node --test test/interop/xhttp.test.js`                       | 21/21，固定 Xray 25.3.6，无跳过                                                     |
-| `npm test`                                                     | 183/183，无跳过                                                                     |
+| `npm test`                                                     | 185/185，无跳过                                                                     |
 | `npm run test:interop`                                         | 127/127，含全部既有版本回归，无跳过                                                 |
 | `npm run check`、`npm run check:types`、`npm run check:config` | 通过                                                                                |
 

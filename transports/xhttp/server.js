@@ -91,7 +91,6 @@ function createListener(network, onConnection, limits, tlsOptions) {
       remoteAddress,
       resume: () => {
         state.blocked = false;
-        state.upload?.resume();
         pump(state);
       },
       send: (data, callback) => state.response.write(data, callback),

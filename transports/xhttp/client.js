@@ -48,7 +48,6 @@ async function connect(network, limits, dial) {
     control: (ref) => {
       for (const socket of sockets) socket[ref ? 'ref' : 'unref']();
     },
-    resume: () => downstream?.resume(),
     send: (data, callback) => {
       if (mode !== 'packet-up') return upload.write(data, callback);
       (async () => {

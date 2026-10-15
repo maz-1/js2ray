@@ -56,8 +56,8 @@ function adaptV2ray(input, add) {
         Object.assign(option, extra);
         delete option.extra;
         option.host = xhttp.host;
-        option.path = xhttp.path ?? '/';
-        option.mode = xhttp.mode ?? 'auto';
+        option.path = xhttp.path === '' ? '/' : (xhttp.path ?? '/');
+        option.mode = xhttp.mode === '' ? 'auto' : (xhttp.mode ?? 'auto');
       }
     }
     if (stream.tcpSettings && Object.keys(stream.tcpSettings).length)
