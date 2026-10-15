@@ -1,6 +1,6 @@
 # 实现进度与兼容证据
 
-2026-10-15，Node.js 24.20.0，版本 `4.0.0-dev.0`。原始源码基线 `f316d558839da35fb1efae9979492a5d1f0c81a8`、MIT 署名保留。此文件区分已执行验收与仍待完成的发布门槛。
+2026-10-15，Node.js 24.20.0，版本 `4.0.0-dev.0`。原始源码基线 `f316d558839da35fb1efae9979492a5d1f0c81a8`、MIT 署名保留。P0–P8 已定义的能力矩阵与验收门槛全部通过；未合并主分支或发布 npm 包。
 
 | 阶段  | 实现与证据                                                                                                                | 状态                                                                       |
 | ----- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -11,9 +11,9 @@
 | P5    | Mux.Cool TCP 元数据/帧、会话与 ID 生命周期、并发、独立拥塞隔离、队列、关闭                                                | TCP/WSS 双向参考互通，见 [P5](P5_ACCEPTANCE.zh-CN.md)                      |
 | P6    | Bridge/Portal、控制 protobuf、虚拟 tag、排空、重连、scope 限制服务处理器、Portal 重启                                     | 三种拓扑、并发、HTTP/HTTPS 流式响应已验证，见 [P6](P6_ACCEPTANCE.zh-CN.md) |
 | P7    | Node HTTP/HTTPS Agent、可选 Undici 7.30.0、独立目标 TLS、池隔离、取消与连接预算                                           | 真实普通流、VMess 和 VLESS Mux 流均通过，见 [P7](P7_ACCEPTANCE.zh-CN.md)   |
-| P8    | 三平台 CI、固定官方工具下载、实际 tarball 安装、100 会话/30 分钟负载、文档/示例                                           | 本机 Windows/Linux 已执行；macOS CI 和最终稳定性记录尚待完成               |
+| P8    | 三平台 CI、固定官方工具下载、实际 tarball 安装、100 会话/30 分钟负载、文档/示例                                           | Windows/Linux/macOS CI 和 100 会话/30 分钟稳定性全部通过                   |
 
-本地 Windows 与 Linux 容器的语法、类型、配置、普通回归、互通及实际 tarball 安装已通过。新增用例持续加入时，以最终保存的验收记录为准；目前完整互通套件为 52 项，无跳过。Linux 使用 Docker 官方 `node:24.20.0-bookworm-slim`，镜像摘要 `sha256:ba849c60be29959425b8734d57b8b4b7d56f98edd9504c9af091d5281095a71e`。完整 Linux 日志保存于忽略的 `test-results/linux.log`。
+Windows、Linux、macOS x64 CI 均通过语法、类型、格式、配置、107 项普通回归、70 项参考互通及实际 tarball 安装，没有失败或跳过。[最终功能版本 CI](https://github.com/maz-1/js2ray/actions/runs/38682754389) 对应 `cba04d239c93d09ef131036ede959df015dfd44e`。本地 Linux 还使用 Docker 官方 `node:24.20.0-bookworm-slim` 验证，镜像摘要 `sha256:ba849c60be29959425b8734d57b8b4b7d56f98edd9504c9af091d5281095a71e`；本地日志在忽略的 `test-results/` 中。
 
 ## 复现
 
@@ -34,7 +34,15 @@ npm run test:stability
 
 发布包检查从实际 npm tarball 安装，只包含运行依赖 ws 8.22.0，无 install/postinstall、无测试内核、私有配置、原生模块；CJS/ESM 导入、新适配器导出和空入站关闭均验证。安装优先使用缓存，允许读取 npm 的依赖元数据。Undici 只作为测试开发依赖，调用者显式传入可选模块；npm 审计当前为零已知问题。
 
-30 分钟脚本保持 50 条 VLESS Mux TCP 和 50 条 reverse TCP 会话，10 个慢消费者，每次 4096 字节；持续检查字节身份、控制会话、源文件摘要、机器、配置摘要、RSS/heap/应用队列峰值及关闭后连接/拨号/监听/承载数量。短时并发测试不替代该记录。早期试跑发现并修复 ID 提前复用、控制心跳未刷新会话空闲计时的问题；最终记录需由修正后的源文件生成。
+30 分钟脚本保持 50 条 VLESS Mux TCP 和 50 条 reverse TCP 会话，10 个慢消费者，每次 4096 字节；检查字节身份、控制会话、源文件摘要、机器、配置摘要、RSS/heap/应用队列峰值及关闭后资源。早期试跑发现并修复 ID 提前复用、控制心跳未刷新会话空闲计时的问题，最终测试在两项修复之后运行。
+
+## 保存的最终验收记录
+
+[机器可读汇总](acceptance/release-2026-10-15.json) 保存三个平台的提交/作业链接、工具范围和敏感信息审计；[原始稳定性记录](acceptance/stability-2026-10-15.json) 保持脚本输出字节，汇总中附 SHA256。稳定性实际运行 1,800,152 ms，100 并发完成 1,486,025 次校验，共 6,086,758,400 字节；RSS 峰值 245,899,264 字节、heap 峰值 35,563,144 字节、应用流队列峰值 40,960 字节。协议队列限额另由故障与慢消费者用例验证，不把应用队列峰值冒充承载内部峰值。四个运行时关闭后的连接、待拨号、监听器和 reverse 承载均为 0，测试进程自然退出。
+
+负载启动时的工作树由逐文件 SHA256 精确标识，不能仅以当时基准提交推断所有文件。负载期间只有 DNS 服务器优先级和 Geo 匹配器优先级元数据两处后续修订；runtime、Mux、reverse、VLESS、传输、HTTP 适配等承载核心摘要与最终功能版本逐一相同。最终 DNS 修订另在三平台回归及两个固定内核对照通过，汇总保留这一区别，没有将早期试跑冒充最终验收。
+
+依据开发计划，验收后另存 [ChatRoom 后续整合规划](CHATROOM_INTEGRATION_PLAN.zh-CN.md)；未提前实施宿主整合。
 
 ## 参考内核与范围
 
@@ -43,7 +51,7 @@ npm run test:stability
 
 已下载官方 Windows/Linux/macOS x64 发布包，并核对官方 `.dgst` 中的 SHA256，再锁定各可执行文件摘要，见 `test/fixtures/reference-platforms.json`。本机 v2rayN 附带的两个 exe 与官方发布完全一致；V2Ray 的 `Custom` 字样即为官方版本横幅，不再视为未确定来源。
 
-两个内核均覆盖双向 VLESS TCP/WS/WSS、传统 UDP、VMess none/AES-GCM/ChaCha20-Poly1305、Mux TCP/TCP 承载及 WSS 承载、传统 reverse 两个混合拓扑、HTTP/HTTPS 流数据，以及同一目标集的 Geo 路由和 DNS 分服务器/Freedom UseIPv4。Xray 测试进程使用 `xray.cone.disabled=true` 强制传统 UDP，防止无意改测 XUDP。Windows 参考 TLS 客户端使用专用合成 CA 和 `disableSystemRoot:true`，仍验证证书及主机名。
+两个内核均覆盖双向 VLESS TCP 与传统 UDP 在 TCP/TLS/WS/WSS 上的承载、IPv4/域名/IPv6 实际 TCP 目标、VMess none/AES-GCM/ChaCha20-Poly1305、Mux TCP/TCP 承载及 WSS 承载、传统 reverse 两个混合拓扑、HTTP/HTTPS 流数据，以及同一目标集的 Geo 路由和 DNS 分服务器/优先级/Freedom UseIPv4。Xray 测试进程使用 `xray.cone.disabled=true` 强制传统 UDP，防止无意改测 XUDP。Windows 参考 TLS 客户端使用专用合成 CA 和 `disableSystemRoot:true`，仍验证证书及主机名。
 
 配置样例 `examples/combined.json` 使用合成节点及固定标准 protobuf Geo 资源，严格检查通过。原失败 fixture 保留悬空 api 规则；修订样例明确删除该规则、增加 Bridge 业务规则并提供资源。真实数据库需要调用者自行固定版本和 SHA256，样例中的 cn 仅是测试类别。该修订不改写用户原始文件。
 

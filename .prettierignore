@@ -1,6 +1,7 @@
 node_modules
 .test-tools
 test-results
+docs/acceptance/stability-2026-10-15.json
 coverage
 v2ray-config.json
 DEVELOPMENT_PLAN.zh-CN.md

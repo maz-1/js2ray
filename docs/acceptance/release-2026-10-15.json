@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-15",
+  "version": "4.0.0-dev.0",
+  "node": "24.20.0",
+  "sourceCommit": "cba04d239c93d09ef131036ede959df015dfd44e",
+  "ci": {
+    "run": "https://github.com/maz-1/js2ray/actions/runs/38682754389",
+    "sha": "cba04d239c93d09ef131036ede959df015dfd44e",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "regression (ubuntu-24.04)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/maz-1/js2ray/actions/runs/38682754389/job/116250740919"
+      },
+      {
+        "name": "regression (windows-2022)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/maz-1/js2ray/actions/runs/38682754389/job/116250741228"
+      },
+      {
+        "name": "regression (macos-15-intel)",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/maz-1/js2ray/actions/runs/38682754389/job/116250741236"
+      }
+    ],
+    "status": "completed"
+  },
+  "unitTests": 107,
+  "interopTests": 70,
+  "stability": {
+    "file": "stability-2026-10-15.json",
+    "sha256": "2fcc62d61ad5c304cdf3b26c3c924959aac3e4c8742fd0ec4dfd4e7579752d78",
+    "elapsedMs": 1800152,
+    "concurrentSessions": 100,
+    "iterations": 1486025,
+    "bytes": 6086758400,
+    "peak": {
+      "rss": 245899264,
+      "heap": 35563144,
+      "queue": 40960,
+      "connections": 214
+    },
+    "closed": [
+      {
+        "state": "closed",
+        "connections": 0,
+        "pendingDials": 0,
+        "listeners": 0,
+        "reverse": []
+      },
+      {
+        "state": "closed",
+        "connections": 0,
+        "pendingDials": 0,
+        "listeners": 0,
+        "reverse": []
+      },
+      {
+        "state": "closed",
+        "connections": 0,
+        "pendingDials": 0,
+        "listeners": 0,
+        "reverse": [
+          {
+            "tag": "portal",
+            "role": "portal",
+            "transports": 0,
+            "active": 0,
+            "sessions": 0
+          }
+        ]
+      },
+      {
+        "state": "closed",
+        "connections": 0,
+        "pendingDials": 0,
+        "listeners": 0,
+        "reverse": [
+          {
+            "tag": "bridge",
+            "role": "bridge",
+            "transports": 0,
+            "active": 0,
+            "sessions": 0,
+            "connecting": false
+          }
+        ]
+      }
+    ],
+    "loadCoreSourceHashesMatchFinalCode": true,
+    "unchangedLoadCore": [
+      "runtime/index.js",
+      "protocols/mux/index.js",
+      "protocols/mux/frame.js",
+      "protocols/vless/index.js",
+      "reverse/index.js",
+      "transports/index.js",
+      "runtime/reader.js",
+      "runtime/streams.js",
+      "runtime/datagram.js",
+      "adapters/http.js"
+    ],
+    "changedSourcesAfterLoadStarted": ["dns/index.js", "geodata/index.js"],
+    "note": "The load snapshot includes source SHA256 values and was started before all files were committed. Only DNS selection priority and Geo matcher priority metadata changed later; final DNS behavior was independently verified in all three CI platforms and against both reference cores. Runtime, Mux, reverse, VLESS, transports and HTTP adapters are byte-identical to the load snapshot. Queue peak measures application stream queues; protocol queue bounds are verified separately by focused regression tests."
+  },
+  "privateAudit": {
+    "ok": true,
+    "filesChecked": 125,
+    "historyBlobsChecked": 159,
+    "checked": [
+      "user IDs and UUID variants",
+      "prefix fields",
+      "remote server addresses",
+      "nonstandard remote ports",
+      "email, Host, SNI, paths"
+    ],
+    "matches": [],
+    "genericPortFields": ["outbounds[0].server[0].port"],
+    "note": "Generic DNS/HTTP/HTTPS port numbers are public protocol constants; private endpoint identities and nonstandard ports are not allowlisted."
+  },
+  "package": {
+    "installFromTarball": true,
+    "runtimeDependencies": ["ws@8.22.0"],
+    "nativeRuntimeAssets": 0,
+    "installHooks": 0
+  },
+  "remoteBranch": "codex/js2ray-release-acceptance",
+  "merged": false,
+  "npmPublished": false
+}
