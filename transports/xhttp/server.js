@@ -464,11 +464,15 @@ function createListener(network, onConnection, limits, tlsOptions) {
     },
     destroy() {
       for (const stream of streams) stream.destroy();
-      for (const session of h2sessions) session.destroy();
-      for (const socket of sockets) {
-        observations.get(socket)?.cancel();
-        socket.destroy();
-      }
+      // Applications can close a listener from an inbound body callback too.
+      // Keep native session/transport teardown out of nghttp2's receive stack.
+      setImmediate(() => {
+        for (const session of h2sessions) session.destroy();
+        for (const socket of sockets) {
+          observations.get(socket)?.cancel();
+          socket.destroy();
+        }
+      });
     },
   };
 }

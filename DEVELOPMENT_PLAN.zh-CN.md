@@ -430,7 +430,7 @@ P19 全部验收通过：[全量回归](https://github.com/maz-1/js2ray/actions/
 
 P20 功能与 12 项正式长时已通过，归档后的最终进程级验收重新打开：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。 逐项字段与差异、修复过程、原始记录链接见 [P20 验收与支持矩阵](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](docs/acceptance/p20-2026-10-16.json)。短跑及中间失败/取消运行均未计作正式通过；HTTP/3 和 DoQ 继续暂缓。
 
-归档后最终 Linux 回归在全部 372 个断言通过后发生 SIGSEGV；TAP 已确认是原生崩溃，不能计作通过。新增独立 GDB 诊断作业定位根因，完成前保留此项未完成。
+归档后最终 Linux 回归在全部 372 个断言通过后发生 SIGSEGV，不能计作通过。GDB 与本地 Linux Valgrind 已定位 Node 24.20.0 在 HTTP/2 接收回调内发送 RST_STREAM 导致的 nghttp2 use-after-free（上游 [#64166](https://github.com/nodejs/node/pull/64166)）。XHTTP 客户端取消、XMUX 物理关闭及服务端关闭现统一推迟原生销毁至 setImmediate；逻辑关闭立即生效，避免原生回调重入和重复关闭会话所属 socket。新增三项定向回归，本机普通测试 375/375；修正前 Valgrind 4 次非法内存访问，客户端修正后为 0。三平台全量、12 项正式长时及 Linux 重复进程/内存门禁将按最终产品源码重新执行，完成前保留此项未完成。
 
 ## 17 参考资料
 

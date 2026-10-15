@@ -136,7 +136,14 @@ async function connect(network, limits, dial) {
       closeReason = cause;
       lifetime.abort();
       limits.signal?.removeEventListener('abort', abort);
-      for (const req of requests) req.destroy(cause);
+      // An HTTP/2 body callback can run while nghttp2 is receiving a frame.
+      // Node 24 can free that frame's stream if destroy() sends RST_STREAM
+      // reentrantly. Close the logical stream now and reset its requests after
+      // the native receive stack has unwound (nextTick/microtasks are too early).
+      const pending = [...requests];
+      setImmediate(() => {
+        for (const req of pending) req.destroy(cause);
+      });
       for (const value of leases) {
         unobserve(value);
         value.release();

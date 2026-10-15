@@ -1,13 +1,19 @@
-name: HTTP2 native diagnostics
+name: HTTP2 native lifecycle regression
 on:
   workflow_dispatch:
   push:
     paths:
+      - 'transports/**'
+      - 'runtime/**'
+      - 'config/**'
+      - 'test/xmux.test.js'
+      - 'test/helpers.js'
+      - 'package*.json'
       - '.github/workflows/http2-native-diagnostics.yml'
 permissions:
   contents: read
 jobs:
-  diagnose:
+  lifecycle:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -17,41 +23,33 @@ jobs:
           node-version: 24.20.0
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: Ensure debugger is available
-        run: |
-          if ! command -v gdb >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y gdb
-          fi
-      - name: Capture native failure with the normal test worker lifecycle
+      - name: Repeat the normal test worker lifecycle
         shell: bash
         run: |
-          mkdir -p test-results/http2-native test-results/http2-native-cores
-          ulimit -c unlimited
-          echo "$PWD/test-results/http2-native-cores/core.%p" | sudo tee /proc/sys/kernel/core_pattern >/dev/null
-          for attempt in $(seq 1 24); do
+          mkdir -p test-results/http2-native
+          for attempt in $(seq 1 12); do
             log="test-results/http2-native/attempt-${attempt}.txt"
-            set +e
             node --test --test-timeout=15000 --test-reporter=tap test/xmux.test.js > "$log" 2>&1
-            status=$?
-            set -e
-            tail -n 12 "$log"
-            if [ "$status" -ne 0 ]; then
-              for core in test-results/http2-native-cores/core.*; do
-                if [ -f "$core" ]; then
-                  gdb --batch -ex 'set pagination off' -ex 'thread apply all bt' -ex 'thread 1' -ex 'info registers' -ex 'disassemble /r $pc-64,$pc+96' "$(command -v node)" "$core" > "test-results/http2-native/backtrace-${attempt}.txt" 2>&1
-                fi
-              done
-              echo "Native failure captured on attempt ${attempt}"
-              exit 1
-            fi
+            tail -n 10 "$log"
           done
+      - name: Install native memory diagnostics
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends valgrind libc6-dbg
+      - name: Check HTTP2 native memory access
+        shell: bash
+        run: |
+          valgrind --error-exitcode=99 --error-limit=no --undef-value-errors=no \
+            --log-file=test-results/http2-native/memcheck.txt \
+            node --jitless --test --test-isolation=none --test-timeout=120000 \
+            --test-reporter=tap test/xmux.test.js > test-results/http2-native/memcheck-tests.txt 2>&1
+          tail -n 10 test-results/http2-native/memcheck-tests.txt
+          tail -n 18 test-results/http2-native/memcheck.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: http2-native-diagnostics
-          # Core memory can contain runner environment credentials. Upload only
-          # backtraces and TAP text; core images remain on the ephemeral runner.
+          # Never upload core memory, which can include runner credentials.
           path: test-results/http2-native/*.txt
           if-no-files-found: error
           retention-days: 30

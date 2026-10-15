@@ -486,6 +486,92 @@ test('XMUX peer HTTP/2 reset affects one logical stream and never replays its by
   assert.equal(pool.stats.created, 1);
   second.destroy();
 });
+test('XMUX cancellation from an HTTP/2 body callback defers native reset and preserves siblings', async (t) => {
+  const { dial, pool } = await fixture(t);
+  const first = await dial(),
+    sibling = await dial();
+  const entry = [...pool.entries][0],
+    request = [...entry.requests][0];
+  let receiving = false,
+    reset = 0;
+  const destroy = request.destroy.bind(request);
+  request.destroy = (...args) => {
+    assert.equal(receiving, false, 'RST_STREAM must not reenter the native receive callback.');
+    reset++;
+    return destroy(...args);
+  };
+  const closed = once(first, 'close');
+  request.prependOnceListener('readable', () => {
+    receiving = true;
+    first.destroy();
+    assert.equal(first.destroyed, true);
+    receiving = false;
+  });
+  first.write(Buffer.from('cancel while receiving'));
+  await closed;
+  await until(() => reset > 0 && pool.stats.active === 1);
+  await exchange(sibling);
+  assert.equal(pool.stats.created, 1);
+  sibling.destroy();
+});
+
+test('XMUX physical close from an HTTP/2 body callback defers native session destruction', async (t) => {
+  const { dial, pool } = await fixture(t);
+  const first = await dial(),
+    sibling = await dial();
+  const entry = [...pool.entries][0],
+    request = [...entry.requests][0],
+    session = entry.session;
+  let receiving = false,
+    destroyed = 0;
+  const destroy = session.destroy.bind(session);
+  session.destroy = (...args) => {
+    assert.equal(receiving, false, 'Session destruction must not reenter native receive.');
+    destroyed++;
+    return destroy(...args);
+  };
+  const closed = Promise.all(
+    [first, sibling].map((stream) => once(stream, 'close').catch(() => {})),
+  );
+  request.prependOnceListener('readable', () => {
+    receiving = true;
+    pool.close();
+    assert.equal(pool.stats.clients, 0);
+    receiving = false;
+  });
+  first.write(Buffer.from('close while receiving'));
+  await closed;
+  await until(() => destroyed > 0 && session.destroyed);
+  await assert.rejects(dial(), { code: 'ERR_CLOSED' });
+});
+
+test('XMUX listener close from an inbound body callback defers native session destruction', async (t) => {
+  let receiving = false,
+    destroyed = 0;
+  const { dial, listener } = await fixture(t, {
+    accept: (stream) =>
+      stream.once('data', () => {
+        receiving = true;
+        listener.destroy();
+        receiving = false;
+      }),
+  });
+  listener.server.on('session', (session) => {
+    const destroy = session.destroy.bind(session);
+    session.destroy = (...args) => {
+      assert.equal(receiving, false, 'Listener close must not reenter native receive.');
+      destroyed++;
+      return destroy(...args);
+    };
+  });
+  const stream = await dial(),
+    closed = once(stream, 'close').catch(() => {});
+  stream.write(Buffer.from('close listener while receiving'));
+  await closed;
+  assert.ok(destroyed > 0);
+  await until(() => listener.stats.sockets === 0 && listener.stats.http2Sessions === 0);
+});
+
 test('XMUX physical HTTP/2 failure closes its streams and a later dial establishes a new client', async (t) => {
   const { dial, pool, listener } = await fixture(t);
   const sessions = [];

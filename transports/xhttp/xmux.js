@@ -155,11 +155,19 @@ class XmuxPool {
         clearTimeout(this.pingDeadline);
         clearInterval(this.readObserver);
         controller.abort(cause ?? closedError());
-        for (const req of this.requests) req.destroy(cause);
-        this.agent?.destroy();
-        this.session?.destroy(cause);
-        for (const socket of this.sockets) socket.destroy();
-        this.sockets.clear();
+        const dispose = () => {
+          for (const req of this.requests) req.destroy(cause);
+          this.agent?.destroy();
+          // The HTTP/2 session owns its socket. Avoid destroying the same raw
+          // transport while the native session is still using it.
+          if (this.session) this.session.destroy(cause);
+          else for (const socket of this.sockets) socket.destroy();
+          this.sockets.clear();
+        };
+        // A peer close/error or a logical cancellation can originate inside
+        // nghttp2's receive callback. Defer native teardown beyond that stack.
+        if (this.session) setImmediate(dispose);
+        else dispose();
         pool.entries.delete(this);
       },
     };
