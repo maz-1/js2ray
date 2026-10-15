@@ -331,15 +331,30 @@ class Runtime extends EventEmitter {
         signal: this.#lifetime.signal,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       });
+      if (target.flow) {
+        await require('./streams').write(socket, vless.visionResponse(target.user));
+        const raw = socket;
+        socket = this.#track(
+          new vless.VisionStream(raw, Buffer.from(target.user.id.replaceAll('-', ''), 'hex'), {
+            ...this.#config.limits,
+            initialPaddingWritten: true,
+          }),
+        );
+        this.#streams.delete(raw);
+        this.#observeVision(socket);
+      }
       if (target.command === 3) {
-        await require('./streams').write(socket, Buffer.from([0, 0]));
+        if (!target.flow) await require('./streams').write(socket, Buffer.from([0, 0]));
         this.#trackMux(
           new Mux(socket, {
             server: true,
-            dispatch: (target) =>
-              target.network === 'udp'
-                ? this.openDatagram({ ...target, inboundTag: bound.tag })
-                : this.dial({ ...target, inboundTag: bound.tag }),
+            dispatch: (destination) => {
+              if (target.flow && destination.network !== 'udp')
+                throw failure('ERR_UNSUPPORTED', 'Vision Mux permits UDP only.', 'protocol');
+              return destination.network === 'udp'
+                ? this.openDatagram({ ...destination, inboundTag: bound.tag })
+                : this.dial({ ...destination, inboundTag: bound.tag });
+            },
             maxBufferBytes: this.#config.limits.maxBufferBytes,
           }),
         );
@@ -368,7 +383,7 @@ class Runtime extends EventEmitter {
         pump(remote, local).catch((error) => this.#report(error));
         return;
       }
-      await require('./streams').write(socket, Buffer.from([0, 0]));
+      if (!target.flow) await require('./streams').write(socket, Buffer.from([0, 0]));
       const remote = await this.#inboundDial(socket, bound, {
         host: target.host,
         port: target.port,
@@ -563,6 +578,17 @@ class Runtime extends EventEmitter {
     mux.once('close', () => this.#muxes.delete(mux));
     return mux;
   }
+  #observeVision(stream) {
+    if (!(stream instanceof vless.VisionStream)) return;
+    this.#metrics.counters.visionSessions++;
+    stream.on(
+      'visionSwitch',
+      (direction) =>
+        this.#metrics.counters[
+          direction === 'read' ? 'visionReadSwitches' : 'visionWriteSwitches'
+        ]++,
+    );
+  }
   async #outboundMux(bound) {
     if (!this.#muxClients.has(bound.tag)) {
       const pending = (async () => {
@@ -586,6 +612,7 @@ class Runtime extends EventEmitter {
             ),
           );
           this.#streams.delete(raw);
+          this.#observeVision(stream);
           const mux = this.#trackMux(
             new Mux(stream, {
               maxSessions: bound.mux.concurrency ?? 8,
@@ -754,6 +781,12 @@ class Runtime extends EventEmitter {
           throw failure('ERR_PROTOCOL', 'Service handler must return a Duplex.', 'reverse');
         socket = this.#track(service);
       } else if (bound.mux?.enabled || (datagram && bound.packetEncoding === 'xudp')) {
+        if (datagram && target.port === 443 && bound.users?.[0]?.flow === 'xtls-rprx-vision')
+          throw failure(
+            'ERR_BLOCKED',
+            'Vision blocks UDP/443 unless its udp443 flow is configured.',
+            'protocol',
+          );
         const dedicated = !bound.mux?.enabled;
         const mux = await abortable(
           this.#outboundMux(
@@ -823,6 +856,7 @@ class Runtime extends EventEmitter {
           const raw = socket;
           socket = this.#track(await vless.client(raw, bound, target, options, datagram ? 2 : 1));
           this.#streams.delete(raw);
+          this.#observeVision(socket);
           if (datagram) {
             const framed = socket;
             socket = this.#track(

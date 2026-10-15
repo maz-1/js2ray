@@ -80,7 +80,7 @@ test('VLESS authentication, truncation, command and flow reject explicitly', asy
     outbounds: [
       {
         protocol: 'vless',
-        users: [{ id, encryption: 'none', flow: 'xtls-rprx-vision' }],
+        users: [{ id, encryption: 'none', flow: 'unsupported-flow' }],
         networks: [{ address: 'example.test', port: 443 }],
       },
     ],

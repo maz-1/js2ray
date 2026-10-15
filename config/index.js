@@ -353,8 +353,15 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             add(up + '.encryption', 'VLESS requires encryption none.');
           if (user.encryption !== undefined && user.encryption !== 'none')
             add(up + '.encryption', 'VLESS only supports encryption none.');
-          if (user.flow !== undefined && user.flow !== '')
-            add(up + '.flow', 'VLESS flow is not implemented.');
+          if (
+            ![
+              undefined,
+              '',
+              'xtls-rprx-vision',
+              ...(kind === 'outbound' ? ['xtls-rprx-vision-udp443'] : []),
+            ].includes(user.flow)
+          )
+            add(up + '.flow', 'Unsupported VLESS flow.');
         } else if (protocol === 'vmess') {
           if (typeof user.id !== 'string' || !uuid.test(user.id))
             add(`${up}.id`, 'Expected a canonical UUID.');
@@ -387,6 +394,19 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       });
       if (['vmess', 'vless'].includes(protocol) && !normalizedUsers.length)
         add(`${prefix}.users`, 'This protocol requires explicitly configured users.');
+      const vision =
+        protocol === 'vless' &&
+        normalizedUsers.some((user) => user.flow?.startsWith('xtls-rprx-vision'));
+      if (vision) {
+        if (normalizedNetworks.some((network) => network.type !== 'tcp' || !network.option.tls))
+          add(prefix + '.networks', 'Vision requires raw TCP with TLS (outer TLS 1.3).');
+        if (item.mux?.enabled)
+          add(prefix + '.mux', 'Vision permits UDP/XUDP only; TCP Mux is unsupported.');
+        if (item.packetEncoding === 'none')
+          add(prefix + '.packetEncoding', 'Vision UDP requires XUDP.');
+        for (const network of normalizedNetworks)
+          Object.defineProperty(network, Symbol.for('js2ray.vision'), { value: true });
+      }
       return ['freedom', 'blackhole', 'service'].includes(protocol)
         ? {
             tag,
@@ -401,7 +421,11 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             networks: normalizedNetworks,
             users: normalizedUsers,
             ...(item.udp !== undefined ? { udp: item.udp } : {}),
-            ...(item.packetEncoding ? { packetEncoding: item.packetEncoding } : {}),
+            ...(vision && kind === 'outbound'
+              ? { packetEncoding: 'xudp' }
+              : item.packetEncoding
+                ? { packetEncoding: item.packetEncoding }
+                : {}),
             ...(item.mux ? { mux: { ...item.mux } } : {}),
             ...(item.target ? { target: { ...item.target } } : {}),
             ...(item.sniffing ? { sniffing: { ...item.sniffing } } : {}),

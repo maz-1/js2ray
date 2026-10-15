@@ -1,0 +1,29 @@
+{
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "node.example.test",
+            "port": 443,
+            "users": [
+              {
+                "id": "5945fc2c-45b7-48cc-a19c-4cd28dbd6237",
+                "encryption": "none",
+                "flow": "xtls-rprx-vision"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": { "serverName": "certificate.example.test" }
+      }
+    }
+  ]
+}

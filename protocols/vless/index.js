@@ -6,41 +6,57 @@ const { StreamReader } = require('../../runtime/reader');
 const { write } = require('../../runtime/streams');
 const { failure } = require('../../runtime/errors');
 const utils = require('../../core/utils');
+const { FLOW, VisionStream, padding } = require('./vision');
 
 function encodeRequest(user, target, command = 1) {
-  if (command === 3)
-    return Buffer.concat([
-      Buffer.from([0]),
-      Buffer.from(user.id.replaceAll('-', ''), 'hex'),
-      Buffer.from([0, 3]),
-    ]);
+  const flow = user.flow?.startsWith(FLOW) ? FLOW : '';
+  const addons = flow
+    ? Buffer.concat([Buffer.from([10, flow.length]), Buffer.from(flow)])
+    : Buffer.alloc(0);
+  const header = Buffer.concat([
+    Buffer.from([0]),
+    Buffer.from(user.id.replaceAll('-', ''), 'hex'),
+    Buffer.from([addons.length]),
+    addons,
+    Buffer.from([command]),
+  ]);
+  if (command === 3) return header;
   const name = Buffer.from(target.host);
   const family = net.isIP(target.host);
   const address = family
     ? utils.iptoBuffer(target.host)
     : Buffer.concat([Buffer.from([name.length]), name]);
-  const prefix = Buffer.alloc(22);
-  prefix[0] = 0;
-  Buffer.from(user.id.replaceAll('-', ''), 'hex').copy(prefix, 1);
-  prefix[17] = 0;
-  prefix[18] = command;
-  prefix.writeUInt16BE(target.port, 19);
-  prefix[21] = family === 4 ? 1 : family === 6 ? 3 : 2;
-  return Buffer.concat([prefix, address]);
+  const prefix = Buffer.alloc(3);
+  prefix.writeUInt16BE(target.port, 0);
+  prefix[2] = family === 4 ? 1 : family === 6 ? 3 : 2;
+  return Buffer.concat([header, prefix, address]);
 }
 
 async function readRequest(socket, bound, options) {
   const reader = new StreamReader(socket, options);
   const prefix = await reader.read(18);
   if (prefix[0] !== 0) throw failure('ERR_PROTOCOL', 'Unsupported VLESS version.', 'protocol');
-  const authenticated = bound.users.some((user) =>
+  const authenticated = bound.users.find((user) =>
     crypto.timingSafeEqual(Buffer.from(user.id.replaceAll('-', ''), 'hex'), prefix.subarray(1, 17)),
   );
   if (!authenticated) throw failure('ERR_AUTH', 'VLESS authentication rejected.', 'authentication');
-  if (prefix[17] !== 0)
-    throw failure('ERR_UNSUPPORTED', 'VLESS addons and flow are not implemented.', 'protocol');
+  let flow = '';
+  if (prefix[17] !== 0) {
+    const addons = await reader.read(prefix[17]);
+    if (addons.length < 2 || addons[0] !== 10 || addons[1] !== addons.length - 2)
+      throw failure('ERR_PROTOCOL', 'Invalid or unsupported VLESS addons.', 'protocol');
+    flow = addons.subarray(2).toString('utf8');
+    if (flow !== FLOW) throw failure('ERR_UNSUPPORTED', 'Unsupported VLESS flow.', 'protocol');
+  }
   const command = (await reader.read(1))[0];
-  if (command === 3) return { command: 3, host: 'v1.mux.cool', port: 0 };
+  if (flow !== (authenticated.flow ?? ''))
+    throw failure('ERR_AUTH', 'VLESS flow does not match this user.', 'authentication');
+  if (flow && command === 2)
+    throw failure('ERR_UNSUPPORTED', 'Vision UDP requires XUDP.', 'protocol');
+  if (flow && socket.getProtocol?.() !== 'TLSv1.3')
+    throw failure('ERR_TLS', 'Vision requires outer TLS 1.3.', 'tls');
+  if (!flow) socket.releaseTLS?.();
+  if (command === 3) return { command: 3, host: 'v1.mux.cool', port: 0, flow, user: authenticated };
   const rest = Buffer.concat([Buffer.from([command]), await reader.read(3)]);
   if (![1, 2].includes(rest[0]))
     throw failure(
@@ -57,7 +73,7 @@ async function readRequest(socket, bound, options) {
     if (!length) throw failure('ERR_PROTOCOL', 'VLESS domain cannot be empty.', 'protocol');
     host = (await reader.read(length)).toString('utf8');
   } else throw failure('ERR_PROTOCOL', 'Invalid VLESS address type.', 'protocol');
-  return { host, port, command: rest[0] };
+  return { host, port, command: rest[0], flow, user: authenticated };
 }
 
 // A response header may be split anywhere, or arrive together with application bytes.
@@ -130,8 +146,37 @@ function responseStream(socket, maxBufferBytes) {
 }
 
 async function client(socket, bound, target, options, command = 1) {
-  await write(socket, encodeRequest(bound.users[0], target, command));
+  const user = bound.users[0];
+  if (!user.flow) socket.releaseTLS?.();
+  const uuid = Buffer.from(user.id.replaceAll('-', ''), 'hex');
+  const vision = user.flow?.startsWith(FLOW);
+  await write(
+    socket,
+    Buffer.concat([
+      encodeRequest(user, target, command),
+      vision ? padding(uuid, Buffer.alloc(0), 0, true) : Buffer.alloc(0),
+    ]),
+  );
+  if (vision)
+    return new VisionStream(socket, uuid, {
+      ...options,
+      responseHeader: true,
+      initialPaddingWritten: true,
+    });
   return responseStream(socket, options.maxBufferBytes);
 }
 
-module.exports = { encodeRequest, readRequest, responseStream, client };
+function visionResponse(user) {
+  return Buffer.concat([
+    Buffer.from([0, 0]),
+    padding(Buffer.from(user.id.replaceAll('-', ''), 'hex'), Buffer.alloc(0), 0, true),
+  ]);
+}
+module.exports = {
+  encodeRequest,
+  readRequest,
+  responseStream,
+  client,
+  VisionStream,
+  visionResponse,
+};

@@ -10,6 +10,9 @@ class Metrics {
       bytesWritten: 0,
       datagramsRead: 0,
       datagramsWritten: 0,
+      visionSessions: 0,
+      visionReadSwitches: 0,
+      visionWriteSwitches: 0,
     };
     this.errors = {};
     this.timings = {};

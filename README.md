@@ -2,7 +2,7 @@
 
 An embeddable, pure JavaScript proxy runtime for Node.js 24. Original implementation by [seezaara](https://github.com/seezaara/js2ray), MIT licensed.
 
-This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, XHTTP over HTTP/1.1 and HTTP/2 (packet-up, stream-up, stream-one), VLESS TCP/traditional UDP, VMess/SOCKS/Freedom, DNS/DoH and ordered routing with pinned Geo resources, Mux.Cool TCP/UDP, XUDP packet framing, traditional Bridge/Portal reverse TCP/UDP, application WebSocket, runtime metrics, smooth configuration rotation, and Node HTTP/HTTPS and optional Undici adapters. Release acceptance is tracked in [the evidence record](docs/IMPLEMENTATION_STATUS.zh-CN.md); unsupported combinations fail explicitly.
+This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, XHTTP over HTTP/1.1 and HTTP/2 (packet-up, stream-up, stream-one), VLESS TCP/traditional UDP and Vision over raw TLS 1.3, VMess/SOCKS/Freedom, DNS/DoH and ordered routing with pinned Geo resources, Mux.Cool TCP/UDP, XUDP packet framing, traditional Bridge/Portal reverse TCP/UDP, application WebSocket, runtime metrics, smooth configuration rotation, and Node HTTP/HTTPS and optional Undici adapters. Release acceptance is tracked in [the evidence record](docs/IMPLEMENTATION_STATUS.zh-CN.md); unsupported combinations fail explicitly.
 
 ## Direct library use
 
@@ -28,6 +28,8 @@ CommonJS and ESM named imports are supported. Importing or constructing a runtim
 Use the traditional JSON outbound in [examples/vless-wss-client.json](examples/vless-wss-client.json) for VLESS over WSS. Replace the synthetic address, UUID, Host, SNI and path with your own values; the connection address, certificate name, HTTP Host and WebSocket path are independent. Certificate chain and name verification are enabled by default.
 
 [examples/vless-xhttp-client.json](examples/vless-xhttp-client.json) configures XHTTP over TLS HTTP/2. All three XHTTP modes support HTTP/1.1 and HTTP/2; native `option.httpVersion` selects `1.1`, `2`, or `auto`. Explicit plaintext HTTP/2 uses prior-knowledge h2c. XHTTP has full-connection close semantics. See [the API guide](docs/API.zh-CN.md) and [XHTTP acceptance](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md) for limits and the pinned Xray interoperability matrix.
+
+[examples/vless-vision-client.json](examples/vless-vision-client.json) configures `xtls-rprx-vision` over raw TCP/TLS 1.3. The pure Node.js implementation preserves buffered bytes when switching each direction to Direct; eligible inner TLS 1.3 traffic uses that path. Vision UDP uses XUDP and blocks UDP/443 unless the outbound explicitly selects `xtls-rprx-vision-udp443`. See the [Vision scope and validation](docs/P15_VISION_ACCEPTANCE.zh-CN.md).
 
 ```js
 const runtime = createRuntime({ inbounds: [], outbounds: [yourVlessOutbound] });

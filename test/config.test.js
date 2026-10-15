@@ -44,7 +44,7 @@ test('conflicting Host values and unknown transport/security/flow never get igno
   const outbound = vless();
   outbound.streamSettings.wsSettings.host = 'conflict.test';
   outbound.streamSettings.security = 'reality';
-  outbound.settings.vnext[0].users[0].flow = 'xtls-rprx-vision';
+  outbound.settings.vnext[0].users[0].flow = 'unsupported-flow';
   const report = checkConfig({ outbounds: [outbound] });
   for (const suffix of ['host', 'security', 'flow'])
     assert.ok(report.diagnostics.some((item) => item.path.endsWith('.' + suffix)));

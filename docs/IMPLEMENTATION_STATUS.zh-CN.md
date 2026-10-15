@@ -53,7 +53,7 @@ npm run test:stability
 P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38706751704)：每个平台 185 项普通回归、127 项参考互通及实际 tarball 安装；其中 XHTTP 专项 37 项、Xray 25.3.6 对照 21 项，均无跳过。HTTP/1.1、TLS HTTP/1.1、TLS HTTP/2 的三种模式分别验证两个方向；显式 h2c 的参考方向限制、源码摘要和逐平台证据见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)。
 
 - Xray 24.11.5，源码 `afc7ec55062c14ae69fc67b148155faae1c31548`。
-- XHTTP 专用 Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`，与既有基线分别锁定归档和二进制摘要。
+- XHTTP/Vision 参考 Xray 25.3.6，源码 `2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`，与既有基线分别锁定归档和二进制摘要。
 - V2Ray 5.14.1，源码 `1f1ff246ddebb530d8fadeb49ffd32b8617e64ec`。
 
 已下载官方 Windows/Linux/macOS x64 发布包，并核对官方 `.dgst` 中的 SHA256，再锁定各可执行文件摘要，见 `test/fixtures/reference-platforms.json`。本机 v2rayN 附带的两个 exe 与官方发布完全一致；V2Ray 的 `Custom` 字样即为官方版本横幅，不再视为未确定来源。
@@ -70,7 +70,8 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 - V2Ray 5.14.1 的传统 UDP 对照只承诺至 2046 字节，其参考实现会拆分/丢弃较大数据报。不能外推为该内核的大数据报支持。
 - 正式 VMess 回归使用 alterId=0；保留旧非零 alterId 实现作为未列入固定参考矩阵的能力。为避免 nonce 重用，每方向最多 65536 个加密块，达到后失败。
 - XHTTP 支持 HTTP/1.1、HTTP/2 的 packet-up、stream-up、stream-one，范围与验收见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)。HTTP/3、REALITY、完整 XMUX、浏览器指纹及跨节点上下行分离不在本阶段。
-- VMess 嗅探、Vision/Reality、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
+- Vision 支持原始 TCP/TLS 1.3 的双向 Direct、普通流量和内层 TLS 1.2、XUDP、同端口凭据/证书轮换；API 边界、原型及参考验收见 [P15](P15_VISION_ACCEPTANCE.zh-CN.md)。三平台 CI 在实际作业完成后另行登记。
+- VMess 嗅探、REALITY、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
 - 不做隐式直连回退，不重放已发业务字节；reverse 传输恢复和 HTTP 上层重定向由各自机制处理。
 
 ## 私有真实配置

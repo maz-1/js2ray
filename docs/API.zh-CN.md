@@ -40,7 +40,7 @@
 
 `checkConfig(config, { baseDir })` 返回 `{ ok, diagnostics, metadata, config, capabilities }`，诊断包含字段路径、原因和修改建议。`normalizeConfig()` 在无效配置时抛出 `ERR_CONFIG`。规范化结果可以再次传给 `createRuntime()`。`redact()` 适合输出报告；不要直接输出包含凭据的原始或规范化配置。
 
-已支持原生 `networks/users` 配置，以及传统 JSON 的单服务器 VLESS/VMess/SOCKS 出站、相应入站、基本 Freedom、TCP/WS 与 TLS 设置。VLESS 用户的 `encryption` 必须为 `none`，`flow` 为空；它与 TLS `security` 独立。`wsSettings.host` 与 `headers.Host` 必须一致。VLESS 上遗留的用户 `security: "auto"` 会被记录为已识别但无行为的元数据，其他值报错。未知行为字段不会被丢弃。
+已支持原生 `networks/users` 配置，以及传统 JSON 的单服务器 VLESS/VMess/SOCKS 出站、相应入站、基本 Freedom、TCP/WS 与 TLS 设置。VLESS 用户的 `encryption` 必须为 `none`，`flow` 支持空值和 P15 的 Vision；它与 TLS `security` 独立。`wsSettings.host` 与 `headers.Host` 必须一致。VLESS 上遗留的用户 `security: "auto"` 会被记录为已识别但无行为的元数据，其他值报错。未知行为字段不会被丢弃。
 
 本版本有破坏性变更，因而使用 4.x 开发版本号：
 
@@ -121,3 +121,13 @@ path 自动补末尾 `/`，查询串保留。随机 UUID 关联 packet-up/stream
 XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。故障、GOAWAY 或运行时关闭终止受影响会话。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
 
 传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、REALITY、完整 XMUX、跨节点 downloadSettings、浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。
+
+## Vision（P15）
+
+VLESS 用户设置 `flow: 'xtls-rprx-vision'`，所有节点必须使用原始 TCP 与 TLS。出站及含 Vision 用户的入站监听器强制外层 TLS 1.3；同一监听器的空 flow 用户也使用 TLS 1.3，继续按普通 VLESS 处理。支持原生配置及传统 JSON 的 users/clients.flow，示例见 `examples/vless-vision-client.json`。WS/XHTTP、REALITY、TCP Mux 和未知 flow 明确拒绝。
+
+两个方向分别处理 UUID、Continue/End/Direct、内容长度与随机填充。VLESS 请求/响应头与初始空填充合并写入，避免独立暴露短头部。内层 TLS 1.3 协商及符合条件的密码套件触发 Direct；普通流量、TLS 1.2 保留外层 TLS。Direct 只绕过外层封装，内层目标 TLS 继续验证和加密。实现只使用 Node.js 公开 Duplex、TLS 和内存 keylog 事件，读取秘密不写文件或日志；切换前以记录明文字节数和解析器确认阻止后续原始字节进入 OpenSSL。外层 AES-128-GCM、AES-256-GCM、ChaCha20-Poly1305 及切换前 KeyUpdate 有测试。Direct 写方向建立后若 TLS 试图追加控制记录，连接以 ERR_TLS 结束，避免把控制记录混入业务流。
+
+UDP 自动采用独占承载的 XUDP，默认拒绝 UDP/443；仅出站可以设置 `xtls-rprx-vision-udp443` 显式允许，线上仍发送基础 Vision flow。Vision 入站的 Mux 只接受 UDP，传统 UDP 命令及 TCP Mux 会话拒绝。与 Xray 25.3.6 的 UDP 对照使用 1400 字节，并明确验证 8193 字节被该内核拒绝；不能把 JS 两端的大包能力外推到参考内核，空 UDP 包也不属于该版本 Xray 的互通承诺。
+
+`runtime.metrics` 增加 `visionSessions`、`visionReadSwitches`、`visionWriteSwitches`；这些是实例累计值，业务字节统计不包含填充。Direct 保留 TCP 半关闭、取消、背压及连接关闭；无需原生模块、外部内核进程或 WASM，不提供 Linux splice 优化。同端口 Vision 监听器支持用户及证书轮换、已认证旧流排空和失败回滚；普通 TLS 监听器与 Vision 记录门控监听器之间的类型切换需使用不同端口，原端口上的不兼容变更返回 ERR_ROTATION。

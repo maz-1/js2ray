@@ -72,7 +72,7 @@ export interface VmessUser {
 export interface VlessUser {
   id: string;
   encryption?: 'none';
-  flow?: '';
+  flow?: '' | 'xtls-rprx-vision' | 'xtls-rprx-vision-udp443';
   email?: string;
 }
 export interface SocksUser {
@@ -263,6 +263,9 @@ export interface RuntimeMetrics {
   bytesWritten: number;
   datagramsRead: number;
   datagramsWritten: number;
+  visionSessions: number;
+  visionReadSwitches: number;
+  visionWriteSwitches: number;
   errors: Record<string, number>;
   timings: Record<string, { count: number; totalMs: number; minMs: number; maxMs: number }>;
   reverseEvents: Record<string, number>;

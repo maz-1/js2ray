@@ -147,12 +147,18 @@ async function connect(network, options = {}) {
     if (option.tls) {
       const raw = socket;
       const name = option.tls.serverName ?? network.address;
-      socket = tls.connect({
+      const secureOptions = {
         ...tlsOptions(option.tls),
-        socket: raw,
         servername: net.isIP(name) ? '' : name,
         checkServerIdentity: (_hostname, cert) => tls.checkServerIdentity(name, cert),
-      });
+      };
+      socket = network[Symbol.for('js2ray.vision')]
+        ? require('./vision-tls').wrap(
+            raw,
+            { ...secureOptions, minVersion: 'TLSv1.3', maxVersion: 'TLSv1.3' },
+            options,
+          )
+        : tls.connect({ ...secureOptions, socket: raw });
       socket.on('error', () => {});
       await ready(socket, 'secureConnect', {
         signal,
@@ -244,14 +250,38 @@ function createListener(network, onConnection, options = {}) {
       wss.handleUpgrade(request, socket, head, (ws) => onConnection(wsStream(ws, options)));
     });
   } else if (option.tls) {
-    server = tls.createServer(
-      {
-        ...currentTLS,
-        allowHalfOpen: true,
-        handshakeTimeout: options.handshakeTimeoutMs,
-      },
-      onConnection,
-    );
+    if (network[Symbol.for('js2ray.vision')]) {
+      const contextOptions = (settings) => ({
+        ...settings,
+        minVersion: 'TLSv1.3',
+        maxVersion: 'TLSv1.3',
+      });
+      let context = tls.createSecureContext(contextOptions(currentTLS));
+      server = net.createServer({ allowHalfOpen: true }, (raw) => {
+        const stream = require('./vision-tls').wrap(
+          raw,
+          { secureContext: context },
+          { ...options, server: true },
+        );
+        const timer = setTimeout(() => stream.destroy(), options.handshakeTimeoutMs ?? 10000);
+        stream.once('secureConnect', () => {
+          clearTimeout(timer);
+          onConnection(stream);
+        });
+        stream.once('close', () => clearTimeout(timer));
+      });
+      server.setSecureContext = (settings) => {
+        context = tls.createSecureContext(contextOptions(settings));
+      };
+    } else
+      server = tls.createServer(
+        {
+          ...currentTLS,
+          allowHalfOpen: true,
+          handshakeTimeout: options.handshakeTimeoutMs,
+        },
+        onConnection,
+      );
   } else server = net.createServer({ allowHalfOpen: true }, onConnection);
   server.on('connection', rawConnection);
   server.on('tlsClientError', () => {});
@@ -267,7 +297,9 @@ function createListener(network, onConnection, options = {}) {
     prepareUpdate(nextNetwork, nextOptions) {
       if (
         network.type !== nextNetwork.type ||
-        Boolean(option.tls) !== Boolean(nextNetwork.option?.tls)
+        Boolean(option.tls) !== Boolean(nextNetwork.option?.tls) ||
+        Boolean(network[Symbol.for('js2ray.vision')]) !==
+          Boolean(nextNetwork[Symbol.for('js2ray.vision')])
       )
         throw failure(
           'ERR_ROTATION',

@@ -83,6 +83,30 @@ try {
     assert.equal(client.listenersInfo.length, 0);
     await client.close(); await server.close();
     await new Promise(resolve => target.close(resolve));
+    const tls = require('node:tls');
+    const fs = require('node:fs');
+    const { once } = require('node:events');
+    const cert = fs.readFileSync(${JSON.stringify(path.join(root, 'test/fixtures/tls/cert.pem'))}, 'utf8');
+    const key = fs.readFileSync(${JSON.stringify(path.join(root, 'test/fixtures/tls/key.pem'))}, 'utf8');
+    const tlsTarget = tls.createServer({cert,key,minVersion:'TLSv1.3',allowHalfOpen:true}, socket => socket.pipe(socket));
+    await new Promise(resolve => tlsTarget.listen(0,'127.0.0.1',resolve));
+    const flow = 'xtls-rprx-vision';
+    const visionServer = api.createRuntime({inbounds:[{protocol:'vless',users:[{id,flow}],networks:[{port:0,option:{tls:{cert,key}}}]}]});
+    await visionServer.start();
+    const visionClient = api.createRuntime({outbounds:[{protocol:'vless',users:[{id,flow,encryption:'none'}],networks:[{address:'127.0.0.1',port:visionServer.listenersInfo[0].address.port,option:{tls:{ca:cert,serverName:'js2ray.test'}}}]}]});
+    await visionClient.start();
+    const tunnel = await visionClient.dial({host:'127.0.0.1',port:tlsTarget.address().port});
+    const inner = tls.connect({socket:tunnel,ca:cert,servername:'js2ray.test',minVersion:'TLSv1.3'});
+    inner.on('error',()=>{}); await once(inner,'secureConnect');
+    inner.write('packed-vision');
+    const reply = []; let total = 0;
+    for await (const chunk of inner) { reply.push(chunk); total += chunk.length; if(total >= 13) break; }
+    assert.equal(Buffer.concat(reply).toString(),'packed-vision');
+    assert.equal(visionClient.metrics.visionReadSwitches,1);
+    assert.equal(visionClient.metrics.visionWriteSwitches,1);
+    inner.destroy(); tunnel.destroy();
+    await visionClient.close(); await visionServer.close();
+    await new Promise(resolve => tlsTarget.close(resolve));
     console.log('package-ok');
   })().catch(error => { console.error(error); process.exitCode = 1; });`,
     ],

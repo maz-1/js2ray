@@ -28,6 +28,7 @@ class StreamReader {
       }
       if (this.stream.destroyed || this.stream.readableEnded)
         throw failure('ERR_PROTOCOL', 'Peer closed during handshake.', 'protocol');
+      this.stream.requestRecord?.();
       await new Promise((resolve, reject) => {
         const cleanup = () => {
           clearTimeout(timer);

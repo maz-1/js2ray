@@ -29,7 +29,7 @@
 
 首轮运行时基线采用 Node.js 24，其他 Node.js 主版本在 CI 验证后再列入正式支持矩阵。
 
-后续独立扩展项包括 REALITY、XTLS Vision、XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
+后续独立扩展项包括 REALITY、XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
 ## 2 当前实现与优先修复项
 
@@ -187,7 +187,7 @@ SOCKS 入站在样例中属于显式、可选功能。无端口库模式用另�
 - [x] 实现 TCP 及传统 UDP 帧，覆盖长度限制和无效输入。
 - [x] 使用可跨多次读取的解析状态机，保留与响应头同批到达的业务数据。
 - [x] 握手不等待首个业务响应后才允许写入，避免 HTTP 或隧道内 TLS 首包死锁。
-- [x] VLESS 与传输独立组合，明确支持 none 加密和空 flow；其他 flow 显式拒绝。
+- [x] VLESS 与传输独立组合，P3 基线支持 none 加密和空 flow；P15 扩展 Vision，其他 flow 显式拒绝。
 - [x] 增加 VLESS 入站与出站配置校验，并保留原协议回归。
 
 出口条件：js2ray 客户端对官方服务端、官方客户端对 js2ray 服务端均通过；TCP/UDP、WS/WSS、地址类型、分片、粘包、拒绝认证和断连均有覆盖。UDP 按数据报接口验证，不以 TCP 流测试代替。
@@ -338,7 +338,19 @@ P9–P13 五项实现、专项及发布验收全部通过：三平台各 148 项
 
 P14 全部验收通过：XHTTP 专项 37/37、Xray 25.3.6 对照 21/21；Windows、Linux、macOS 各 185/185 普通回归、127/127 参考互通，类型/格式/配置和实际 tarball 安装均通过。100 条并发 TLS 连接涵盖三模式且关闭后资源归零，包内 XHTTP 拨号通过，运行依赖仍仅 ws，无原生运行资产。功能提交 `4f226980b97ac38f2dbad04bafd73eaa21b6c9de` 对应 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38706751704)。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md) 和 [机器可读证据](docs/acceptance/xhttp-2026-10-15.json)。
 
-## 11 参考资料
+## 11 Vision 扩展 P15（2026-10-15）
+
+本阶段先验证纯 Node.js 24 的公开 TLS/Duplex API 能否实现 Vision 的双向 TLS→TCP 切换，重点覆盖 TLS 记录与原始数据粘包、分片、未读明文、背压及半关闭。原型必须证明数据完整、有序且不依赖 Node 私有 TLS 状态；通过后才进入正式协议实现。参考内核继续锁定 Xray 25.3.6（源码提交及二进制校验值见 `test/fixtures/reference-cores.json`）。
+
+- [x] 公开 API 原型：三种 TLS 1.3 密码套件双向切换、未读明文与原始数据保序、2 MiB 完整性、单字节分片/密文与原始数据粘包、KeyUpdate/认证向量、畸形记录、延迟 keylog 与半关闭，原型 8/8。
+- [x] VLESS Vision 流协商、填充编解码、内层 TLS 识别与原始 TCP 切换；明确配置限制和错误。
+- [x] 原生/传统配置、类型、示例、指标及凭据/证书轮换回归。
+- [x] 固定 Xray 25.3.6 双向互通 8/8；真实内层 TLS 1.3 均触发双向 Direct，普通流量/TLS 1.2 保持外层 TLS，另测 XUDP 和参考内核大包拒绝。
+- [ ] Windows、Linux、macOS 全量回归、互通和发布包验收。
+
+验收命令：`node --test test/vision-prototype.test.js test/vision.test.js`、`node --test test/interop/vision.test.js`、全量回归/互通及现有三平台 CI。100 并发真实内层 TLS 1.3 会话全部完成双向 Direct 并关闭归零；完整范围与后续实际 CI 结果见 [P15 验收](docs/P15_VISION_ACCEPTANCE.zh-CN.md)。
+
+## 12 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)
