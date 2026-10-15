@@ -21,6 +21,7 @@ const { sniff } = require('../routing/sniff');
 const { Mux } = require('../protocols/mux');
 const { abortable } = require('./abortable');
 const { Reverse } = require('../reverse');
+const { LISTENERS } = require('./hooks');
 
 class Runtime extends EventEmitter {
   #state = 'created';
@@ -47,7 +48,7 @@ class Runtime extends EventEmitter {
     if (options.lookup !== undefined && typeof options.lookup !== 'function')
       throw failure('ERR_CONFIG', 'Expected a DNS lookup function.', 'config');
     this.#config = normalizeConfig(config, options);
-    this.#options = options;
+    this.#options = { ...options };
     this.#router =
       typeof this.#config.routing === 'object'
         ? new Router(this.#config.routing, this.#config._assets)
@@ -75,6 +76,12 @@ class Runtime extends EventEmitter {
   get state() {
     return this.#state;
   }
+  [LISTENERS](register, writable) {
+    if (this.#state !== 'created')
+      throw failure('ERR_STATE', 'Listener ownership is frozen after start.', 'rotation');
+    this.#options[LISTENERS] = register;
+    this.#storage.setWritable(writable);
+  }
   get listenersInfo() {
     return this.#servers.map(({ server, tag }) => ({ tag, address: server.address() }));
   }
@@ -98,6 +105,11 @@ class Runtime extends EventEmitter {
       mux: {
         transports: muxes.length,
         sessions: muxes.reduce((n, mux) => n + mux.sessions.size, 0),
+        businessSessions: muxes.reduce(
+          (n, mux) =>
+            n + [...mux.sessions.values()].filter((session) => session.target.port !== 0).length,
+          0,
+        ),
         queuedBytes: muxes.reduce(
           (n, mux) => n + mux.pendingBytes + mux.receivedBytes + mux.buffer.length,
           0,
@@ -185,22 +197,29 @@ class Runtime extends EventEmitter {
         for (const network of bound.networks) {
           if (this.#lifetime.signal.aborted)
             throw failure('ERR_CANCELLED', 'Startup was cancelled.', 'runtime');
-          const listener = createListener(
-            network,
-            (socket) => {
-              if (
-                this.#state !== 'running' ||
-                this.#streams.size >= this.#config.limits.maxConnections
-              )
-                return socket.destroy();
-              this.#track(socket);
-              if (handler) this.#acceptLegacy(socket, handler);
-              else if (bound.protocol === 'vless') this.#acceptVless(socket, bound);
-              else if (bound.protocol === 'tcp') this.#acceptTcp(socket, bound);
-              else this.#acceptSocks(socket, bound);
-            },
-            this.#config.limits,
-          );
+          const accept = (socket) => {
+            if (
+              this.#state !== 'running' ||
+              this.#streams.size >= this.#config.limits.maxConnections
+            )
+              return socket.destroy();
+            this.#track(socket);
+            if (handler) this.#acceptLegacy(socket, handler);
+            else if (bound.protocol === 'vless') this.#acceptVless(socket, bound);
+            else if (bound.protocol === 'tcp') this.#acceptTcp(socket, bound);
+            else this.#acceptSocks(socket, bound);
+          };
+          if (this.#options[LISTENERS]) {
+            await this.#options[LISTENERS](
+              network,
+              bound.tag,
+              bound.networks.indexOf(network),
+              this.#config.limits,
+              accept,
+            );
+            continue;
+          }
+          const listener = createListener(network, accept, this.#config.limits);
           const { server } = listener;
           server.on('error', (error) =>
             this.#report(failure('ERR_LISTEN', 'Inbound listener failed.', 'inbound', error)),

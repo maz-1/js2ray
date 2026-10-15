@@ -2,7 +2,7 @@
 
 An embeddable, pure JavaScript proxy runtime for Node.js 24. Original implementation by [seezaara](https://github.com/seezaara/js2ray), MIT licensed.
 
-This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, VLESS TCP/traditional UDP, VMess/SOCKS/Freedom, DNS/DoH and ordered routing with pinned Geo resources, Mux.Cool TCP, traditional Bridge/Portal reverse, and Node HTTP/HTTPS and optional Undici adapters. Release acceptance is tracked in [the evidence record](docs/IMPLEMENTATION_STATUS.zh-CN.md); unsupported combinations fail explicitly.
+This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, VLESS TCP/traditional UDP, VMess/SOCKS/Freedom, DNS/DoH and ordered routing with pinned Geo resources, Mux.Cool TCP/UDP, XUDP packet framing, traditional Bridge/Portal reverse TCP/UDP, application WebSocket, runtime metrics, smooth configuration rotation, and Node HTTP/HTTPS and optional Undici adapters. Release acceptance is tracked in [the evidence record](docs/IMPLEMENTATION_STATUS.zh-CN.md); unsupported combinations fail explicitly.
 
 ## Direct library use
 
@@ -34,7 +34,7 @@ const stream = await runtime.dial({ host: 'example.com', port: 443, outboundTag:
 // For an HTTPS target, wrap this stream with tls.connect({ socket: stream, ...targetTlsOptions }).
 ```
 
-VLESS and Freedom expose UDP separately:
+Freedom, VLESS, VMess, SOCKS5, Mux and reverse expose UDP separately:
 
 ```js
 const session = await runtime.openDatagram({ host: '127.0.0.1', port: 53 });
@@ -48,7 +48,7 @@ session.close();
 
 Callers must respect normal stream backpressure. TCP/TLS support half-close; WebSocket `end()` closes both directions after sending queued bytes, as required by WebSocket. Applications requiring a response after write EOF should use TCP/TLS.
 
-Mux.Cool (including reverse) uses the reference protocol's full-session END semantics. It cannot represent arbitrary TCP write-half-close protocols. Ordinary outbound Mux supports VLESS TCP only; UDP/XUDP business sessions are rejected. Reverse has its own internal Mux and works with `mux.enabled: false` on the carrier outbound.
+Mux.Cool (including reverse) uses the reference protocol's full-session END semantics. It cannot represent arbitrary TCP write-half-close protocols. Ordinary outbound Mux supports VLESS TCP and UDP; packetEncoding: "xudp" adds per-packet address framing. Reverse has its own internal Mux and works with `mux.enabled: false` on the carrier outbound.
 
 ```js
 const { createHttpsAgent, createUndiciDispatcher } = require('js2ray');
@@ -90,3 +90,5 @@ Run `npm run test:tools` to install the official fixed reference builds for Wind
 Private remote smoke testing is opt-in: `node scripts/smoke-private.js v2ray-config.json`. It selects only the `proxy` outbound, makes one example.com request, and reports status and listener count. It does not claim that the full source configuration is supported. The private configuration is ignored by Git and excluded from the package.
 
 See [API and migration](docs/API.zh-CN.md), [compatibility and evidence](docs/IMPLEMENTATION_STATUS.zh-CN.md), and [the development plan](DEVELOPMENT_PLAN.zh-CN.md).
+
+Configuration and credential rotation uses `createRuntimeManager`. Its HTTP/Undici adapters isolate pools by generation, while old streams drain within a budget. See the [API and rotation contract](docs/API.zh-CN.md), including same-port UUID/certificate rotation and readiness probes.

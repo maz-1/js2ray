@@ -263,8 +263,54 @@ export interface RuntimeMetrics {
     pending: number;
     cacheEntries: number;
   };
-  mux: { transports: number; sessions: number; queuedBytes: number };
+  mux: { transports: number; sessions: number; businessSessions: number; queuedBytes: number };
 }
+export interface ManagerOptions extends RuntimeOptions {
+  maxRetiringGenerations?: number;
+}
+export interface RotationOptions {
+  runtimeOptions?: RuntimeOptions;
+  drainTimeoutMs?: number;
+  timeoutMs?: number;
+  signal?: AbortSignal;
+  ready?: (candidate: Runtime, signal: AbortSignal) => void | Promise<void>;
+}
+export interface RotationResult {
+  generation: number;
+  drained: Promise<void>;
+}
+export class RuntimeManager extends EventEmitter {
+  constructor(config?: NativeConfig | TraditionalConfig, options?: ManagerOptions);
+  readonly state: RuntimeState;
+  readonly generation: number;
+  readonly listenersInfo: Runtime['listenersInfo'];
+  readonly stats: {
+    state: RuntimeState;
+    generation: number;
+    generations: number;
+    connections: number;
+    pendingDials: number;
+    listeners: number;
+    reverse: Runtime['stats']['reverse'];
+  };
+  readonly metrics: Array<{ generation: number; retiring: boolean; metrics: RuntimeMetrics }>;
+  start(): Promise<this>;
+  dial(target: DialTarget): Promise<ConnectionStream>;
+  openDatagram(target: DatagramTarget): Promise<DatagramSession>;
+  resolve(
+    host: string,
+    options?: { family?: 0 | 4 | 6; signal?: AbortSignal },
+  ): ReturnType<Runtime['resolve']>;
+  rotate(
+    config: NativeConfig | TraditionalConfig,
+    options?: RotationOptions,
+  ): Promise<RotationResult>;
+  close(): Promise<void>;
+}
+export function createRuntimeManager(
+  config?: NativeConfig | TraditionalConfig,
+  options?: ManagerOptions,
+): RuntimeManager;
 export function createRuntime(
   config?: NativeConfig | TraditionalConfig,
   options?: RuntimeOptions,
@@ -297,11 +343,11 @@ export interface AdapterOptions {
   targetTls?: TlsOptions;
 }
 export function createHttpAgent(
-  runtime: Runtime,
+  runtime: Runtime | RuntimeManager,
   options?: AdapterOptions & HttpAgentOptions,
 ): HttpAgent;
 export function createHttpsAgent(
-  runtime: Runtime,
+  runtime: Runtime | RuntimeManager,
   options?: AdapterOptions & HttpsAgentOptions,
 ): HttpsAgent;
 export interface UndiciConnectOptions {
@@ -343,7 +389,7 @@ export interface WebSocketOptions extends AdapterOptions {
   closeTimeoutMs?: number;
 }
 export function createWebSocket(
-  runtime: Runtime,
+  runtime: Runtime | RuntimeManager,
   address: string | URL,
   options?: WebSocketOptions,
 ): ApplicationWebSocket;
@@ -354,11 +400,13 @@ export interface UndiciConnector {
 /** The optional module supplies the concrete dispatcher type without a core dependency. */
 export function createUndiciConnector(runtime: Runtime, options?: AdapterOptions): UndiciConnector;
 export function createUndiciDispatcher<T>(
-  runtime: Runtime,
+  runtime: Runtime | RuntimeManager,
   options: AdapterOptions & { undici: { Agent: new (options?: any) => T }; [key: string]: unknown },
 ): T;
 declare const api: {
   createWebSocket: typeof createWebSocket;
+  RuntimeManager: typeof RuntimeManager;
+  createRuntimeManager: typeof createRuntimeManager;
   createRuntime: typeof createRuntime;
   Runtime: typeof Runtime;
   config: typeof config;

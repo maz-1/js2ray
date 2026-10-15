@@ -24,3 +24,24 @@ async function example() {
   api.createHttpsAgent(runtime, { targetTls: { ca: 'PEM' } }).destroy();
 }
 void example;
+
+import { createRuntimeManager, createWebSocket } from '../index.js';
+async function managed() {
+  const manager = createRuntimeManager();
+  await manager.start();
+  api.createHttpAgent(manager);
+  const websocket = createWebSocket(manager, 'wss://example.test');
+  websocket.send('text');
+  const result = await manager.rotate(
+    { routing: { domainStrategy: 'IPOnDemand' } },
+    {
+      ready: async (candidate, signal) => {
+        await candidate.resolve('localhost', { signal });
+      },
+    },
+  );
+  await result.drained;
+  manager.metrics[0]?.metrics.mux.businessSessions;
+  await manager.close();
+}
+void managed;

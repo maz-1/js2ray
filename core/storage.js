@@ -6,8 +6,12 @@ function createStorage(location) {
   const events = new EventEmitter();
   let timer;
   let started = false;
+  let writable = () => true;
   const storage = {
     data: {},
+    setWritable(gate) {
+      writable = gate;
+    },
     on: events.on.bind(events),
     start() {
       if (started) return;
@@ -32,7 +36,7 @@ function createStorage(location) {
       started = true;
     },
     write() {
-      if (!location || !started) return;
+      if (!location || !started || !writable()) return;
       events.emit('write');
       try {
         fs.writeFileSync(location, JSON.stringify(storage.data));

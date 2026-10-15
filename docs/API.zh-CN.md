@@ -81,3 +81,29 @@ AsIs 不为规则解析域名；IPIfNonMatch 先以原始域名完整匹配，�
 `openDatagram` 继续使用固定逻辑目标，支持 Freedom、VLESS 传统 UDP、VMess、SOCKS5、VLESS Mux 和传统 reverse。SOCKS 入站显式启用 `udp: true`（传统 JSON 为 settings.udp），控制承载仅 TCP/TLS；认证成功后分配独立 UDP 端口，限制来源为控制连接的 IP，并锁定首个有效数据报的源端口；控制关闭即释放关联。分片 SOCKS UDP 包丢弃。单关联最多 128 个目标，单会话队列最多 1024 个数据报且受 maxBufferBytes 限制。
 
 VLESS 出站 `packetEncoding: "xudp"` 使用 Xray 的 Mux UDP 封装及每包地址；未启用普通 Mux 时每个数据报会话独占承载。入站接受 XUDP NEW 全局 ID 字段和 KEEP 每包地址，但不跨断开的承载恢复 NAT 身份或重放数据。Mux/reverse 保留数据报边界，慢消费者超限只关闭对应会话。VMess 每包独立编码，不按 TCP 块拆包；安全上限 65455 字节。Freedom UDP 上限 65507，SOCKS 上限需再减地址头；Mux/VLESS 帧最大 65535。实际互通上限受参考内核限制：固定 V2Ray 大包边界仍不由 JS 自测外推，新增对照使用 1024 字节，Xray 使用 1400 字节；JS 两端另测空包和 60000 字节。UDP 网络本身仍可丢包；库不自动重试。
+
+## 配置与凭据轮换（P13）
+
+`createRuntimeManager(config, options)` 提供与 runtime 相同的 start/dial/openDatagram/resolve/close，并增加 generation、逐代 metrics 与 rotate。`await manager.rotate(config, { runtimeOptions, ready, signal, timeoutMs: 20000, drainTimeoutMs: 5000 })` 在候选配置完成校验、资源启动和可选 ready 探测后切换，返回 `{ generation, drained }`；await drained 等待旧代排空或强制关闭。候选失败、取消或超时保留当前代。ready 接收候选 Runtime 和 AbortSignal，远端认证/业务可达性应由宿主通过该回调实际探测；仅 start 成功不代表远端业务可达。
+
+同地址端口且同传输类型的监听器由管理器持有，提交时切换认证/规则和 TLS 证书上下文；旧的已认证连接继续使用旧配置。同端口更换 TCP/WS 或有无 TLS 会明确拒绝并回滚，可通过不同端口预先启动迁移。新增监听器在提交前不接受业务；删除监听器停止接受新连接，旧连接限时排空。VMess/VLESS UUID 与 TLS/WSS 证书轮换均有真实连接测试。
+
+createHttpAgent/createHttpsAgent、createUndiciDispatcher 和 createWebSocket 接受 manager。HTTP 池按代隔离，正在执行及已排队的旧请求完成后关闭旧池，新请求使用新代。自行持有 raw Undici connector 或自建客户端池时，由宿主管理池的代次和关闭；普通 connector 不提供池隔离。UDP/应用 WebSocket 旧会话继续使用旧代直至结束或预算耗尽，不迁移或重放业务字节。默认最多 4 个待排空代（maxRetiringGenerations 可设 1–32），轮换排队最多 128 项，超过时返回 ERR_LIMIT。
+
+文件存储只允许已提交代写入；失败候选和旧代关闭不会覆盖新代文件。流量和错误指标按代记录，不合并不同代的 VMess 动态计数。manager.close 强制关闭所有代并取消候选；业务需先停止接收新请求再调用 close。
+
+```js
+const { createRuntimeManager, createHttpAgent } = require('js2ray');
+const manager = createRuntimeManager(initialConfig);
+await manager.start();
+const agent = createHttpAgent(manager);
+const result = await manager.rotate(nextConfig, {
+  ready: async (candidate, signal) => {
+    // 在这里执行宿主选择的实际业务探测，失败时抛出异常。
+  },
+  drainTimeoutMs: 5000,
+});
+await result.drained;
+agent.destroy();
+await manager.close();
+```

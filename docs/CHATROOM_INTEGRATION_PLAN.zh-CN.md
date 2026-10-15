@@ -10,9 +10,9 @@
 
 ## API 与生命周期
 
-宿主创建并持有 runtime；启动时 await start，停止接收新业务后关闭客户端连接池及 runtime。普通出站使用 createHttpAgent/createHttpsAgent 或显式可选的 Undici dispatcher；保持 inbounds 为空，不引入本地代理监听。HTTP 重定向继续使用相同适配器。应用 WebSocket 另立真实 Upgrade/取消测试，不假定 HTTP 测试已经覆盖它。
+宿主创建并持有 runtime；启动时 await start，停止接收新业务后关闭客户端连接池及 runtime。普通出站使用 createHttpAgent/createHttpsAgent 或显式可选的 Undici dispatcher；保持 inbounds 为空，不引入本地代理监听。HTTP 重定向继续使用相同适配器。应用 WebSocket 使用已验收的 createWebSocket，宿主仍需补充实际应用鉴权与业务消息测试。
 
-每个租户持有独立 runtime 和客户端池，或先设计并验收明确的隔离接口。当前 DialTarget 不携带经过认证的用户主体，不能把 inboundTag、目标 Host 或转发头当作用户身份。禁止不同租户共享带认证上下文的池。配置替换先验证新实例、切换新请求、再关闭旧实例；当前没有热更新或业务字节重放保证。
+每个租户持有独立 runtime 和客户端池，或先设计并验收明确的隔离接口。当前 DialTarget 不携带经过认证的用户主体，不能把 inboundTag、目标 Host 或转发头当作用户身份。禁止不同租户共享带认证上下文的池。配置替换使用 createRuntimeManager，先探测新实例、切换新请求并隔离连接池，再限时排空旧实例；已发业务字节不重放。
 
 ## 认证与反代
 
@@ -22,7 +22,7 @@ VLESS 身份、节点 TLS、目标 TLS、ChatRoom 应用认证分别配置和验
 
 ## 部署与验收
 
-Portal 独立部署并明确暴露端口、TLS 与配置更新责任；Bridge 运行在 ChatRoom 所在网络，默认没有代理监听。先用部署的实际固定内核和资源摘要补充互通，再扩大正式支持矩阵；ARM、较新 reverse 变体、UDP/XUDP 不由当前结果推断支持。
+Portal 独立部署并明确暴露端口、TLS 与配置更新责任；Bridge 运行在 ChatRoom 所在网络，默认没有代理监听。先用部署的实际固定内核和资源摘要补充互通，再扩大正式支持矩阵；ARM、较新 reverse 变体不由当前结果推断支持；UDP/XUDP 的具体矩阵见 P12。
 
 后续任务依次为：盘点宿主接口与身份边界；提供一个最小出站适配；加入实际 HTTP/HTTPS、重定向、取消、流式聊天和应用 WebSocket 的端到端测试；按需求接入单服务反代；验证租户隔离、错误证书、Portal 重启、配置替换与关闭；最后再设计部署与灰度回滚。
 

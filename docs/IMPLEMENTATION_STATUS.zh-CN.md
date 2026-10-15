@@ -15,6 +15,10 @@
 
 Windows、Linux、macOS x64 CI 均通过语法、类型、格式、配置、107 项普通回归、70 项参考互通及实际 tarball 安装，没有失败或跳过。[最终功能版本 CI](https://github.com/maz-1/js2ray/actions/runs/38682754389) 对应 `cba04d239c93d09ef131036ede959df015dfd44e`。本地 Linux 还使用 Docker 官方 `node:24.20.0-bookworm-slim` 验证，镜像摘要 `sha256:ba849c60be29959425b8734d57b8b4b7d56f98edd9504c9af091d5281095a71e`；本地日志在忽略的 `test-results/` 中。
 
+## P9–P13 扩展验收
+
+用户要求的五项扩展已按序实现，并分别更新开发计划：统一连接错误和实例指标、应用 WS/WSS、三种 DNS 联动路由策略、SOCKS5/VMess/Mux/XUDP/reverse UDP，以及配置/凭据平滑轮换。API 与具体边界见 [API 文档](API.zh-CN.md)。本轮 Windows 普通回归 144/144，固定内核互通 106/106（新增 DNS 对照 4 项、UDP 对照 32 项），轮换专项 15/15。三平台 CI、实际 tarball 和最终 30 分钟负载的本轮证据在执行后补充。以下 P0–P8 数字与原始稳定性记录保留为历史证据。
+
 ## 复现
 
 ```sh
@@ -59,10 +63,10 @@ npm run test:stability
 
 - 运行时保持纯 Node.js；参考 exe 只作独立测试对端，不被产品启动或打包。
 - Mux.Cool END 与 WS 关闭均为双向会话结束，不能表达任意等待 TCP 写 EOF 才返回响应的协议；直接 TCP/TLS 支持半关闭。reverse 内部保留 Mux，外层可禁用普通 Mux。
-- 普通 Mux 只支持 VLESS TCP，reverse 业务只支持 TCP；UDP/XUDP 业务拒绝。VLESS/Freedom 传统 UDP 使用独立数据报接口。
+- 普通 Mux 支持 VLESS TCP/UDP，reverse 支持 TCP/UDP；SOCKS5、VMess、VLESS、Freedom 均提供独立数据报接口。XUDP 接受/发送每包地址，但不承诺断开承载后保留 NAT 身份。
 - V2Ray 5.14.1 的传统 UDP 对照只承诺至 2046 字节，其参考实现会拆分/丢弃较大数据报。不能外推为该内核的大数据报支持。
 - 正式 VMess 回归使用 alterId=0；保留旧非零 alterId 实现作为未列入固定参考矩阵的能力。为避免 nonce 重用，每方向最多 65536 个加密块，达到后失败。
-- 非 AsIs 路由、VMess 嗅探、Vision/Reality、XHTTP、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式均不在支持矩阵。已建立原生 Socket 可能发出 Node 标准错误，宿主仍需监听 error。
+- VMess 嗅探、Vision/Reality、XHTTP、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
 - 不做隐式直连回退，不重放已发业务字节；reverse 传输恢复和 HTTP 上层重定向由各自机制处理。
 
 ## 私有真实配置

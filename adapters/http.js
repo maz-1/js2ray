@@ -5,6 +5,8 @@ const tls = require('node:tls');
 const net = require('node:net');
 const { tlsOptions } = require('../transports');
 const { failure } = require('../runtime/errors');
+const { CAPTURE } = require('../runtime/hooks');
+const { watch } = require('../runtime/watch');
 
 function connector(runtime, settings = {}) {
   if (!runtime || typeof runtime.dial !== 'function')
@@ -72,7 +74,8 @@ function connector(runtime, settings = {}) {
       stream.once('close', () => sockets.delete(stream));
       return stream;
     };
-    runtime
+
+    (options[CAPTURE]?.runtime ?? runtime)
       .dial({
         host: hostname,
         port: Number(options.port || (secure ? 443 : 80)),
@@ -135,12 +138,12 @@ function connector(runtime, settings = {}) {
     lifetime.abort();
     for (const socket of sockets) socket.destroy();
     sockets.clear();
-    runtime.removeListener('state', changed);
+    unwatch();
   };
   const changed = (state) => {
     if (state === 'closing' || state === 'closed') open.destroy();
   };
-  runtime.on('state', changed);
+  const unwatch = watch(runtime, 'state', changed);
   return open;
 }
 
@@ -150,6 +153,35 @@ function createAgent(runtime, secure, options = {}) {
     ? new https.Agent({ keepAlive: true, ...pool })
     : new http.Agent({ keepAlive: true, ...pool });
   const open = connector(runtime, { outboundTag, inboundTag, signal, timeoutMs, targetTls });
+  const generationChanged = () => {
+    for (const sockets of Object.values(agent.freeSockets))
+      for (const socket of sockets) socket.destroy();
+  };
+  let unwatchGeneration = () => {};
+  if (runtime[CAPTURE]) {
+    const getName = agent.getName.bind(agent),
+      addRequest = agent.addRequest.bind(agent);
+    agent.getName = (settings) =>
+      `${getName(settings)}:js2ray-generation-${settings[CAPTURE]?.id ?? runtime.generation}`;
+    agent.addRequest = (request, settings, ...args) => {
+      const scope = runtime[CAPTURE]();
+      request.once('close', scope.release);
+      try {
+        return addRequest(request, { ...settings, [CAPTURE]: scope }, ...args);
+      } catch (error) {
+        scope.release();
+        throw error;
+      }
+    };
+    unwatchGeneration = watch(runtime, 'generation', generationChanged);
+    agent.on('free', (socket, settings) => {
+      if (
+        settings[CAPTURE]?.id !== runtime.generation &&
+        Object.values(agent.freeSockets).some((sockets) => sockets.includes(socket))
+      )
+        socket.destroy();
+    });
+  }
   agent.createConnection = (settings, callback) => {
     open({ ...settings, protocol: secure ? 'https:' : 'http:' }, callback);
   };
@@ -173,6 +205,7 @@ function createAgent(runtime, secure, options = {}) {
   };
   const destroy = agent.destroy.bind(agent);
   agent.destroy = () => {
+    unwatchGeneration();
     open.destroy();
     destroy();
   };
@@ -195,15 +228,97 @@ function createUndiciDispatcher(runtime, { undici, ...options } = {}) {
       'Dispatcher connection factories are owned by this adapter.',
       'config',
     );
+  if (runtime[CAPTURE]) {
+    const dispatcher = new undici.Agent(pool),
+      children = new Map();
+    const baseClose = dispatcher.close.bind(dispatcher),
+      baseDestroy = dispatcher.destroy.bind(dispatcher);
+    let closed = false;
+    const retire = (id) => {
+      for (const [generation, child] of children)
+        if (generation !== id) {
+          child
+            .close()
+            .finally(() => children.delete(generation))
+            .catch(() => {});
+        }
+    };
+    const unwatchGeneration = watch(runtime, 'generation', retire);
+    dispatcher.dispatch = (settings, handler) => {
+      if (closed) {
+        handler.onError(failure('ERR_CLOSED', 'Dispatcher is closed.', 'http'));
+        return false;
+      }
+      const scope = runtime[CAPTURE]();
+      if (!children.has(scope.id))
+        children.set(scope.id, createUndiciDispatcher(scope.runtime, { undici, ...options }));
+      const wrapped = new Proxy(handler, {
+        get(target, name) {
+          const member = Reflect.get(target, name, target);
+          if (typeof member !== 'function') return member;
+          if (['onComplete', 'onError', 'onUpgrade'].includes(name))
+            return (...args) => {
+              scope.release();
+              return member.apply(target, args);
+            };
+          return member.bind(target);
+        },
+      });
+      try {
+        return children.get(scope.id).dispatch(settings, wrapped);
+      } catch (error) {
+        scope.release();
+        throw error;
+      }
+    };
+    dispatcher.close = (callback) => {
+      closed = true;
+      unwatchGeneration();
+      const result = Promise.all([...children.values()].map((child) => child.close())).then(
+        () =>
+          new Promise((resolve, reject) =>
+            baseClose((error) => (error ? reject(error) : resolve())),
+          ),
+      );
+      if (callback) {
+        result.then(() => callback(null), callback);
+        return;
+      }
+      return result;
+    };
+    dispatcher.destroy = (error, callback) => {
+      if (typeof error === 'function') {
+        callback = error;
+        error = undefined;
+      }
+      closed = true;
+      unwatchGeneration();
+      const result = Promise.all([...children.values()].map((child) => child.destroy(error))).then(
+        () =>
+          new Promise((resolve, reject) =>
+            baseDestroy(error, (cause) => (cause ? reject(cause) : resolve())),
+          ),
+      );
+      if (callback) {
+        result.then(() => callback(null), callback);
+        return;
+      }
+      return result;
+    };
+    return dispatcher;
+  }
   const open = connector(runtime, { outboundTag, inboundTag, signal, timeoutMs, targetTls });
   const dispatcher = new undici.Agent({ ...pool, connect: open });
   const close = dispatcher.close.bind(dispatcher),
     destroy = dispatcher.destroy.bind(dispatcher);
-  dispatcher.close = (...args) => {
-    const promise = close(...args);
-    Promise.resolve(promise)
-      .finally(() => open.destroy())
-      .catch(() => {});
+  dispatcher.close = (callback) => {
+    const promise = new Promise((resolve, reject) =>
+      close((error) => (error ? reject(error) : resolve())),
+    ).finally(() => open.destroy());
+    if (callback) {
+      promise.then(() => callback(null), callback);
+      return;
+    }
     return promise;
   };
   dispatcher.destroy = (...args) => {

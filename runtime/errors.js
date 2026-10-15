@@ -33,7 +33,7 @@ function normalizeError(cause, phase = 'transport') {
   if (code === 'ETIMEDOUT') return failure('ERR_TIMEOUT', 'Operation timed out.', phase, cause);
   if (['ENOTFOUND', 'EAI_AGAIN'].includes(code))
     return failure('ERR_DNS', 'Name resolution failed.', 'dns', cause);
-  if (/^(ERR_TLS|ERR_SSL|CERT_|DEPTH_|SELF_SIGNED|UNABLE_TO_)/.test(code ?? ''))
+  if (/^(ERR_TLS|ERR_SSL|ERR_OSSL|CERT_|DEPTH_|SELF_SIGNED|UNABLE_TO_)/.test(code ?? ''))
     return failure('ERR_TLS', 'TLS operation failed.', 'tls', cause);
   return failure(
     phase === 'dns' ? 'ERR_DNS' : 'ERR_TRANSPORT',

@@ -201,7 +201,8 @@ async function connect(network, options = {}) {
   }
 }
 function createListener(network, onConnection, options = {}) {
-  const option = network.option ?? {};
+  let option = network.option ?? {};
+  let currentTLS = option.tls ? tlsOptions(option.tls) : undefined;
   let server;
   let wss;
   const connections = new Set();
@@ -217,10 +218,7 @@ function createListener(network, onConnection, options = {}) {
       res.end();
     };
     server = option.tls
-      ? https.createServer(
-          { ...tlsOptions(option.tls), handshakeTimeout: options.handshakeTimeoutMs },
-          request,
-        )
+      ? https.createServer({ ...currentTLS, handshakeTimeout: options.handshakeTimeoutMs }, request)
       : http.createServer(request);
     server.headersTimeout = options.handshakeTimeoutMs;
     server.requestTimeout = options.handshakeTimeoutMs;
@@ -244,7 +242,7 @@ function createListener(network, onConnection, options = {}) {
   } else if (option.tls) {
     server = tls.createServer(
       {
-        ...tlsOptions(option.tls),
+        ...currentTLS,
         allowHalfOpen: true,
         handshakeTimeout: options.handshakeTimeoutMs,
       },
@@ -262,6 +260,41 @@ function createListener(network, onConnection, options = {}) {
     server.on('upgrade', (request) => request.socket.setTimeout(options.idleTimeoutMs ?? 0));
   return {
     server,
+    prepareUpdate(nextNetwork, nextOptions) {
+      if (
+        network.type !== nextNetwork.type ||
+        Boolean(option.tls) !== Boolean(nextNetwork.option?.tls)
+      )
+        throw failure(
+          'ERR_ROTATION',
+          'A shared listener must retain its transport type.',
+          'rotation',
+        );
+      let nextTLS;
+      try {
+        nextTLS = nextNetwork.option?.tls ? tlsOptions(nextNetwork.option.tls) : undefined;
+        if (nextTLS) tls.createSecureContext(nextTLS);
+      } catch (cause) {
+        throw failure('ERR_TLS', 'Candidate listener TLS material is invalid.', 'rotation', cause);
+      }
+      const previous = { network, options, tls: currentTLS };
+      const apply = (settings, limits, secure) => {
+        if (secure) server.setSecureContext(secure);
+        network = settings;
+        option = network.option ?? {};
+        options = limits;
+        currentTLS = secure;
+        if (wss) {
+          wss.options.maxPayload = limits.maxBufferBytes;
+          server.headersTimeout = limits.handshakeTimeoutMs;
+          server.requestTimeout = limits.handshakeTimeoutMs;
+        }
+      };
+      return {
+        commit: () => apply(nextNetwork, nextOptions, nextTLS),
+        rollback: () => apply(previous.network, previous.options, previous.tls),
+      };
+    },
     destroy() {
       for (const socket of connections) socket.destroy();
       wss?.close();

@@ -29,7 +29,7 @@
 
 首轮运行时基线采用 Node.js 24，其他 Node.js 主版本在 CI 验证后再列入正式支持矩阵。
 
-后续独立扩展项包括 REALITY、XTLS Vision、XUDP、完整 XHTTP、gRPC、QUIC、TUN、透明代理、V2Ray gRPC 管理 API 和配置热更新。已有 HTTP 伪装及 XHTTP 代码应保留为待验证能力，只有完成对应版本互通测试后，才能在新接口中声明支持。首个完整版本对这些未完成能力返回明确诊断。
+后续独立扩展项包括 REALITY、XTLS Vision、完整 XHTTP、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展，范围见 API 文档。已有 HTTP 伪装及 XHTTP 代码应保留为待验证能力，只有完成对应版本互通测试后，才能在新接口中声明支持。首个完整版本对这些未完成能力返回明确诊断。
 
 ## 2 当前实现与优先修复项
 
@@ -317,7 +317,9 @@ SOCKS 入站在样例中属于显式、可选功能。无端口库模式用另�
 | P10 应用 WebSocket | 公开 WS/WSS 客户端适配；真实 Upgrade、子协议、文本/二进制、心跳、鉴权失败、严格目标 TLS、取消、关闭和代理承载测试 | 已通过：`node --test test/websocket-adapter.test.js` 5/5；真实普通流、VMess 和 VLESS Mux 上的 WS/WSS |
 | P11 DNS 联动路由 | AsIs/IPIfNonMatch/IPOnDemand、所有解析地址参与 IP 匹配、保留实际域名、显式出站绕过、DNS 自身防递归、超时取消及固定内核对照 | 已通过：DNS/路由专项 13/13；V2Ray 5.14.1、Xray 24.11.5 两策略对照 4/4 |
 | P12 UDP 扩展 | SOCKS5 UDP、VMess UDP、Mux UDP/XUDP、reverse UDP；独立数据报边界、地址、空包、大包、队列、取消、关闭及固定内核互通 | 已通过：`npm test` 129/129；`npm run test:interop` 106/106（新增 UDP 对照 32 项）；IPv6/域名/空包/60000 字节及并发 reverse 边界均通过 |
-| P13 平滑轮换 | 配置/凭据预检、新实例就绪后切换、新请求与连接池按代隔离、旧会话限时排空、启动失败回滚、并发轮换和关闭竞争 | 实施中 |
+| P13 平滑轮换 | 配置/凭据预检、新实例就绪后切换、新请求与连接池按代隔离、旧会话限时排空、启动失败回滚、并发轮换和关闭竞争 | 已通过：轮换专项 15/15；`npm test` 144/144；同端口 VMess/VLESS 凭据、TLS/WSS 证书、HTTP/Undici 池、UDP/WS 排空与失败回滚 |
+
+P9–P13 五项本地实现与专项验收已完成，最终发布回归和三平台 CI 仍须使用本轮提交执行，旧结果不代替新结果。
 
 新增验收继续使用合成凭据及固定参考内核，真实配置只在本地审计中读取，不进入日志、Git 或发布包。最终运行普通回归、类型/格式/配置检查、参考互通、实际 tarball 安装和三平台 CI。
 

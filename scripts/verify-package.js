@@ -57,12 +57,16 @@ try {
     const api = require('js2ray');
     const esm = await import('js2ray');
     assert.equal(typeof esm.createRuntime, 'function');
-    for (const name of ['createHttpAgent','createHttpsAgent','createUndiciConnector','createUndiciDispatcher']) assert.equal(typeof esm[name], 'function');
+    for (const name of ['createHttpAgent','createHttpsAgent','createUndiciConnector','createUndiciDispatcher','createWebSocket','createRuntimeManager','RuntimeManager']) assert.equal(typeof esm[name], 'function');
     assert.equal(global.log, undefined);
     const runtime = api.createRuntime({inbounds:[]});
     await runtime.start();
     assert.equal(runtime.listenersInfo.length, 0);
     await runtime.close();
+    const manager = api.createRuntimeManager({inbounds:[]});
+    await manager.start();
+    const rotation = await manager.rotate({}); await rotation.drained;
+    await manager.close();
     console.log('package-ok');
   })().catch(error => { console.error(error); process.exitCode = 1; });`,
     ],
