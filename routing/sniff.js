@@ -111,45 +111,55 @@ async function sniff(stream, options = {}, signal) {
   const limit = options.maxBytes ?? 16384,
     deadline = Date.now() + (options.timeoutMs ?? 200);
   stream.pause();
+  let metadata;
   try {
-    while (size < limit) {
-      if (signal?.aborted) throw failure('ERR_CANCELLED', 'Sniffing cancelled.', 'routing');
-      const available = Math.min(stream.readableLength, limit - size);
-      const chunk = available ? stream.read(available) : null;
-      if (chunk) {
-        chunks.push(chunk);
-        size += chunk.length;
-        const result = inspectMetadata(Buffer.concat(chunks, size));
-        if (result !== undefined) return result ?? undefined;
-      } else {
-        if (stream.destroyed || stream.readableEnded || Date.now() >= deadline) return undefined;
-        const ready = await new Promise((resolve, reject) => {
-          const finish = (error, result) => {
-            clearTimeout(timer);
-            stream.removeListener('readable', readable);
-            stream.removeListener('end', ended);
-            stream.removeListener('close', ended);
-            stream.removeListener('error', failed);
-            signal?.removeEventListener('abort', cancelled);
-            error ? reject(error) : resolve(result);
-          };
-          const readable = () => finish(undefined, true),
-            ended = () => finish(undefined, false),
-            failed = (error) => finish(error),
-            cancelled = () => finish(failure('ERR_CANCELLED', 'Sniffing cancelled.', 'routing'));
-          const timer = setTimeout(ended, Math.max(1, deadline - Date.now()));
-          stream.once('readable', readable);
-          stream.once('end', ended);
-          stream.once('close', ended);
-          stream.once('error', failed);
-          signal?.addEventListener('abort', cancelled, { once: true });
-        });
-        if (!ready) return undefined;
+    metadata = await (async () => {
+      while (size < limit) {
+        if (signal?.aborted) throw failure('ERR_CANCELLED', 'Sniffing cancelled.', 'routing');
+        const available = Math.min(stream.readableLength, limit - size);
+        const chunk = available ? stream.read(available) : null;
+        if (chunk) {
+          chunks.push(chunk);
+          size += chunk.length;
+          const result = inspectMetadata(Buffer.concat(chunks, size));
+          if (result !== undefined) return result ?? undefined;
+        } else {
+          if (stream.destroyed || stream.readableEnded || Date.now() >= deadline) return undefined;
+          const ready = await new Promise((resolve, reject) => {
+            const finish = (error, result) => {
+              clearTimeout(timer);
+              stream.removeListener('readable', readable);
+              stream.removeListener('end', ended);
+              stream.removeListener('close', ended);
+              stream.removeListener('error', failed);
+              signal?.removeEventListener('abort', cancelled);
+              error ? reject(error) : resolve(result);
+            };
+            const readable = () => finish(undefined, true),
+              ended = () => finish(undefined, false),
+              failed = (error) => finish(error),
+              cancelled = () => finish(failure('ERR_CANCELLED', 'Sniffing cancelled.', 'routing'));
+            const timer = setTimeout(ended, Math.max(1, deadline - Date.now()));
+            stream.once('readable', readable);
+            stream.once('end', ended);
+            stream.once('close', ended);
+            stream.once('error', failed);
+            signal?.addEventListener('abort', cancelled, { once: true });
+          });
+          if (!ready) return undefined;
+        }
       }
-    }
-    return undefined;
+      return undefined;
+    })();
   } finally {
-    if (chunks.length && !stream.destroyed) stream.unshift(Buffer.concat(chunks, size));
+    if (chunks.length && !stream.destroyed) {
+      const bytes = Buffer.concat(chunks, size);
+      // Public streams cannot unshift after emitting end. Hand retained bytes
+      // to the dialer for ordered replay before piping the remaining stream.
+      if (stream.readableEnded) metadata = { ...metadata, prefix: bytes };
+      else stream.unshift(bytes);
+    }
   }
+  return metadata;
 }
 module.exports = { inspect, inspectMetadata, sniff };

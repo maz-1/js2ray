@@ -5,6 +5,7 @@ const https = require('node:https');
 const tls = require('node:tls');
 const { domainToASCII } = require('node:url');
 const { domainMatcher, ipMatcher } = require('../geodata');
+const { DomainSet } = require('../geodata/domains');
 const { failure, Js2rayError } = require('../runtime/errors');
 const { StreamReader } = require('../runtime/reader');
 const { write } = require('../runtime/streams');
@@ -43,7 +44,10 @@ class Resolver {
         ...server,
         index,
         endpoint: endpoint(server),
-        domains: (server.domains ?? []).map((pattern) => domainMatcher(pattern, data)),
+        domains: new DomainSet(
+          (server.domains ?? []).map((pattern) => domainMatcher(pattern, data)),
+          config.domainMatcher !== 'linear',
+        ),
         expect: (server.expectIPs ?? []).map((pattern) => ipMatcher(pattern, data)),
       };
     });
@@ -248,8 +252,7 @@ class Resolver {
     );
   }
   serverOrder(host) {
-    const priority = (server) =>
-      server.domains.reduce((best, match) => Math.min(best, match.priority(host)), Infinity);
+    const priority = (server) => server.domains.priority(host);
     const preferred = this.servers
       .filter((s) => priority(s) < Infinity)
       .sort((a, b) => priority(a) - priority(b));

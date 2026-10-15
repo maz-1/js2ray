@@ -9,6 +9,54 @@ const { inspect } = require('../routing/sniff');
 const { createRuntime } = require('..');
 const { echo, readBytes, listen } = require('./helpers');
 
+for (const protocol of ['tcp', 'vmess', 'vless'])
+  test(`${protocol}: EOF during an incomplete sniff preserves payload and half-close response`, async (t) => {
+    const destination = await echo(t),
+      id = require('node:crypto').randomUUID(),
+      users = [{ id, encryption: 'none' }];
+    const server = createRuntime({
+      inbounds: [
+        {
+          protocol,
+          networks: [{ port: 0 }],
+          ...(protocol === 'tcp'
+            ? { target: { host: '127.0.0.1', port: destination.port } }
+            : { users: protocol === 'vmess' ? [{ id }] : users }),
+          sniffing: { enabled: true },
+        },
+      ],
+    });
+    await server.start();
+    t.after(() => server.close());
+    let socket;
+    if (protocol === 'tcp') {
+      socket = net.connect({
+        host: '127.0.0.1',
+        port: server.listenersInfo[0].address.port,
+        allowHalfOpen: true,
+      });
+      await once(socket, 'connect');
+    } else {
+      const client = createRuntime({
+        outbounds: [
+          {
+            protocol,
+            networks: [{ address: '127.0.0.1', port: server.listenersInfo[0].address.port }],
+            users: protocol === 'vmess' ? [{ id, security: 'aes-128-gcm' }] : users,
+          },
+        ],
+      });
+      await client.start();
+      t.after(() => client.close());
+      socket = await client.dial({ host: '127.0.0.1', port: destination.port });
+    }
+    socket.on('error', () => {});
+    t.after(() => socket.destroy());
+    const response = readBytes(socket, 5);
+    socket.end('GET /');
+    assert.equal((await response).toString(), 'GET /');
+  });
+
 test('HTTP sniffing waits for complete headers and rejects ambiguous Host', () => {
   const header = Buffer.from('GET / HTTP/1.1\r\nHost: name.test:8080\r\n\r\nbody');
   for (let i = 0; i < header.indexOf('\r\n\r\n') + 4; i++)

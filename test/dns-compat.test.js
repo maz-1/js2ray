@@ -5,6 +5,38 @@ const { createRuntime, checkConfig } = require('..');
 const { dnsServer } = require('./fixtures/dns-server');
 const { query, ecs } = require('../dns/wire');
 
+test('DNS linear and indexed server matching preserve exact, suffix, keyword and RE2 priorities on large lists', async (t) => {
+  const broad = await dnsServer(t, { addresses: ['192.0.2.1'] }),
+    specific = await dnsServer(t, { addresses: ['192.0.2.2'] });
+  const domains = Array.from({ length: 10000 }, (_, i) => `full:n${i}.synthetic`);
+  domains.push('domain:zone.synthetic', 'keyword:needle', 'regexp:^regex[0-9]+\\.synthetic$');
+  for (const domainMatcher of ['linear', 'mph', 'hybrid']) {
+    const runtime = createRuntime({
+      dns: {
+        domainMatcher,
+        queryStrategy: 'UseIPv4',
+        servers: [
+          { address: broad.address, port: broad.port, domains },
+          {
+            address: specific.address,
+            port: specific.port,
+            domains: ['full:exact.zone.synthetic'],
+          },
+        ],
+      },
+    });
+    await runtime.start();
+    t.after(() => runtime.close());
+    for (const [host, expected] of [
+      ['n9999.synthetic', '192.0.2.1'],
+      ['exact.zone.synthetic', '192.0.2.2'],
+      ['hasneedle.synthetic', '192.0.2.1'],
+      ['regex42.synthetic', '192.0.2.1'],
+    ])
+      assert.equal((await runtime.resolve(host))[0].address, expected);
+  }
+});
+
 test('DNS server tags route TCP while local mode bypasses policy and generation caches remain isolated', async (t) => {
   const server = await dnsServer(t);
   for (const scheme of ['tcp', 'tcp+local']) {

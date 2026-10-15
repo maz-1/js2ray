@@ -391,11 +391,20 @@ class Runtime extends EventEmitter {
         ...target,
         ...(bound.sniffing.routeOnly ? { routeHost: metadata.host } : { host: metadata.host }),
       };
-    return this.dial({
+    const remote = await this.dial({
       ...target,
       ...context,
       ...(metadata ? { protocol: metadata.protocol, attrs: metadata.attrs } : {}),
     });
+    if (metadata?.prefix) {
+      try {
+        await require('./streams').write(remote, metadata.prefix);
+      } catch (error) {
+        remote.destroy();
+        throw error;
+      }
+    }
+    return remote;
   }
 
   async #acceptTcp(socket, bound) {
@@ -565,7 +574,7 @@ class Runtime extends EventEmitter {
         // lets the VMess parser install app.remote before connected releases it.
         const plain = runtime.#track(
           new Duplex({
-            allowHalfOpen: false,
+            allowHalfOpen: true,
             read() {
               inbound.resume();
             },

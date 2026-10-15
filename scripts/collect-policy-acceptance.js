@@ -92,7 +92,7 @@ async function main() {
         );
       const tests = counts('tests');
       assert.equal(tests.length, 2);
-      assert.ok(tests[0] >= 367 && tests[1] >= 228);
+      assert.ok(tests[0] >= 371 && tests[1] >= 228);
       assert.deepEqual(counts('pass'), tests);
       for (const field of ['fail', 'cancelled', 'skipped']) assert.deepEqual(counts(field), [0, 0]);
       const packed =

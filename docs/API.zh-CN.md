@@ -48,7 +48,7 @@
 - 模块级 `on` 和共享 `protocols` 被实例事件替代。启动后可通过 `runtime.protocols.vmess.api` 使用实例的用户管理接口；它与原来的自定义 HTTP 管理 API 不等价。
 - 不再创建 Linux systemd 文件，不注册宿主异常或退出处理。部署服务由操作者显式配置。
 - 原 HTTP 伪装、自定义管理 API、`security: "zero"` 等未验收能力在新入口中明确拒绝。旧 XHTTP 源码保留，正式支持范围见 P14。
-- `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network。支持 AsIs、IPIfNonMatch 和 IPOnDemand。域名可用 full/domain/keyword/geosite，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
+- `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network，以及 P20 的来源 IP/端口、认证用户、协议和 HTTP 属性。支持 AsIs、IPIfNonMatch 和 IPOnDemand。域名可用 full/domain/keyword/regexp/dotless/geosite 和声明的 ext 资源，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
 
 ## DNS 与 reverse
 
