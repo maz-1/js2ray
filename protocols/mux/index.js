@@ -278,7 +278,7 @@ class Mux extends EventEmitter {
         const pending = new AbortController();
         session.once('close', () => pending.abort());
         Promise.resolve()
-          .then(() => this.dispatch({ ...frame.target, signal: pending.signal }))
+          .then(() => this.dispatch({ ...frame.target, signal: pending.signal }, session))
           .then(
             (remote) => {
               if (session.destroyed) remote.destroy();

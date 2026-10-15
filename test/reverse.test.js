@@ -10,7 +10,13 @@ test('Bridge and Portal route concurrent business sessions with no Bridge listen
     portal = createRuntime(portalConfig(0));
   await portal.start();
   t.after(() => portal.close());
-  const bridge = createRuntime(bridgeConfig(portal.listenersInfo[0].address.port, destination));
+  const configuration = bridgeConfig(portal.listenersInfo[0].address.port, destination);
+  configuration.outbounds.push({ tag: 'missing-metadata', protocol: 'blackhole' });
+  configuration.routing.rules.unshift(
+    { source: ['127.0.0.1'], outboundTag: 'missing-metadata' },
+    { user: ['tenant@synthetic'], outboundTag: 'missing-metadata' },
+  );
+  const bridge = createRuntime(configuration);
   const events = [];
   bridge.on('reverse', (event) => events.push(event));
   await bridge.start();

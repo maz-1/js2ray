@@ -101,15 +101,17 @@ async function server(socket, bound, dial, options) {
   await write(socket, Buffer.from([5, methods.includes(method) ? method : 255]));
   if (!methods.includes(method))
     throw failure('ERR_AUTH', 'SOCKS authentication method unavailable.', 'authentication');
+  let authenticatedUser;
   if (method === 2) {
     const head = await reader.read(2);
     if (head[0] !== 1 || !head[1])
       throw failure('ERR_AUTH', 'Invalid SOCKS credentials.', 'authentication');
     const username = (await reader.read(head[1])).toString();
     const password = (await reader.read((await reader.read(1))[0])).toString();
-    const accepted = bound.users.some((user) => user.user === username && user.pass === password);
+    const accepted = bound.users.find((user) => user.user === username && user.pass === password);
     await write(socket, Buffer.from([1, accepted ? 0 : 1]));
     if (!accepted) throw failure('ERR_AUTH', 'SOCKS credentials rejected.', 'authentication');
+    authenticatedUser = accepted;
   }
   const request = await reader.read(4);
   if (
@@ -122,6 +124,7 @@ async function server(socket, bound, dial, options) {
     throw failure('ERR_UNSUPPORTED', 'Only SOCKS CONNECT is supported in this stage.', 'protocol');
   }
   const target = await readAddress(reader, request[3]);
+  if (authenticatedUser) target.userEmail = authenticatedUser.user;
   if (request[1] === 3) {
     await options.associate(target);
     return;

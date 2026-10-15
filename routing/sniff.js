@@ -3,8 +3,18 @@ const { host: validHost } = require('../config');
 const { failure } = require('../runtime/errors');
 
 // undefined means incomplete; null means this prefix cannot yield a supported name.
-function inspect(bytes, protocols = ['http', 'tls']) {
+function inspectMetadata(bytes, protocols = ['http', 'tls', 'bittorrent']) {
   if (!bytes.length) return undefined;
+  if (bytes[0] === 19 && protocols.includes('bittorrent')) {
+    const prefix = Buffer.from('\x13BitTorrent protocol');
+    if (
+      !bytes
+        .subarray(0, Math.min(bytes.length, prefix.length))
+        .equals(prefix.subarray(0, Math.min(bytes.length, prefix.length)))
+    )
+      return null;
+    return bytes.length < prefix.length ? undefined : { protocol: 'bittorrent' };
+  }
   if (bytes[0] === 22 && protocols.includes('tls')) {
     let offset = 0;
     const parts = [];
@@ -45,7 +55,7 @@ function inspect(bytes, protocols = ['http', 'tls']) {
               if (q + length > listEnd) return null;
               if (nameType === 0) {
                 const name = hello.subarray(q, q + length).toString('ascii');
-                return validHost(name) ? name.toLowerCase() : null;
+                return validHost(name) ? { host: name.toLowerCase(), protocol: 'tls' } : null;
               }
               q += length;
             }
@@ -55,7 +65,7 @@ function inspect(bytes, protocols = ['http', 'tls']) {
       } catch {
         return null;
       }
-      return null;
+      return { protocol: 'tls' };
     }
     return undefined;
   }
@@ -63,17 +73,35 @@ function inspect(bytes, protocols = ['http', 'tls']) {
   const text = bytes.toString('latin1'),
     end = text.indexOf('\r\n\r\n');
   if (end < 0) return undefined;
-  if (!/^[A-Z]+ [^\r\n]+ HTTP\/1\.[01]\r\n/.test(text)) return null;
+  const request = /^([A-Z]+) ([^\r\n ]+) HTTP\/1\.[01]\r\n/.exec(text);
+  if (!request) return null;
   const names = text
     .slice(0, end)
     .split('\r\n')
     .slice(1)
     .filter((line) => /^host:/i.test(line));
-  if (names.length !== 1) return null;
+  if (names.length > 1) return null;
+  const attrs = Object.create(null);
+  attrs[':method'] = request[1];
+  attrs[':path'] = request[2];
+  const lines = text.slice(0, end).split('\r\n').slice(1);
+  if (lines.length > 128) return null;
+  for (const line of lines) {
+    const header = /^([!#$%&'*+.^_`|~\w-]+):[ \t]*([^\r\n]*)$/.exec(line);
+    if (!header) return null;
+    const key = header[1].toLowerCase(),
+      value = header[2].trim();
+    attrs[key] = attrs[key] === undefined ? value : attrs[key] + ', ' + value;
+  }
+  if (!names.length) return { protocol: 'http', attrs };
   const value = names[0].slice(5).trim(),
     match = /^(?:\[([^\]]+)\]|([^:]+))(?::\d+)?$/.exec(value);
   const name = match && (match[1] || match[2]);
-  return name && validHost(name) ? name.toLowerCase() : null;
+  return name && validHost(name) ? { host: name.toLowerCase(), protocol: 'http', attrs } : null;
+}
+function inspect(bytes, protocols) {
+  const result = inspectMetadata(bytes, protocols);
+  return result ? (result.host ?? null) : result;
 }
 
 async function sniff(stream, options = {}, signal) {
@@ -91,7 +119,7 @@ async function sniff(stream, options = {}, signal) {
       if (chunk) {
         chunks.push(chunk);
         size += chunk.length;
-        const result = inspect(Buffer.concat(chunks, size), options.destOverride);
+        const result = inspectMetadata(Buffer.concat(chunks, size));
         if (result !== undefined) return result ?? undefined;
       } else {
         if (stream.destroyed || stream.readableEnded || Date.now() >= deadline) return undefined;
@@ -124,4 +152,4 @@ async function sniff(stream, options = {}, signal) {
     if (chunks.length && !stream.destroyed) stream.unshift(Buffer.concat(chunks, size));
   }
 }
-module.exports = { inspect, sniff };
+module.exports = { inspect, inspectMetadata, sniff };

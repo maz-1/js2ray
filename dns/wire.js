@@ -1,9 +1,10 @@
 'use strict';
 const crypto = require('node:crypto');
-const { iptoString } = require('../core/utils');
-const { failure } = require('../runtime/errors');
+const { iptoString, iptoBuffer } = require('../core/utils');
+const { failure, Js2rayError } = require('../runtime/errors');
 
-function query(host, type, id = crypto.randomInt(65536)) {
+function query(host, type, id = crypto.randomInt(65536), clientIp) {
+  if (host.length > 253) throw new TypeError('DNS name exceeds 253 characters.');
   const labels = host
     .replace(/\.$/, '')
     .split('.')
@@ -19,7 +20,69 @@ function query(host, type, id = crypto.randomInt(65536)) {
   const tail = Buffer.alloc(5);
   tail.writeUInt16BE(type, 1);
   tail.writeUInt16BE(1, 3);
-  return Buffer.concat([header, ...labels, tail]);
+  let opt = Buffer.alloc(0);
+  if (clientIp !== undefined) {
+    const family = require('node:net').isIP(clientIp);
+    if (!family) throw new TypeError('Invalid ECS IP address.');
+    const address = iptoBuffer(clientIp).subarray(0, family === 4 ? 3 : 12);
+    opt = Buffer.alloc(19 + address.length);
+    opt.writeUInt16BE(41, 1);
+    opt.writeUInt16BE(1350, 3);
+    opt.writeUInt32BE(0x8000, 5);
+    opt.writeUInt16BE(8 + address.length, 9);
+    opt.writeUInt16BE(8, 11);
+    opt.writeUInt16BE(4 + address.length, 13);
+    opt.writeUInt16BE(family === 4 ? 1 : 2, 15);
+    opt[17] = family === 4 ? 24 : 96;
+    address.copy(opt, 19);
+    header.writeUInt16BE(1, 10);
+  }
+  return Buffer.concat([header, ...labels, tail, opt]);
+}
+function ecs(bytes) {
+  if (
+    bytes.length < 12 ||
+    bytes.readUInt16BE(4) !== 1 ||
+    bytes.readUInt16BE(6) ||
+    bytes.readUInt16BE(8)
+  )
+    throw new TypeError('Invalid ECS query header.');
+  let offset = name(bytes, 12).end + 4,
+    found;
+  for (let i = 0; i < bytes.readUInt16BE(10); i++) {
+    offset = name(bytes, offset).end;
+    if (offset + 10 > bytes.length) throw new TypeError('Truncated EDNS record.');
+    const type = bytes.readUInt16BE(offset),
+      length = bytes.readUInt16BE(offset + 8);
+    offset += 10;
+    const end = offset + length;
+    if (end > bytes.length) throw new TypeError('Truncated EDNS options.');
+    if (type !== 41) {
+      offset = end;
+      continue;
+    }
+    while (offset < end) {
+      if (offset + 4 > end) throw new TypeError('Truncated EDNS option.');
+      const code = bytes.readUInt16BE(offset),
+        size = bytes.readUInt16BE(offset + 2);
+      offset += 4;
+      if (offset + size > end) throw new TypeError('Truncated EDNS option data.');
+      if (code === 8) {
+        if (found || size < 4) throw new TypeError('Invalid ECS option.');
+        const wireFamily = bytes.readUInt16BE(offset),
+          family = wireFamily === 1 ? 4 : wireFamily === 2 ? 6 : 0,
+          prefix = bytes[offset + 2];
+        if (!family || prefix > (family === 4 ? 32 : 128) || size !== 4 + Math.ceil(prefix / 8))
+          throw new TypeError('Invalid ECS prefix.');
+        const address = Buffer.alloc(family === 4 ? 4 : 16);
+        bytes.copy(address, 0, offset + 4, offset + size);
+        found = { family, prefix, address: iptoString(address) };
+      }
+      offset += size;
+    }
+  }
+  if (offset !== bytes.length) throw new TypeError('Trailing DNS query data.');
+  return found;
 }
 function name(bytes, offset) {
   const seen = new Set();
@@ -66,7 +129,11 @@ function response(bytes, request) {
     )
       throw new Error('DNS question mismatch.');
     if (flags & 0x200) return { truncated: true, records: [] };
-    if (flags & 15) throw new Error('DNS server returned an error.');
+    if (flags & 15)
+      throw new Js2rayError('ERR_DNS', 'DNS server returned an error.', {
+        phase: 'dns',
+        context: { rcode: flags & 15 },
+      });
     const count = bytes.readUInt16BE(6);
     if (count > 4096) throw new Error('Too many DNS answers.');
     let offset = question.end + 4;
@@ -112,7 +179,8 @@ function response(bytes, request) {
         .map((record) => ({ ...record, ttl: Math.min(record.ttl, aliasTtl) })),
     };
   } catch (cause) {
+    if (cause instanceof Js2rayError) throw cause;
     throw failure('ERR_DNS', 'Invalid or unsuccessful DNS response.', 'dns', cause);
   }
 }
-module.exports = { query, response, name };
+module.exports = { query, response, name, ecs };

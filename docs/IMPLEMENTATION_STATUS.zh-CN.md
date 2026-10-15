@@ -72,7 +72,7 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 - XHTTP 支持 HTTP/1.1、HTTP/2 的 packet-up、stream-up、stream-one，初始范围见 [P14](P14_XHTTP_ACCEPTANCE.zh-CN.md)，P18 补齐固定 Xray 25.3.6 的六项 XMUX 控制，P19 增加独立上下行入口。HTTP/3 暂缓；XHTTP+REALITY 和浏览器指纹仍未实现。
 - Vision 支持原始 TCP/TLS 1.3 的双向 Direct、普通流量和内层 TLS 1.2、XUDP、同端口凭据/证书轮换；[三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38713120194) 各 209 项普通回归、135 项参考互通、实际 tarball 验证均通过。API 边界、8 项原型、16 项专项、8 项参考互通及 100 并发 Direct 证据见 [P15](P15_VISION_ACCEPTANCE.zh-CN.md)。
 - REALITY 支持 VLESS 原始 TCP、空 flow 与 Vision、固定非 PQ Chrome 120 模板、未认证流量转发和同端口密钥/short ID/用户/dest 轮换。[三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38719238453) 各 236 项普通回归、156 项参考互通与实际 tarball 验证全部通过；新增 27 项普通专项和 21 项固定 Xray 对照（含 4 项原型）、100 并发双向 Direct 均通过，范围和摘要见 [P16](P16_REALITY_ACCEPTANCE.zh-CN.md)。
-- VMess 嗅探、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
+- HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
 - 不做隐式直连回退，不重放已发业务字节；reverse 传输恢复和 HTTP 上层重定向由各自机制处理。
 
 ## P17 验收加固
@@ -92,3 +92,7 @@ P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、�
 ## 私有真实配置
 
 用户授权的 `node scripts/smoke-private.js v2ray-config.json` 仅提取 proxy 出站和 hosts，引导 VLESS/WSS 请求 example.com；前次结果 HTTP 200，本地代理监听器 0，严格 TLS 开启。它不证明公网服务端的内核版本或完整 reverse 部署兼容性。`scripts/check-private.js` 仅在本地检查已跟踪文件是否出现私有地址、UUID、邮箱、Host、SNI、路径，只输出文件名而不输出值。私有文件始终 gitignored，未进入 CI/发布包；没有修改 ChatRoom。
+
+## P20 常用配置兼容（进行中）
+
+固定 V2Ray 5.14.1 与 Xray 25.3.6，新增常用路由与 DNS 字段及显式语义档案；详见 [支持矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。当前产品纯 JS 运行依赖为 ws 8.22.0 与 re2js 2.8.6；上文只有 ws 的描述为历史验收记录。三平台全量和四组正式长时验收待本轮执行；HTTP/3、DoQ 继续暂缓。

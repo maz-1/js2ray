@@ -10,10 +10,15 @@ const { StreamReader } = require('../runtime/reader');
 const { write } = require('../runtime/streams');
 const { connect, tlsOptions } = require('../transports');
 const wire = require('./wire');
+const { endpoint } = require('../config/dns');
 
 class Resolver {
-  constructor(config = {}, { data, dial, openDatagram, signal, lookup = dns.lookup } = {}) {
+  constructor(
+    config = {},
+    { data, dial, openDatagram, signal, lookup = dns.lookup, profile = 'native' } = {},
+  ) {
     this.config = config;
+    this.profile = profile;
     this.dial = dial;
     this.openDatagram = openDatagram;
     this.signal = signal;
@@ -32,10 +37,12 @@ class Resolver {
       match: domainMatcher(pattern, data, 'full'),
       addresses: Array.isArray(addresses) ? addresses : [addresses],
     }));
-    this.servers = (config.servers ?? ['localhost']).map((server) => {
+    this.servers = (config.servers ?? ['localhost']).map((server, index) => {
       server = typeof server === 'string' ? { address: server } : server;
       return {
         ...server,
+        index,
+        endpoint: endpoint(server),
         domains: (server.domains ?? []).map((pattern) => domainMatcher(pattern, data)),
         expect: (server.expectIPs ?? []).map((pattern) => ipMatcher(pattern, data)),
       };
@@ -44,9 +51,16 @@ class Resolver {
     this.bootstrapLookup = this.bootstrapLookup.bind(this);
   }
   hostValue(host) {
-    return this.hosts
+    const matches = this.hosts
       .filter((entry) => entry.match(host))
-      .sort((a, b) => a.match.priority(host) - b.match.priority(host))[0]?.addresses;
+      .sort((a, b) => a.match.priority(host) - b.match.priority(host));
+    if (this.profile === 'native') return matches[0]?.addresses;
+    if (!matches.length) return;
+    const values = matches.flatMap((entry) => {
+      const alias = entry.addresses.find((a) => !net.isIP(a));
+      return alias ? [alias] : entry.addresses;
+    });
+    return values.length === 1 ? values : values.filter((a) => net.isIP(a));
   }
   get stats() {
     return { ...this.counts, pending: this.pending, cacheEntries: this.cache.size };
@@ -134,93 +148,76 @@ class Resolver {
       throw failure('ERR_CANCELLED', 'DNS query cancelled.', 'dns', active.reason);
     const timer = setTimeout(
       () => controller.abort(failure('ERR_TIMEOUT', 'DNS query timed out.', 'dns')),
-      (this.config.timeoutMs ?? 3000) * (this.servers.length + 1),
+      Math.min(
+        2147483647,
+        this.servers.reduce(
+          (sum, s) => sum + (s.timeoutMs ?? this.config.timeoutMs ?? 3000),
+          this.config.timeoutMs ?? 3000,
+        ),
+      ),
     );
     try {
       if (seen.has(host) || seen.size >= 16)
         throw failure('ERR_DNS', 'Cyclic DNS hosts alias.', 'dns');
       seen.add(host);
+      if (this.profile === 'xray-25.3.6' && !this.families({}, family).length) throw this.empty();
       const hosts = this.hostValue(host);
       if (hosts) {
         this.counts.hostsHits++;
         const alias = hosts.find((value) => !net.isIP(value));
         if (alias) return await this.resolve(alias, { family, signal: active, seen });
         const result = hosts
-          .filter((value) => !family || net.isIP(value) === family)
+          .filter(
+            (value) =>
+              (!family || net.isIP(value) === family) &&
+              (this.profile !== 'xray-25.3.6' ||
+                this.families({}, family).includes(net.isIP(value))),
+          )
           .map((address) => ({ address, family: net.isIP(address), ttl: 60 }));
         if (!result.length)
           throw failure('ERR_DNS', 'Hosts has no address in the requested family.', 'dns');
         return result;
       }
-      const key = `${host}|${family}`,
-        cached = this.cache.get(key);
-      if (cached && cached.expires > Date.now()) {
-        this.counts.cacheHits++;
-        this.cache.delete(key);
-        this.cache.set(key, cached);
-        return cached.records.map((entry) => ({ ...entry }));
-      }
-      this.cache.delete(key);
-      this.counts.cacheMisses++;
-      if (this.pending >= (this.config.maxConcurrent ?? 64))
-        throw failure('ERR_LIMIT', 'DNS concurrency limit reached.', 'dns');
-      this.pending++;
-      try {
-        const priority = (server) =>
-          Math.min(...server.domains.map((match) => match.priority(host)));
-        const preferred = this.servers
-          .filter((server) => priority(server) < Infinity)
-          .sort((a, b) => priority(a) - priority(b));
-        let servers = preferred.length
-          ? [
-              ...preferred,
-              ...(this.config.disableFallback
-                ? []
-                : this.servers.filter(
-                    (server) => !preferred.includes(server) && !server.skipFallback,
-                  )),
-            ]
-          : this.servers.filter((server) => !server.skipFallback);
-        if (!preferred.length && this.config.disableFallback) servers = [];
-        let last;
-        for (const server of servers) {
-          try {
-            const strategy = this.config.queryStrategy ?? 'UseIP';
-            const families = [4, 6].filter(
-              (candidate) =>
-                (!family || candidate === family) &&
-                (strategy === 'UseIP' || strategy === (candidate === 4 ? 'UseIPv4' : 'UseIPv6')),
+      let last;
+      for (const server of this.serverOrder(host)) {
+        try {
+          const families = this.families(server, family);
+          const result = await Promise.allSettled(
+            families.map((f) => this.cachedQuery(server, host, f, active)),
+          );
+          if (active.aborted)
+            throw failure('ERR_CANCELLED', 'DNS query cancelled.', 'dns', active.reason);
+          if (!families.length) throw this.empty();
+          if (result.every((item) => item.status === 'rejected')) throw result[0].reason;
+          let records = result.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
+          if (!records.length) throw this.empty();
+          if (server.expect.length) {
+            records = records.filter((record) =>
+              server.expect.some((match) => match(record.address)),
             );
-            const result = await Promise.allSettled(
-              families.map((candidate) => this.query(server, host, candidate, active)),
-            );
-            if (result.length && result.every((item) => item.status === 'rejected'))
-              throw result[0].reason;
-            let records = result.flatMap((item) => (item.status === 'fulfilled' ? item.value : []));
-            if (server.expect.length)
-              records = records.filter((record) =>
-                server.expect.some((match) => match(record.address)),
-              );
             if (!records.length)
-              throw failure('ERR_DNS', 'DNS server returned no expected address.', 'dns');
-            if (!this.config.disableCache && records.every((record) => record.ttl > 0)) {
-              this.cache.set(key, {
-                records,
-                expires: Date.now() + Math.min(...records.map((record) => record.ttl), 3600) * 1000,
+              throw new Js2rayError('ERR_DNS', 'DNS server returned no expected address.', {
+                phase: 'dns',
+                context: { kind: 'expected' },
               });
-              while (this.cache.size > (this.config.cacheSize ?? 1024))
-                this.cache.delete(this.cache.keys().next().value);
-            }
-            return records.map((entry) => ({ ...entry }));
-          } catch (error) {
-            if (active.aborted) throw error;
-            last = error;
           }
+          return records.map((record) => ({ ...record }));
+        } catch (error) {
+          if (active.aborted) throw error;
+          last = error;
+          if (
+            this.profile !== 'native' &&
+            !['ERR_TIMEOUT', 'ERR_CANCELLED'].includes(error.code) &&
+            error.context?.kind !== 'expected' &&
+            !(
+              this.profile === 'xray-25.3.6' &&
+              (error.context?.kind === 'empty' || error.context?.rcode === 5)
+            )
+          )
+            throw error;
         }
-        throw last ?? failure('ERR_DNS', 'No DNS server available.', 'dns');
-      } finally {
-        this.pending--;
       }
+      throw last ?? failure('ERR_DNS', 'No DNS server available.', 'dns');
     } catch (cause) {
       if (controller.signal.reason?.code === 'ERR_TIMEOUT') throw controller.signal.reason;
       if (active.aborted)
@@ -232,12 +229,94 @@ class Resolver {
       clearTimeout(timer);
     }
   }
+  empty() {
+    return new Js2rayError('ERR_DNS', 'DNS server returned no address.', {
+      phase: 'dns',
+      context: { kind: 'empty' },
+    });
+  }
+  families(server, family) {
+    const global = this.config.queryStrategy ?? 'UseIP',
+      own = server.queryStrategy ?? global;
+    const allows = (strategy, f) =>
+      strategy === 'UseIP' || strategy === (f === 4 ? 'UseIPv4' : 'UseIPv6');
+    return [4, 6].filter(
+      (f) =>
+        (!family || family === f) &&
+        allows(own, f) &&
+        (this.profile === 'v2ray-5.14.1' || allows(global, f)),
+    );
+  }
+  serverOrder(host) {
+    const priority = (server) =>
+      server.domains.reduce((best, match) => Math.min(best, match.priority(host)), Infinity);
+    const preferred = this.servers
+      .filter((s) => priority(s) < Infinity)
+      .sort((a, b) => priority(a) - priority(b));
+    const fallback = this.servers.filter((s) => {
+      if (preferred.includes(s)) return false;
+      const strategy =
+        s.fallbackStrategy ??
+        (s.skipFallback
+          ? 'disabled'
+          : (this.config.fallbackStrategy ??
+            (this.config.disableFallback
+              ? 'disabled'
+              : this.config.disableFallbackIfMatch
+                ? 'disabledIfAnyMatch'
+                : 'enabled')));
+      return strategy === 'enabled' || (strategy === 'disabledIfAnyMatch' && !preferred.length);
+    });
+    const servers = [...preferred, ...fallback];
+    return !servers.length && this.profile === 'xray-25.3.6' ? [this.servers[0]] : servers;
+  }
+  async cachedQuery(server, host, family, signal) {
+    const disabled =
+      server.cacheStrategy !== undefined
+        ? server.cacheStrategy === 'disabled'
+        : (server.disableCache ??
+          (this.config.cacheStrategy !== undefined
+            ? this.config.cacheStrategy === 'disabled'
+            : (this.config.disableCache ?? false)));
+    const key = JSON.stringify([
+      server.index,
+      host,
+      family,
+      server.clientIp ?? this.config.clientIp ?? '',
+    ]);
+    const cached = !disabled && this.cache.get(key);
+    if (cached && cached.expires > Date.now()) {
+      this.counts.cacheHits++;
+      this.cache.delete(key);
+      this.cache.set(key, cached);
+      return cached.records.map((r) => ({ ...r }));
+    }
+    this.cache.delete(key);
+    this.counts.cacheMisses++;
+    if (this.pending >= (this.config.maxConcurrent ?? 64))
+      throw failure('ERR_LIMIT', 'DNS concurrency limit reached.', 'dns');
+    this.pending++;
+    try {
+      const records = await this.query(server, host, family, signal);
+      if (!disabled && records.length && records.every((r) => r.ttl > 0)) {
+        this.cache.set(key, {
+          records,
+          expires: Date.now() + Math.min(...records.map((r) => r.ttl), 3600) * 1000,
+        });
+        while (this.cache.size > (this.config.cacheSize ?? 1024))
+          this.cache.delete(this.cache.keys().next().value);
+      }
+      return records.map((r) => ({ ...r }));
+    } finally {
+      this.pending--;
+    }
+  }
   async query(server, host, family, signal) {
     this.counts.serverQueries++;
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(failure('ERR_TIMEOUT', 'DNS server timed out.', 'dns')),
-      this.config.timeoutMs ?? 3000,
+      server.timeoutMs ?? this.config.timeoutMs ?? 3000,
     );
     try {
       return await this.queryServer(
@@ -254,17 +333,58 @@ class Resolver {
       clearTimeout(timer);
     }
   }
+  async tcp(server, request, signal) {
+    const endpoint = server.endpoint;
+    const target = {
+      host: endpoint.host,
+      port: endpoint.port,
+      signal,
+      inboundTag: server.tag ?? this.config.tag,
+      outboundTag: server.outboundTag,
+      dnsInternal: true,
+    };
+    const stream = endpoint.local
+      ? await connect(
+          { address: target.host, port: target.port },
+          {
+            signal,
+            lookup: this.bootstrapLookup,
+            connectTimeoutMs: server.timeoutMs ?? this.config.timeoutMs ?? 3000,
+          },
+        )
+      : await this.dial(target);
+    try {
+      const prefix = Buffer.alloc(2);
+      prefix.writeUInt16BE(request.length);
+      await write(stream, Buffer.concat([prefix, request]));
+      const reader = new StreamReader(stream, {
+        signal,
+        timeoutMs: server.timeoutMs ?? this.config.timeoutMs ?? 3000,
+        maxBytes: 65537,
+      });
+      return await reader.read((await reader.read(2)).readUInt16BE());
+    } finally {
+      stream.destroy();
+    }
+  }
   async queryServer(server, host, family, signal) {
-    if (server.address === 'localhost') return this.systemLookup(host, family, signal);
-    const request = wire.query(host, family === 4 ? 1 : 28);
+    const parsed = server.endpoint;
+    if (parsed.type === 'system') return this.systemLookup(host, family, signal);
+    const request = wire.query(
+      host,
+      family === 4 ? 1 : 28,
+      undefined,
+      server.clientIp ?? this.config.clientIp,
+    );
     let bytes;
-    if (server.address.startsWith('https')) bytes = await this.doh(server, request, signal);
+    if (parsed.type === 'https') bytes = await this.doh(server, request, signal);
+    else if (parsed.type === 'tcp') bytes = await this.tcp(server, request, signal);
     else {
       const target = {
-        host: server.address,
-        port: server.port ?? 53,
+        host: parsed.host,
+        port: parsed.port,
         signal,
-        inboundTag: this.config.tag,
+        inboundTag: server.tag ?? this.config.tag,
         outboundTag: server.outboundTag,
         dnsInternal: true,
       };
@@ -276,22 +396,7 @@ class Resolver {
         session.destroy();
       }
       if (!bytes) throw failure('ERR_DNS', 'DNS session closed without a response.', 'dns');
-      if (wire.response(bytes, request).truncated) {
-        const stream = await this.dial(target);
-        try {
-          const prefix = Buffer.alloc(2);
-          prefix.writeUInt16BE(request.length);
-          await write(stream, Buffer.concat([prefix, request]));
-          const reader = new StreamReader(stream, {
-            signal,
-            timeoutMs: this.config.timeoutMs ?? 3000,
-            maxBytes: 65537,
-          });
-          bytes = await reader.read((await reader.read(2)).readUInt16BE());
-        } finally {
-          stream.destroy();
-        }
-      }
+      if (wire.response(bytes, request).truncated) bytes = await this.tcp(server, request, signal);
     }
     return wire
       .response(bytes, request)
@@ -309,14 +414,14 @@ class Resolver {
             {
               signal,
               lookup: this.bootstrapLookup,
-              connectTimeoutMs: this.config.timeoutMs ?? 3000,
+              connectTimeoutMs: server.timeoutMs ?? this.config.timeoutMs ?? 3000,
             },
           )
         : this.dial({
             host,
             port: Number(url.port || 443),
             signal,
-            inboundTag: this.config.tag,
+            inboundTag: server.tag ?? this.config.tag,
             outboundTag: server.outboundTag,
             dnsInternal: true,
           });

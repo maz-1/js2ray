@@ -61,9 +61,9 @@ test('Blackhole blocks TCP and UDP 443 while redirect preserves explicit outboun
 
 test('unsupported routing conditions, missing tags, and invalid CIDR fail configuration', () => {
   for (const rule of [
-    { source: ['10.0.0.0/8'] },
+    { source: ['10.0.0.0/99'] },
     { ip: ['10.0.0.0/99'] },
-    { domain: ['regexp:.*'] },
+    { domain: ['regexp:(?=unsupported)'] },
     { network: 'quic' },
     { port: '443-80' },
   ]) {

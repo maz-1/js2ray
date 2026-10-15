@@ -46,9 +46,23 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
   input = adapted.input;
   keys(
     input,
-    ['inbounds', 'outbounds', 'routing', 'dns', 'geodata', 'reverse', 'storage', 'debug', 'limits'],
+    [
+      'inbounds',
+      'outbounds',
+      'routing',
+      'dns',
+      'geodata',
+      'reverse',
+      'storage',
+      'debug',
+      'limits',
+      'compatibility',
+    ],
     '',
   );
+  const compatibility = input.compatibility ?? 'native';
+  if (!['native', 'v2ray-5.14.1', 'xray-25.3.6'].includes(compatibility))
+    add('compatibility', 'Expected native, v2ray-5.14.1 or xray-25.3.6.');
   if (input.debug !== undefined && typeof input.debug !== 'function')
     add('debug', 'Expected a logger function.');
   if (input.storage !== undefined && typeof input.storage !== 'string')
@@ -176,14 +190,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         add(prefix + '.target', 'Only TCP inbounds accept target.');
       if (item.sniffing !== undefined) {
         const sniff = item.sniffing;
-        if (
-          kind !== 'inbound' ||
-          protocol === 'vmess' ||
-          !sniff ||
-          typeof sniff !== 'object' ||
-          Array.isArray(sniff)
-        )
-          add(prefix + '.sniffing', 'Sniffing requires a SOCKS, VLESS or TCP inbound.');
+        if (kind !== 'inbound' || !sniff || typeof sniff !== 'object' || Array.isArray(sniff))
+          add(prefix + '.sniffing', 'Sniffing requires an inbound.');
         else {
           keys(
             sniff,
@@ -519,6 +527,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
       add(`limits.${key}`, 'Expected a positive safe integer (idle timeout also permits zero).');
   }
   const config = {
+    compatibility,
     inbounds,
     outbounds,
     routing: policy.routing,
@@ -561,7 +570,7 @@ function redact(value) {
   return JSON.parse(
     JSON.stringify(value, (key, entry) => {
       if (
-        /^(id|user|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers|address|host|serverName|serverNames|dest|port)$/i.test(
+        /^(id|user|userEmail|clientIp|sourceIP|sourcePort|localIP|localPort|attrs|pass|password|email|key|privateKey|publicKey|shortId|shortIds|cert|ca|pfx|headers|address|host|serverName|serverNames|dest|port)$/i.test(
           key,
         ) ||
         /token|secret|authorization|cookie/i.test(key)

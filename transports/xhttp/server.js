@@ -111,7 +111,7 @@ function createListener(network, onConnection, limits, tlsOptions) {
     res.writeHead(200);
     res.flushHeaders();
   }
-  function createSession(key, selected, remoteAddress) {
+  function createSession(key, selected, peer) {
     if (streams.size >= config.maxSessions) return;
     const state = {
       key,
@@ -129,7 +129,7 @@ function createListener(network, onConnection, limits, tlsOptions) {
       kind: undefined,
     };
     state.stream = new XhttpStream(selected, {
-      remoteAddress,
+      remoteAddress: peer?.remoteAddress,
       resume: () => {
         state.blocked = false;
         pump(state);
@@ -163,6 +163,8 @@ function createListener(network, onConnection, limits, tlsOptions) {
         });
       },
     });
+    for (const field of ['remotePort', 'localAddress', 'localPort'])
+      state.stream[field] = peer?.[field];
     streams.add(state.stream);
     if (key !== undefined) sessions.set(key, state);
     state.timer = setTimeout(
@@ -293,7 +295,7 @@ function createListener(network, onConnection, limits, tlsOptions) {
       respond(res, 409);
       return;
     }
-    if (!state) state = createSession(key, selected, req.socket?.remoteAddress);
+    if (!state) state = createSession(key, selected, req.socket);
     if (!state) {
       respond(res, 429);
       return;

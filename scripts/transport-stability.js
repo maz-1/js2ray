@@ -109,6 +109,7 @@ async function main() {
       crypto.createHash('sha256').update(canonical(file)).digest('hex'),
     ]),
   );
+  Object.assign(result, require('./acceptance-evidence').sourceEvidence());
   result.harnessSha256 = crypto
     .createHash('sha256')
     .update(canonical('scripts/transport-stability.js'))
@@ -509,6 +510,7 @@ async function main() {
     await Promise.all(managers.map((manager) => manager.close()));
     for (const cleanup of cleanups.reverse()) await cleanup();
     result.closed = managers.map((manager) => manager.stats);
+    if (!result.passed) process.exitCode = 1;
     result.finished = new Date().toISOString();
     result.passed &&= result.closed.every(
       (stats) =>

@@ -59,6 +59,7 @@ async function main() {
     passed: false,
   };
   result.sourceNormalization = 'UTF-8, CRLF to LF';
+  result.dependenciesSha256 = require('./acceptance-evidence').digest('package-lock.json');
   const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
     .split('\0')
     .filter((file) =>
@@ -409,6 +410,7 @@ async function main() {
         stats.pendingDials === 0 &&
         stats.listeners === 0,
     );
+    if (!result.passed) process.exitCode = 1;
     result.finished = new Date().toISOString();
     fs.mkdirSync('test-results', { recursive: true });
     fs.writeFileSync(

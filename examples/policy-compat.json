@@ -1,0 +1,54 @@
+{
+  "compatibility": "xray-25.3.6",
+  "inbounds": [
+    {
+      "tag": "entry",
+      "protocol": "socks",
+      "listen": "127.0.0.1",
+      "port": 1080,
+      "settings": {
+        "auth": "password",
+        "accounts": [{ "user": "synthetic-user", "pass": "synthetic-password" }]
+      },
+      "sniffing": { "enabled": true, "routeOnly": true, "destOverride": ["http", "tls"] }
+    }
+  ],
+  "outbounds": [
+    { "tag": "direct", "protocol": "freedom", "settings": { "domainStrategy": "UseIPv4" } },
+    { "tag": "block", "protocol": "blackhole" }
+  ],
+  "routing": {
+    "domainMatcher": "hybrid",
+    "rules": [
+      { "type": "field", "inboundTag": ["dns-up"], "outboundTag": "direct" },
+      { "type": "field", "domains": ["regexp:^ads[0-9]*\\.synthetic$"], "outboundTag": "block" },
+      {
+        "type": "field",
+        "source": ["127.0.0.0/8"],
+        "sourcePort": "1024-65535",
+        "user": ["synthetic-user"],
+        "protocol": ["http"],
+        "attrs": { ":method": "^(GET|POST)$" },
+        "ruleTag": "authenticated-http",
+        "outboundTag": "direct"
+      }
+    ]
+  },
+  "dns": {
+    "tag": "dns-up",
+    "queryStrategy": "UseIPv4",
+    "clientIp": "192.0.2.199",
+    "disableFallbackIfMatch": true,
+    "hosts": { "static.synthetic": "192.0.2.1" },
+    "servers": [
+      {
+        "address": "tcp+local://127.0.0.1:53",
+        "domains": ["domain:synthetic"],
+        "expectIPs": ["192.0.2.0/24"],
+        "timeoutMs": 1000,
+        "disableCache": true
+      },
+      "localhost"
+    ]
+  }
+}

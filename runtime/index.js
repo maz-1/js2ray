@@ -1,6 +1,7 @@
 'use strict';
 
 const { EventEmitter } = require('node:events');
+const { Duplex } = require('node:stream');
 const { isIP } = require('node:net');
 const { domainToASCII } = require('node:url');
 const { normalizeConfig, host, port } = require('../config');
@@ -53,9 +54,10 @@ class Runtime extends EventEmitter {
     this.#options = { ...options };
     this.#router =
       typeof this.#config.routing === 'object'
-        ? new Router(this.#config.routing, this.#config._assets)
+        ? new Router(this.#config.routing, this.#config._assets, this.#config.compatibility)
         : undefined;
     this.#resolver = new Resolver(this.#config.dns, {
+      profile: this.#config.compatibility,
       data: this.#config._assets,
       dial: (target) => this.dial(target),
       openDatagram: (target) => this.openDatagram(target),
@@ -335,7 +337,11 @@ class Runtime extends EventEmitter {
       const remote = await socks.server(
         socket,
         bound,
-        (target) => this.#inboundDial(socket, bound, target),
+        (target) =>
+          this.#inboundDial(socket, bound, target, {
+            ...this.#routeContext(socket, bound),
+            userEmail: target.userEmail,
+          }),
         {
           signal: this.#lifetime.signal,
           timeoutMs: this.#config.limits.handshakeTimeoutMs,
@@ -347,7 +353,11 @@ class Runtime extends EventEmitter {
                     await socksDatagram.association(socket, target, this.#config.limits),
                   );
                   serveDatagrams(local, (destination) =>
-                    this.openDatagram({ ...destination, inboundTag: bound.tag }),
+                    this.openDatagram({
+                      ...destination,
+                      ...this.#routeContext(socket, bound),
+                      userEmail: target.userEmail,
+                    }),
                   ).catch((error) => this.#report(error));
                 },
               }
@@ -363,11 +373,29 @@ class Runtime extends EventEmitter {
     }
   }
 
-  async #inboundDial(socket, bound, target) {
-    const name = await sniff(socket, bound.sniffing, this.#lifetime.signal);
-    if (name)
-      target = { ...target, ...(bound.sniffing.routeOnly ? { routeHost: name } : { host: name }) };
-    return this.dial({ ...target, inboundTag: bound.tag });
+  #routeContext(socket, bound, user) {
+    return {
+      inboundTag: bound.tag,
+      sourceIP: socket.remoteAddress,
+      sourcePort: socket.remotePort,
+      userEmail: user?.email,
+    };
+  }
+  async #inboundDial(socket, bound, target, context = this.#routeContext(socket, bound)) {
+    const metadata = await sniff(socket, bound.sniffing, this.#lifetime.signal);
+    if (
+      metadata?.host &&
+      (bound.sniffing.destOverride ?? ['http', 'tls']).includes(metadata.protocol)
+    )
+      target = {
+        ...target,
+        ...(bound.sniffing.routeOnly ? { routeHost: metadata.host } : { host: metadata.host }),
+      };
+    return this.dial({
+      ...target,
+      ...context,
+      ...(metadata ? { protocol: metadata.protocol, attrs: metadata.attrs } : {}),
+    });
   }
 
   async #acceptTcp(socket, bound) {
@@ -387,6 +415,7 @@ class Runtime extends EventEmitter {
         signal: this.#lifetime.signal,
         timeoutMs: this.#config.limits.handshakeTimeoutMs,
       });
+      const context = this.#routeContext(socket, bound, target.user);
       if (target.flow) {
         await require('./streams').write(socket, vless.visionResponse(target.user));
         const raw = socket;
@@ -404,12 +433,12 @@ class Runtime extends EventEmitter {
         this.#trackMux(
           new Mux(socket, {
             server: true,
-            dispatch: (destination) => {
+            dispatch: (destination, session) => {
               if (target.flow && destination.network !== 'udp')
                 throw failure('ERR_UNSUPPORTED', 'Vision Mux permits UDP only.', 'protocol');
               return destination.network === 'udp'
-                ? this.openDatagram({ ...destination, inboundTag: bound.tag })
-                : this.dial({ ...destination, inboundTag: bound.tag });
+                ? this.openDatagram({ ...destination, ...context })
+                : this.#inboundDial(session, bound, destination, context);
             },
             maxBufferBytes: this.#config.limits.maxBufferBytes,
           }),
@@ -420,7 +449,7 @@ class Runtime extends EventEmitter {
         const remote = await this.openDatagram({
           host: target.host,
           port: target.port,
-          inboundTag: bound.tag,
+          ...context,
         });
         if (socket.destroyed) return remote.destroy();
         await require('./streams').write(socket, Buffer.from([0, 0]));
@@ -440,11 +469,16 @@ class Runtime extends EventEmitter {
         return;
       }
       if (!target.flow) await require('./streams').write(socket, Buffer.from([0, 0]));
-      const remote = await this.#inboundDial(socket, bound, {
-        host: target.host,
-        port: target.port,
-        inboundTag: bound.tag,
-      });
+      const remote = await this.#inboundDial(
+        socket,
+        bound,
+        {
+          host: target.host,
+          port: target.port,
+          inboundTag: bound.tag,
+        },
+        context,
+      );
       if (socket.destroyed) return remote.destroy();
       relay(socket, remote);
     } catch (error) {
@@ -460,11 +494,11 @@ class Runtime extends EventEmitter {
           failure('ERR_LIMIT', 'Inbound send queue exceeded its limit.', 'protocol'),
         );
       const writable = socket.write(data);
-      if (!writable) socket.app?.remote?.pause();
+      if (!writable) socket.app?.remote?.pause?.();
       return writable;
     };
     socket.localClose = () => socket.destroy();
-    socket.on('drain', () => socket.app?.remote?.resume());
+    socket.on('drain', () => socket.app?.remote?.resume?.());
     const connection = handler(socket, socket.remoteAddress);
     const timer = setTimeout(() => {
       if (!socket.app?._isHeaderRecv) socket.destroy();
@@ -490,8 +524,9 @@ class Runtime extends EventEmitter {
       let remote;
       let destroyed = false;
       const inbound = this;
+      const context = runtime.#routeContext(inbound, bound, inbound.app?.user);
       if (cmd === 2) {
-        runtime.openDatagram({ host: address, port: destinationPort, inboundTag: bound.tag }).then(
+        runtime.openDatagram({ host: address, port: destinationPort, ...context }).then(
           (session) => {
             remote = session;
             if (destroyed) return remote.destroy();
@@ -525,7 +560,77 @@ class Runtime extends EventEmitter {
         queueMicrotask(closed);
         return { message() {}, close() {} };
       }
-      runtime.dial({ host: address, port: destinationPort, inboundTag: bound.tag }).then(
+      if (bound.sniffing?.enabled) {
+        // Decode the body before dialing so sniffing sees plaintext. A microtask
+        // lets the VMess parser install app.remote before connected releases it.
+        const plain = runtime.#track(
+          new Duplex({
+            allowHalfOpen: false,
+            read() {
+              inbound.resume();
+            },
+            write(chunk, _encoding, callback) {
+              try {
+                message(chunk);
+                if (!inbound.writableNeedDrain) return callback();
+                const finish = (error) => {
+                  inbound.removeListener('drain', drained);
+                  inbound.removeListener('close', closedWrite);
+                  callback(error);
+                };
+                const drained = () => finish();
+                const closedWrite = () =>
+                  finish(
+                    failure('ERR_CLOSED', 'VMess transport closed while writing.', 'transport'),
+                  );
+                inbound.once('drain', drained);
+                inbound.once('close', closedWrite);
+              } catch (error) {
+                callback(error);
+              }
+            },
+            final(callback) {
+              inbound.end();
+              callback();
+            },
+            destroy(error, callback) {
+              inbound.destroy();
+              callback(error);
+            },
+          }),
+        );
+        plain.once('close', closed);
+        queueMicrotask(() => {
+          if (plain.destroyed) return;
+          connected();
+          runtime
+            .#inboundDial(plain, bound, { host: address, port: destinationPort }, context)
+            .then(
+              (stream) => (plain.destroyed ? stream.destroy() : relay(plain, stream)),
+              (error) => {
+                runtime.#report(error);
+                plain.destroy();
+              },
+            );
+        });
+        return {
+          message(data) {
+            if (plain.destroyed) return;
+            if (plain.readableLength + data.length > runtime.#config.limits.maxBufferBytes)
+              return plain.destroy(
+                failure('ERR_LIMIT', 'VMess sniff buffer exceeded its limit.', 'protocol'),
+              );
+            if (!plain.push(data)) inbound.pause();
+          },
+          end() {
+            plain.push(null);
+          },
+          close() {
+            plain.destroy();
+          },
+        };
+      }
+      runtime.dial({ host: address, port: destinationPort, ...context }).then(
         (stream) => {
           remote = stream;
           if (destroyed) return remote.destroy();
@@ -764,6 +869,21 @@ class Runtime extends EventEmitter {
       throw failure('ERR_TARGET', 'Expected an AbortSignal.', 'config');
     if (target.network && target.network !== (datagram ? 'udp' : 'tcp'))
       throw failure('ERR_UNSUPPORTED', 'Use dial for TCP and openDatagram for UDP.', 'config');
+    if (
+      (target.sourceIP !== undefined && !isIP(target.sourceIP)) ||
+      (target.sourcePort !== undefined && !port(target.sourcePort)) ||
+      (target.userEmail !== undefined &&
+        (typeof target.userEmail !== 'string' || target.userEmail.length > 256)) ||
+      (target.protocol !== undefined &&
+        (typeof target.protocol !== 'string' || target.protocol.length > 64)) ||
+      (target.attrs !== undefined &&
+        (!target.attrs ||
+          typeof target.attrs !== 'object' ||
+          Array.isArray(target.attrs) ||
+          Object.keys(target.attrs).length > 128 ||
+          Object.values(target.attrs).some((v) => typeof v !== 'string' || v.length > 16384)))
+    )
+      throw failure('ERR_TARGET', 'Invalid routing context.', 'config');
     if (
       this.#pending.size >= this.#config.limits.maxPendingDials ||
       this.#streams.size + this.#pending.size >= this.#config.limits.maxConnections

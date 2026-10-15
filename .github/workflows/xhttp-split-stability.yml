@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'index.*'
+      - 'cli/**'
+      - 'test/helpers.js'
+      - 'scripts/acceptance-evidence.js'
       - 'runtime/**'
       - 'transports/**'
       - 'protocols/**'
@@ -42,6 +45,7 @@ jobs:
         env:
           JS2RAY_STABILITY_MINUTES: '30'
           JS2RAY_ROTATION_MS: '60000'
+      - run: node scripts/acceptance-evidence.js test-results/xhttp-split-stability.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,0 +1,261 @@
+[
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/config.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/config.go",
+    "sha256": "7269950968bff7dc3fa2380c132165f31a62ab4b1a44fcae6f7d8e6b67066d10"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/config.pb.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/config.pb.go",
+    "sha256": "82bd3ca2699ec4e0f7920d917dfaa26f9d411feb030accdb20a60a199bceeb38"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/dns.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/dns.go",
+    "sha256": "d44b9662fec5fd57abba0481630f3b277909f64189bc97a01cabcac1bdc3f7ae"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/dnscommon.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/dnscommon.go",
+    "sha256": "ce06f8ed7bea7fd0022567755f10bd815bd9f19281e3a3b21bc2c1a2876beecc"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/hosts.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/hosts.go",
+    "sha256": "e91629f5dc55d52a3b35febc0a74d1fda570ca457fcb122800912426a4f36d0a"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver.go",
+    "sha256": "73de228e4c8fe836a272a1efcf403e29b16f314afb40e7b35fb0ed500d1c48cf"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_doh.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_doh.go",
+    "sha256": "637f2f2782c9b783845e35a3cbdaab2b63bef69de07356b8b42d852f144138c0"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_fakedns.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_fakedns.go",
+    "sha256": "a492656c8c4b10207edab720ef6aafc04bebf3de0f384078da3fbc81a97ce502"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_local.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_local.go",
+    "sha256": "8ea070bf9abe22c71c4a95e0a1d639d010877eb2452ce98ac23477fac550220f"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_quic.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_quic.go",
+    "sha256": "99fd60d4015603efe11d47e494a3cfc648fcfe9e27f48de30c744af23a81b054"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_tcp.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_tcp.go",
+    "sha256": "10b35144534480a2e09c0c61d723732e0fa3f72f728b095c91c33847ec765fdf"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/dns/nameserver_udp.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/dns/nameserver_udp.go",
+    "sha256": "cb674bc1dfe5e18339497419179284139fa00b68ccac61cc8b9a078697319c6f"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/router/condition.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/router/condition.go",
+    "sha256": "f258afc169ff265033dc9d47e8b86c64c2f364b32d79b7d8e6d01df9894f1b6d"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/router/condition_geoip.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/router/condition_geoip.go",
+    "sha256": "596410ad75b8820d3a158ede1da6235bf6749901b799c680025900abad23d351"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/router/router.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/router/router.go",
+    "sha256": "f6a25481bf6f1e09c9c87021ae15dffa0d25e469dc3c68f99eb626dca1fe7c5c"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "app/router/routercommon/common.pb.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/app/router/routercommon/common.pb.go",
+    "sha256": "da7c65c1ca8de7bad11804e61ec1ec22bbe18621f816a7820c40dc048ce35ff4"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "infra/conf/synthetic/dns/dns.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/infra/conf/synthetic/dns/dns.go",
+    "sha256": "8d73f5275e22ee1e92070b6a3415f59e14942fbb1d5770a5500238086a26b067"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "infra/conf/synthetic/dns/fakedns.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/infra/conf/synthetic/dns/fakedns.go",
+    "sha256": "b172388b63b3b9db7ee495ec5171a3816e1e2f00853b57ab6669197f6e1965fd"
+  },
+  {
+    "kind": "v2ray",
+    "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+    "path": "infra/conf/synthetic/router/router.go",
+    "url": "https://raw.githubusercontent.com/v2fly/v2ray-core/1f1ff246ddebb530d8fadeb49ffd32b8617e64ec/infra/conf/synthetic/router/router.go",
+    "sha256": "c8fcfb03ee5f64706c24b7e68b405da337df8c83ace0fb7f5680c7c6453a8dc1"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/config.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/config.go",
+    "sha256": "e6679038597865621e667acc7124f05f362479fb13abb82bd599f2873d9dc744"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/config.pb.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/config.pb.go",
+    "sha256": "24186a880c0783afc335ef773ddaed69f21fdef11b4f68c72927ac6ec45a39e4"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/dns.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/dns.go",
+    "sha256": "92b13fa81dfc2140fbf1f2acaebc75cfd2a649f909d243b13ab13dac5196ed4f"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/dnscommon.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/dnscommon.go",
+    "sha256": "fd503eca20245eec7b3016b4ba1a85ee0b0c8c56392b93a84073d71997f931a0"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/hosts.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/hosts.go",
+    "sha256": "647f783e5cc98a54c8b168e2429bfe2e92dea2dc1060ec50ab3c9c08a7c467a9"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver.go",
+    "sha256": "f8bf90b367c9be29ae2fab65c83fd10ff9a7531c3d1bd3502fa53f16c9442369"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_doh.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_doh.go",
+    "sha256": "8ba24068a12580f1dc2f5cce3056652c8406324aa0a5598211483d88bab1d9ef"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_fakedns.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_fakedns.go",
+    "sha256": "72acb06e40b0b76393899655949cbfccd7bd7dc6f9f98d153b0f29fb358531d6"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_local.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_local.go",
+    "sha256": "acc2404037db9dd66290d327240f0f47b6ea92c0b6cf6efbb7632d4c357db83e"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_quic.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_quic.go",
+    "sha256": "b53f6cc0c3d9292227375c41e60e4914b30aba18650931edf95e14dfe60fa564"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_tcp.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_tcp.go",
+    "sha256": "f6dfdc5174b197b2c06da9c378c822429b7d486a2f36aa80b217fa91804aaeca"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/dns/nameserver_udp.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/dns/nameserver_udp.go",
+    "sha256": "efd54e151acf44711bf3d91326741f79eca614fc0ff078ef295d4a7ac991ecae"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/router/condition.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/router/condition.go",
+    "sha256": "e8341302036bc21082a30c3ccacad29aa8e7cb41028cfc6d5a26817a4adeaf96"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/router/condition_geoip.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/router/condition_geoip.go",
+    "sha256": "0e2ffb5e6da8262e4cb83bb31f7a225ee8a1004975cab838f6c499cbb5d290bf"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "app/router/router.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/app/router/router.go",
+    "sha256": "4db77f8b3c6c620429c3c5c16f7f4bad81756d0998123a86fe98dbe22ebf36ac"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "infra/conf/dns.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/infra/conf/dns.go",
+    "sha256": "aa0ba8279a5335be236601602bc4b3ec6753b317d6611ef3006ad16ec051c11a"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "infra/conf/fakedns.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/infra/conf/fakedns.go",
+    "sha256": "0d6ecc92ddef35dfe1a4978d7cf64bf209d8ccce4f6585780df2ca5532d5cc2d"
+  },
+  {
+    "kind": "xray",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "path": "infra/conf/router.go",
+    "url": "https://raw.githubusercontent.com/XTLS/Xray-core/2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4/infra/conf/router.go",
+    "sha256": "2989d4cb62cf64f710adfc279700a1e59c7acb8426e24f9f719bbf3f69da9e71"
+  }
+]

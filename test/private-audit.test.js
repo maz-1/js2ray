@@ -13,6 +13,20 @@ test('privacy audit covers native/traditional fields and REALITY encoded credent
     sid = crypto.randomBytes(8).toString('hex'),
     prefix = 'private-prefix-' + crypto.randomBytes(8).toString('hex');
   const input = {
+    dns: {
+      clientIp: '192.0.2.123',
+      hosts: { 'private-hosts.audit.test': '198.51.100.123' },
+      servers: [{ address: 'tcp://private-dns.audit.test:43216' }],
+    },
+    routing: {
+      rules: [
+        {
+          source: ['198.51.100.123/32'],
+          user: ['private-routing-user'],
+          attrs: { 'x-policy': 'private-header-regex' },
+        },
+      ],
+    },
     outbounds: [
       {
         users: [{ id, prefix }],
@@ -88,6 +102,12 @@ test('privacy audit covers native/traditional fields and REALITY encoded credent
     '/private-path-marker',
     encodeURIComponent('/private-path-marker'),
     'Bearer private-auth-marker',
+    '192.0.2.123',
+    '198.51.100.123/32',
+    'private-dns.audit.test',
+    '43216',
+    'private-header-regex',
+    'private-routing-user',
   ]) {
     const result = scan(material, 'synthetic', value);
     assert.ok(result.matches.length, value.length + '-byte synthetic field was missed.');

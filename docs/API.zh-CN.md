@@ -54,7 +54,7 @@
 
 `runtime.resolve(host, { family: 0|4|6, signal })` 返回带 family 和 TTL 的地址数组。DNS 支持 hosts/别名、A/AAAA、普通 UDP DNS/截断转 TCP、严格 TLS 的 DoH、domains 选择、expectIPs、缓存及回退。DNS 配置的 timeoutMs 为每服务器预算；整体预算随服务器数有界增长。localhost 与 https+local 本地解析；普通 DNS 和 https DoH 经配置路由。代理节点和 DNS 引导只使用 hosts/注入系统解析器。Freedom 默认 AsIs，UseIP/UseIPv4/UseIPv6 才使用内部 DNS。
 
-DNS hosts 和服务器匹配遵循 full 优先、最长 domain 后缀其次、最先出现的 keyword、最后资源正则的顺序；相同优先级按配置顺序。禁用 fallback 或 skipFallback 后，不会强行查询第一台未匹配服务器。此优先级只决定 DNS 服务器选择，路由规则仍严格按规则顺序。
+默认 native 模式的 DNS hosts 和服务器匹配遵循 full 优先、最长 domain 后缀其次、最先出现的 keyword、最后资源正则的顺序；相同优先级按配置顺序。native/V2Ray 档案禁用 fallback 或 skipFallback 后不会强行查询首台；Xray 25.3.6 档案在候选为空时仍查询首台。此优先级只决定 DNS 服务器选择，路由规则仍严格按规则顺序。
 
 `reverse.bridges` 提供虚拟入站 tag，`reverse.portals` 提供虚拟出站 tag；引用必须存在，规则顺序由配置明确决定。Bridge domain:0 规则必须先于 Bridge 本地业务规则。控制域名只用于连接识别。Bridge 主动建连，无需代理监听；Portal 业务端口需显式配置 TCP/dokodemo-door 入站。`runtime.stats.reverse` 和 `reverse` 事件分别记录角色、传输、会话及连接/活动/排空/退避状态；active 表示控制传输可用，不代表目标业务一定可达。
 
@@ -62,7 +62,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 
-`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、HTTP Blackhole 响应、透明 TCP、API 管理入站均显式不支持；Vision/REALITY 的支持边界分别见 P15/P16。
+`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。HTTP Blackhole 响应、透明 TCP、API 管理入站均显式不支持；Vision/REALITY 的支持边界分别见 P15/P16。
 
 ## 运行指标（P9）
 
@@ -184,3 +184,9 @@ VLESS 原始 TCP 的 `network.option.reality` 与 `option.tls` 互斥。客户�
 `js2ray check-cover server-config.json` 校验配置并主动连接每个 REALITY 入站的固定 dest，逐个检查所配置 serverNames 的 TLS 1.3/X25519、CCS、单记录/四记录布局及可容纳认证 flight 的长度。它不创建业务入站监听，不输出目标名称或凭据；成功表示当前模板可镜像，不代替实际节点认证和业务验收。HRR、缺少 CCS、空间不足、截断和超时明确失败。固定 Node/OpenSSL cover 与 Xray 25.3.6 Go TLS cover 均有测试。
 
 长时脚本 `npm run test:stability:transports` 默认 100 会话/30 分钟，混合 XHTTP 两种 HTTP 版本三模式、Vision TLS、REALITY 空 flow/Vision、TLS 1.2/1.3 和普通流量，包含慢消费者、每分钟两端轮换、cover 故障、逐次字节比较和读写 Direct 断言。每秒采集队列/内存，每分钟保存样本，记录延迟直方图与最大值；保留原始 JSON、源码/配置摘要和关闭状态。少于 30 分钟的脚本检查标记 formalAcceptance=false，不计作正式长时证据。P17 的实际三平台结果见验收记录。
+
+## 常用路由与 DNS 兼容（P20）
+
+完整字段、固定版本差异、JS 扩展和边界见 [P20 支持矩阵](P20_POLICY_COMPATIBILITY.zh-CN.md)。根字段 compatibility 选择 native、v2ray-5.14.1 或 xray-25.3.6；传统 JSON 与原生字段均接受。来源和用户使用已认证入站上下文；HTTP/TLS/BitTorrent 需开启嗅探，VMess 已支持纯文本嗅探与首包保序。库 dial/openDatagram 可传入 sourceIP、sourcePort、userEmail、protocol、attrs，调用者负责上下文可信性。实际代理请求不能伪造这些外层属性。
+
+支持 ECS、TCP/local DNS、每服务器查询/缓存/回退/标签等控制；正则通过纯 JS re2js 2.8.6 执行，ws 8.22.0 继续用于 WebSocket。HTTP/3、DoQ 暂缓。示例见 examples/policy-compat.json。

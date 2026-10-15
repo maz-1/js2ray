@@ -418,7 +418,19 @@ HTTP/3 继续暂缓。本阶段锁定 Xray 25.3.6，实现 HTTP/1.1、HTTP/2 的
 
 P19 全部验收通过：[全量回归](https://github.com/maz-1/js2ray/actions/runs/38771437742) 与 [上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38772075331) 对应 `617d2a69361d9508a13b0081ef8376f657390043`；[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38770712593) 与 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38770712799) 对应 `4456d6807cc6f144f68ac7f8b53461cda957c216`。四组验收的 80 个产品源码和对应负载脚本逐文件一致，产品汇总 SHA256 为 `5d13786a11049bc5783b1e475bdf0386f08be57b4bbffac565cba4a3f12e5492`。Windows/Linux/macOS 分离负载实际持续 1800494/1800893/1801026 ms，完成 1109243/1355179/778359 次逐字节校验。详见 [P19 验收](docs/P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md)、[机器汇总](docs/acceptance/p19-2026-10-16.json) 及九份按字节保存的原始 JSON；HTTP/3 继续暂缓。
 
-## 16 参考资料
+## 16 常用路由与 DNS 配置兼容 P20（2026-10-16）
+
+按前两批实施：常用静态路由与 DNS；固定 V2Ray 5.14.1（`1f1ff246ddebb530d8fadeb49ffd32b8617e64ec`）和 Xray 25.3.6（`2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4`），保留已有参考基线。原生默认行为兼容旧版本，新增显式兼容档案区分两内核的配置语义；未知行为继续报错。动态负载均衡、观测选路、Starlark/Lua、FakeDNS、按进程路由不属于本阶段。HTTP/3 和 DoQ 继续暂缓。
+
+- [x] 冻结逐字段支持矩阵、参考源码及语义差异，补齐正式验收失败退出与依赖触发范围。
+- [x] 常用路由：domain/domains 别名、ruleTag、匹配算法、受控正则、外部 Geo 资源；来源 IP/端口、认证用户、协议及 Xray HTTP attrs，覆盖 TCP/UDP/Mux/reverse 与库模式。
+- [x] 常用 DNS：每服务器 queryStrategy/timeout/cache/tag、ECS、TCP/local 模式、域名和 IP 过滤、回退策略、缓存与引导解析；按固定内核明确支持与差异。
+- [x] 原生/传统配置、类型、示例、诊断和脱敏；逐项专项、固定内核对照与真实应用链路回归。
+- [ ] Windows/Linux/macOS 全量、固定内核对照、实际 tarball 和 100 会话/30 分钟长时验收，保存原始记录、产品/配置/脚本摘要与资源清理结果；新增自动核验门禁。
+
+逐项完成后更新本节；短跑、未执行或失败的结果不计作正式验收。字段矩阵与明确差异见 [P20](docs/P20_POLICY_COMPATIBILITY.zh-CN.md)。本地普通回归 367/367，新增固定对照 26/26，类型/格式/示例和实际安装包通过；100 会话短跑完成 4 次轮换与 16 次 DNS 故障回退，不计作正式 30 分钟结果。已补齐长时失败退出和可复用证据核验器，三平台正式验收待执行。
+
+## 17 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

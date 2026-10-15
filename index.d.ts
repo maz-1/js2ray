@@ -142,12 +142,22 @@ export interface RoutingRule {
   type?: 'field';
   inboundTag?: string[];
   domain?: string[];
+  domains?: string[];
+  domainMatcher?: 'linear' | 'mph' | 'hybrid';
+  ruleTag?: string;
+  source?: string[];
+  sourceIP?: string[];
+  sourcePort?: string | number;
+  user?: string[];
+  protocol?: Array<'http' | 'tls' | 'bittorrent'>;
+  attrs?: Record<string, string>;
   ip?: string[];
   port?: string | number;
-  network?: string;
+  network?: string | Array<'tcp' | 'udp'>;
   outboundTag: string;
 }
 export interface Routing {
+  domainMatcher?: 'linear' | 'mph' | 'hybrid';
   domainStrategy?: 'AsIs' | 'IPIfNonMatch' | 'IPOnDemand';
   rules?: RoutingRule[];
 }
@@ -166,6 +176,14 @@ export interface DnsConfig {
         port?: number;
         domains?: string[];
         expectIPs?: string[];
+        expectedIPs?: string[];
+        queryStrategy?: 'UseIP' | 'UseIPv4' | 'UseIPv6';
+        disableCache?: boolean;
+        cacheStrategy?: 'enabled' | 'disabled';
+        fallbackStrategy?: 'enabled' | 'disabled' | 'disabledIfAnyMatch';
+        clientIp?: string;
+        timeoutMs?: number;
+        tag?: string;
         skipFallback?: boolean;
         outboundTag?: string;
         tls?: Pick<TlsOptions, 'ca' | 'caFile' | 'serverName'>;
@@ -174,6 +192,11 @@ export interface DnsConfig {
   queryStrategy?: 'UseIP' | 'UseIPv4' | 'UseIPv6';
   disableCache?: boolean;
   disableFallback?: boolean;
+  disableFallbackIfMatch?: boolean;
+  cacheStrategy?: 'enabled' | 'disabled';
+  fallbackStrategy?: 'enabled' | 'disabled' | 'disabledIfAnyMatch';
+  clientIp?: string;
+  domainMatcher?: 'linear' | 'mph' | 'hybrid';
   tag?: string;
   timeoutMs?: number;
   cacheSize?: number;
@@ -188,6 +211,7 @@ export interface Limits {
   maxBufferBytes?: number;
 }
 export interface NativeConfig {
+  compatibility?: 'native' | 'v2ray-5.14.1' | 'xray-25.3.6';
   inbounds?: Bound[];
   outbounds?: Outbound[];
   routing?:
@@ -199,7 +223,11 @@ export interface NativeConfig {
         inboundTag?: string,
       ) => string | boolean | null);
   dns?: DnsConfig;
-  geodata?: { geoip?: GeoResource; geosite?: GeoResource };
+  geodata?: {
+    geoip?: GeoResource;
+    geosite?: GeoResource;
+    external?: Record<string, GeoResource & { kind: 'geoip' | 'geosite' }>;
+  };
   reverse?: { bridges?: ReverseEndpoint[]; portals?: ReverseEndpoint[] };
   storage?: string;
   debug?: (event: ErrorRecord) => void;
@@ -207,6 +235,10 @@ export interface NativeConfig {
 }
 /** Traditional JSON is validated at runtime; only the documented subset is accepted. */
 export interface TraditionalConfig {
+  compatibility?: NativeConfig['compatibility'];
+  routing?: Routing;
+  dns?: DnsConfig;
+  geodata?: NativeConfig['geodata'];
   inbounds?: Record<string, unknown>[];
   outbounds?: Record<string, unknown>[];
   log?: { loglevel: 'debug' | 'info' | 'warning' | 'error' | 'none' };
@@ -226,6 +258,11 @@ export interface ReverseEndpoint {
   reconnectMs?: number;
 }
 export interface DialTarget {
+  sourceIP?: string;
+  sourcePort?: number;
+  userEmail?: string;
+  protocol?: string;
+  attrs?: Record<string, string>;
   host: string;
   port: number;
   network?: 'tcp';

@@ -4,6 +4,8 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const { iptoBuffer } = require('../core/utils');
 const { failure } = require('../runtime/errors');
+const { expression } = require('./regex');
+const { DomainSet } = require('./domains');
 
 function protobuf(bytes) {
   let offset = 0;
@@ -99,6 +101,13 @@ class GeoData {
     this.ips = new Map();
     this.sites = new Map();
     this.compiledSites = new Map();
+    this.external = new Map();
+    this.resources = resources;
+    for (const [name, resource] of Object.entries(resources.external ?? {}))
+      this.external.set(name, {
+        kind: resource.kind,
+        data: new GeoData({ [resource.kind]: resource }),
+      });
     for (const kind of ['geoip', 'geosite']) {
       const resource = resources[kind];
       if (!resource) continue;
@@ -151,6 +160,17 @@ class GeoData {
       }
     }
   }
+  externalData(name, kind) {
+    const entry = this.external.get(name);
+    if (entry && entry.kind === kind) return entry.data;
+    if (this.resources[kind] && require('node:path').basename(this.resources[kind].path) === name)
+      return this;
+    throw failure(
+      'ERR_GEODATA',
+      'External Geo resource must be declared with kind, version and SHA256.',
+      'geodata',
+    );
+  }
   ip(category) {
     let inverted = category.startsWith('!');
     const code = (inverted ? category.slice(1) : category).toLowerCase();
@@ -178,10 +198,11 @@ class GeoData {
       )
       .map((domain) => {
         if (domain.type === 1) {
-          const expression = domain.value.replace(/^\(\?i\)/, '');
-          const regex = new RegExp(expression, domain.value.startsWith('(?i)') ? 'i' : '');
-          const match = (host) => regex.test(host);
+          const regex = expression(domain.value);
+          const match = (host) => regex(host);
           match.priority = (host) => (match(host) ? 3000000 : Infinity);
+          match.kind = 'regexp';
+          match.value = domain.value;
           return match;
         }
         return domainMatcher(
@@ -189,12 +210,10 @@ class GeoData {
           this,
         );
       });
-    const result = (host) => matchers.some((fn) => fn(host));
-    result.priority = (host) => {
-      let best = Infinity;
-      for (const match of matchers) best = Math.min(best, match.priority(host));
-      return best;
-    };
+    const group = new DomainSet(matchers);
+    const result = (host) => group.test(host);
+    result.priority = (host) => group.priority(host);
+    result.patterns = matchers;
     this.compiledSites.set(key, result);
     return result;
   }
@@ -204,9 +223,28 @@ function domainMatcher(pattern, data = new GeoData(), plain = 'keyword') {
     throw new TypeError('Invalid domain matcher.');
   const separator = pattern.indexOf(':');
   const mode = separator < 0 ? plain : pattern.slice(0, separator);
+  if (['ext', 'ext-domain'].includes(mode)) {
+    const parts = pattern.slice(separator + 1).split(':');
+    if (parts.length !== 2 || !parts.every(Boolean))
+      throw new TypeError('Invalid external domain reference.');
+    return data.externalData(parts[0], 'geosite').site(parts[1]);
+  }
+  if (mode === 'regexp') {
+    const value = pattern.slice(separator + 1),
+      regex = expression(value);
+    const match = (host) => regex(host.toLowerCase().replace(/\.$/, ''));
+    match.priority = (host) => (match(host) ? 3000000 : Infinity);
+    match.kind = mode;
+    match.value = value;
+    return match;
+  }
   const value = (separator < 0 ? pattern : pattern.slice(separator + 1))
     .toLowerCase()
     .replace(/\.$/, '');
+  if (mode === 'dotless') {
+    if (value.includes('.')) throw new TypeError('dotless cannot contain a dot.');
+    return domainMatcher('regexp:^[^.]*' + value + '[^.]*$', data);
+  }
   if (!value) throw new TypeError('Empty domain matcher.');
   if (mode === 'geosite') return data.site(value);
   if (!['full', 'domain', 'keyword'].includes(mode))
@@ -227,9 +265,18 @@ function domainMatcher(pattern, data = new GeoData(), plain = 'keyword') {
         : mode === 'domain'
           ? 1000000 + 253 - value.length
           : 2000000 + host.toLowerCase().indexOf(value);
+  match.kind = mode;
+  match.value = value;
   return match;
 }
 function ipMatcher(pattern, data = new GeoData()) {
+  if (typeof pattern !== 'string') throw new TypeError('Invalid IP matcher.');
+  if (/^ext(?:-ip)?:/.test(pattern)) {
+    const parts = pattern.slice(pattern.indexOf(':') + 1).split(':');
+    if (parts.length !== 2 || !parts.every(Boolean))
+      throw new TypeError('Invalid external IP reference.');
+    return data.externalData(parts[0], 'geoip').ip(parts[1]);
+  }
   return pattern.startsWith('geoip:') ? data.ip(pattern.slice(6)) : cidrMatcher(pattern);
 }
 module.exports = { GeoData, protobuf, cidrMatcher, domainMatcher, ipMatcher };

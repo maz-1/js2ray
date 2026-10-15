@@ -21,7 +21,7 @@
     "start": "node cli/index.js",
     "test": "node --test --test-timeout=15000 test/*.test.js",
     "check": "node scripts/check.js",
-    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json && node cli/index.js check examples/vless-xhttp-client.json && node cli/index.js check examples/vless-vision-client.json && node cli/index.js check examples/vless-reality-client.json && node cli/index.js check examples/combined.json && node cli/index.js check examples/vless-xhttp-split-client.json",
+    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json && node cli/index.js check examples/vless-xhttp-client.json && node cli/index.js check examples/vless-vision-client.json && node cli/index.js check examples/vless-reality-client.json && node cli/index.js check examples/combined.json && node cli/index.js check examples/vless-xhttp-split-client.json && node cli/index.js check examples/policy-compat.json",
     "test:interop": "node --test --test-concurrency=1 --test-timeout=15000 test/interop/*.test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -32,7 +32,8 @@
     "test:stability:transports": "node scripts/transport-stability.js",
     "test:stability:xmux": "node scripts/xmux-stability.js",
     "test:tools": "node scripts/install-reference-cores.js",
-    "test:stability:xhttp-split": "node scripts/xhttp-split-stability.js"
+    "test:stability:xhttp-split": "node scripts/xhttp-split-stability.js",
+    "test:stability:policy": "node scripts/policy-stability.js"
   },
   "author": "seezaara",
   "license": "MIT",
@@ -42,6 +43,7 @@
     "url": "https://github.com/seezaara/js2ray.git"
   },
   "dependencies": {
+    "re2js": "2.8.6",
     "ws": "8.22.0"
   },
   "types": "index.d.ts",

@@ -48,7 +48,7 @@ try {
   );
   assert.equal(installed.scripts.install, undefined);
   assert.equal(installed.scripts.postinstall, undefined);
-  assert.deepEqual(Object.keys(installed.dependencies), ['ws']);
+  assert.deepEqual(Object.keys(installed.dependencies).sort(), ['re2js', 'ws']);
   const privateConfig = path.join(root, 'v2ray-config.json');
   if (fs.existsSync(privateConfig)) {
     const audit = require('./private-audit');
@@ -74,6 +74,9 @@ try {
     assert.equal(typeof esm.createRuntime, 'function');
     for (const name of ['createHttpAgent','createHttpsAgent','createUndiciConnector','createUndiciDispatcher','createWebSocket','createRuntimeManager','RuntimeManager']) assert.equal(typeof esm[name], 'function');
     assert.equal(global.log, undefined);
+    const policy=api.checkConfig({compatibility:'xray-25.3.6',dns:{clientIp:'192.0.2.99',servers:[{address:'tcp+local://127.0.0.1:53',queryStrategy:'UseIPv4'}]},routing:{rules:[{domains:['regexp:^api[0-9]+\\\\.synthetic$'],source:['127.0.0.0/8'],attrs:{':method':'^GET$'},outboundTag:'direct'}]}});
+    assert.equal(policy.ok,true,JSON.stringify(policy.diagnostics));
+    const policyRuntime=api.createRuntime({compatibility:'v2ray-5.14.1',dns:{hosts:{'installed.synthetic':'192.0.2.1'}}});await policyRuntime.start();assert.equal((await policyRuntime.resolve('installed.synthetic'))[0].address,'192.0.2.1');await policyRuntime.close();
     const runtime = api.createRuntime({inbounds:[]});
     await runtime.start();
     assert.equal(runtime.listenersInfo.length, 0);

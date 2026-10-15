@@ -124,6 +124,8 @@ function wsStream(
       return stream;
     };
   Object.defineProperty(stream, 'remoteAddress', { get: () => ws._socket?.remoteAddress });
+  for (const field of ['remotePort', 'localAddress', 'localPort'])
+    Object.defineProperty(stream, field, { get: () => ws._socket?.[field] });
   activity();
   return stream;
 }

@@ -59,7 +59,7 @@ function collect(input) {
         lower = name.toLowerCase();
       if (
         /prefix/i.test(name) ||
-        /^(id|user|pass|password|email|privatekey|publickey|shortid|shortids|key|token|secret|authorization|cookie)$/.test(
+        /^(id|user|useremail|clientip|source|sourceip|sourceport|pass|password|email|privatekey|publickey|shortid|shortids|key|token|secret|authorization|cookie)$/.test(
           lower,
         )
       )
@@ -68,6 +68,19 @@ function collect(input) {
             key: /^(privatekey|publickey)$/.test(lower),
             short: /^shortids?$/.test(lower),
           });
+      if (prefix.startsWith('$.dns')) {
+        if (['address', 'clientip', 'servername'].includes(lower) && typeof item === 'string') {
+          add(field, item);
+          try {
+            const url = new URL(item.replace(/^(tcp|https)\+local:/, '$1:'));
+            add(field + '.host', url.hostname);
+            if (url.port) port(field + '.port', Number(url.port));
+          } catch {}
+        }
+        if (lower === 'port') port(field, item);
+      }
+      if (lower === 'attrs' && item && typeof item === 'object')
+        for (const entry of Object.values(item)) add(field + '.value', entry);
       if (inBound) {
         if (['address', 'listen', 'servername', 'servernames', 'host'].includes(lower))
           for (const entry of Array.isArray(item) ? item : [item]) add(field, entry);

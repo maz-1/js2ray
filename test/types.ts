@@ -1,6 +1,39 @@
 import api, { createRuntime, DatagramMessage, checkConfig } from '..';
 import { Agent, fetch } from 'undici';
 const runtime = createRuntime({ inbounds: [], outbounds: [{ protocol: 'freedom' }] });
+void createRuntime({
+  compatibility: 'xray-25.3.6',
+  routing: {
+    domainMatcher: 'hybrid',
+    rules: [
+      {
+        domains: ['regexp:^api'],
+        sourceIP: ['127.0.0.1'],
+        sourcePort: '1024-65535',
+        user: ['regexp:^tenant'],
+        protocol: ['http'],
+        attrs: { ':method': 'GET' },
+        ruleTag: 'policy',
+        outboundTag: 'direct',
+      },
+    ],
+  },
+  dns: {
+    clientIp: '192.0.2.1',
+    cacheStrategy: 'enabled',
+    disableFallbackIfMatch: true,
+    servers: [
+      {
+        address: 'tcp+local://127.0.0.1',
+        queryStrategy: 'UseIPv4',
+        fallbackStrategy: 'enabled',
+        timeoutMs: 1000,
+        expectedIPs: ['127.0.0.0/8'],
+        tag: 'dns-up',
+      },
+    ],
+  },
+});
 const xhttp = createRuntime({
   outbounds: [
     {
