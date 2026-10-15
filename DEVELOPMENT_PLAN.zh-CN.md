@@ -426,9 +426,9 @@ P19 全部验收通过：[全量回归](https://github.com/maz-1/js2ray/actions/
 - [x] 常用路由：domain/domains 别名、ruleTag、匹配算法、受控正则、外部 Geo 资源；来源 IP/端口、认证用户、协议及 Xray HTTP attrs，覆盖 TCP/UDP/Mux/reverse 与库模式。
 - [x] 常用 DNS：每服务器 queryStrategy/timeout/cache/tag、ECS、TCP/local 模式、域名和 IP 过滤、回退策略、缓存与引导解析；按固定内核明确支持与差异。
 - [x] 原生/传统配置、类型、示例、诊断和脱敏；逐项专项、固定内核对照与真实应用链路回归。
-- [ ] Windows/Linux/macOS 全量、固定内核对照、实际 tarball 和 100 会话/30 分钟长时验收，保存原始记录、产品/配置/脚本摘要与资源清理结果；新增自动核验门禁。
+- [x] Windows/Linux/macOS 全量、固定内核对照、实际 tarball 和 100 会话/30 分钟长时验收，保存原始记录、产品/配置/脚本摘要与资源清理结果；新增自动核验门禁。
 
-逐项完成后更新本节；短跑、未执行或失败的结果不计作正式验收。字段矩阵与明确差异见 [P20](docs/P20_POLICY_COMPATIBILITY.zh-CN.md)。本地普通回归 372/372，新增固定对照 26/26，类型/格式/示例和实际安装包通过；100 会话短跑完成 4 次轮换与 16 次 DNS 故障回退，不计作正式 30 分钟结果。另补齐 DNS 服务器索引与嗅探 EOF 首包/半关闭保序用例；已补齐长时失败退出和可复用证据核验器，三平台正式验收待执行。中间 Linux 固定内核回归暴露 HTTP/2 packet-up 空确认 EOF 早于异步续体导致的误超时，已新增确定性失败用例并修复，保持原预算；修复后普通 372/372、参考互通 228/228 与四组短跑全部通过，正式长时在修复源码上重新执行。macOS 另暴露固定 Xray 对超大 XUDP 的会话/承载级拒绝顺序差异；对照源码修正过窄错误码断言，并增加目标零超大包、会话关闭、新会话恢复及会话归零检查。该调整只修改验收与文档，产品源码和长时负载保持冻结。另将误嵌套的 XMUX 保活用例拆为独立顶层测试；CI 同时保留 spec 和 TAP 报告，避免测试工作进程退出原因丢失。调整后本地 372/372 普通回归通过。
+P20 全部验收通过：[三平台全量回归](https://github.com/maz-1/js2ray/actions/runs/38791828807) 每平台 372 项普通/228 项固定内核互通、类型/格式/示例与实际 tarball 安装全部通过，无失败、取消或跳过。[路由/DNS 长时](https://github.com/maz-1/js2ray/actions/runs/38789667879)、[上下行分离长时](https://github.com/maz-1/js2ray/actions/runs/38789667907)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38789667673) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38789668013) 各在三个平台完成 100 会话/30 分钟验收；P20 另保有 4 个 UDP 会话，覆盖 DNS/缓存/超时回退和凭据轮换。12 份原始记录均通过自动核验，所有管理器关闭归零，Caddy 子进程退出。83 个产品文件的规范化汇总 SHA256 为 `0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08`；全量与长时作业的产品、依赖、包清单及对应负载脚本逐文件一致。 逐项字段与差异、修复过程、原始记录链接见 [P20 验收与支持矩阵](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) 和 [机器汇总](docs/acceptance/p20-2026-10-16.json)。短跑及中间失败/取消运行均未计作正式通过；HTTP/3 和 DoQ 继续暂缓。
 
 ## 17 参考资料
 

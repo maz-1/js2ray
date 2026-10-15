@@ -106,3 +106,5 @@ See [API and migration](docs/API.zh-CN.md), [compatibility and evidence](docs/IM
 Configuration and credential rotation uses `createRuntimeManager`. Its HTTP/Undici adapters isolate pools by generation, while old streams drain within a budget. See the [API and rotation contract](docs/API.zh-CN.md), including same-port UUID/certificate rotation and readiness probes.
 
 `npm run test:stability:extensions` runs a separate 100-session, 30-minute mix of TCP, UDP and application WS/WSS, with credential rotation every minute. [The P9–P13 acceptance record](docs/P9-P13_ACCEPTANCE.zh-CN.md) links the three-platform results, original load records and source hashes.
+
+Common routing and DNS compatibility targets pinned V2Ray 5.14.1 and Xray 25.3.6 with explicit semantic profiles, RE2 matching, source/user/HTTP conditions, ECS, TCP/local DNS and per-server controls. See [the field matrix and acceptance](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) and [the sanitized example](examples/policy-compat.json). HTTP/3 and DoQ remain deferred.

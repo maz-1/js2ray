@@ -1,0 +1,3119 @@
+{
+  "phase": "P20",
+  "node": "v24.20.0",
+  "platform": "linux",
+  "arch": "x64",
+  "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+  "started": "2026-10-15T18:55:57.079Z",
+  "durationMinutes": 30,
+  "formalAcceptance": true,
+  "concurrentSessions": 100,
+  "concurrentDatagrams": 4,
+  "profiles": [
+    {
+      "protocol": "vmess",
+      "type": "tcp",
+      "mux": false,
+      "compatibility": "v2ray-5.14.1",
+      "count": 25
+    },
+    {
+      "protocol": "vless",
+      "type": "tcp",
+      "mux": true,
+      "compatibility": "xray-25.3.6",
+      "count": 25
+    },
+    {
+      "protocol": "vless",
+      "type": "ws",
+      "mux": false,
+      "compatibility": "v2ray-5.14.1",
+      "count": 25
+    },
+    {
+      "protocol": "vless",
+      "type": "xhttp",
+      "mux": false,
+      "compatibility": "xray-25.3.6",
+      "count": 25
+    }
+  ],
+  "latency": {
+    "count": 1773714,
+    "totalMs": 3261756.661712952,
+    "maxMs": 47.54833800000006
+  },
+  "rotations": 29,
+  "faults": 116,
+  "dnsChecks": 6816,
+  "udpChecks": 6816,
+  "iterations": 1773714,
+  "bytes": 1809518352,
+  "churn": 6816,
+  "peak": {
+    "rss": 259825664,
+    "heap": 68679560,
+    "pendingDns": 1,
+    "cacheEntries": 268,
+    "queuedBytes": 88
+  },
+  "samples": [
+    {
+      "elapsedMs": 5001,
+      "rss": 124776448,
+      "heap": 22902096,
+      "pendingDns": 0,
+      "cacheEntries": 24,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 10000,
+      "rss": 127082496,
+      "heap": 20668152,
+      "pendingDns": 0,
+      "cacheEntries": 44,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 15000,
+      "rss": 129056768,
+      "heap": 22803288,
+      "pendingDns": 0,
+      "cacheEntries": 64,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 20000,
+      "rss": 129331200,
+      "heap": 27065648,
+      "pendingDns": 0,
+      "cacheEntries": 84,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 25001,
+      "rss": 129818624,
+      "heap": 30242704,
+      "pendingDns": 0,
+      "cacheEntries": 104,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 30001,
+      "rss": 129679360,
+      "heap": 21320480,
+      "pendingDns": 0,
+      "cacheEntries": 124,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 35001,
+      "rss": 150126592,
+      "heap": 29281328,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 40003,
+      "rss": 161792000,
+      "heap": 21745360,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 45003,
+      "rss": 162615296,
+      "heap": 19027360,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 50004,
+      "rss": 163663872,
+      "heap": 37531464,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 55004,
+      "rss": 163794944,
+      "heap": 18653488,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 60004,
+      "rss": 163794944,
+      "heap": 32905424,
+      "pendingDns": 0,
+      "cacheEntries": 132,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 65006,
+      "rss": 164622336,
+      "heap": 31360232,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 70006,
+      "rss": 164884480,
+      "heap": 20902912,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 75007,
+      "rss": 165146624,
+      "heap": 36535472,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 80007,
+      "rss": 165277696,
+      "heap": 30522760,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 85007,
+      "rss": 165408768,
+      "heap": 25495320,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 90008,
+      "rss": 165539840,
+      "heap": 19622560,
+      "pendingDns": 0,
+      "cacheEntries": 249,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 95008,
+      "rss": 165539840,
+      "heap": 33592584,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 100008,
+      "rss": 165539840,
+      "heap": 28991584,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 105008,
+      "rss": 166699008,
+      "heap": 23151776,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 110009,
+      "rss": 166699008,
+      "heap": 42632832,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 115008,
+      "rss": 166699008,
+      "heap": 33408096,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 120009,
+      "rss": 191733760,
+      "heap": 26125040,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 125009,
+      "rss": 192126976,
+      "heap": 37784008,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 130009,
+      "rss": 192258048,
+      "heap": 34314344,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 135009,
+      "rss": 195350528,
+      "heap": 27430952,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 140009,
+      "rss": 195350528,
+      "heap": 45149168,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 145009,
+      "rss": 199282688,
+      "heap": 37630656,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 150009,
+      "rss": 199282688,
+      "heap": 31627664,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 155009,
+      "rss": 199282688,
+      "heap": 25640304,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 160010,
+      "rss": 199413760,
+      "heap": 19103320,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 165010,
+      "rss": 216637440,
+      "heap": 21966576,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 170010,
+      "rss": 216637440,
+      "heap": 29753440,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 175011,
+      "rss": 216637440,
+      "heap": 24488760,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 180010,
+      "rss": 216395776,
+      "heap": 42301080,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 185010,
+      "rss": 216641536,
+      "heap": 30625136,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 190011,
+      "rss": 216567808,
+      "heap": 26554472,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 195012,
+      "rss": 218533888,
+      "heap": 29254712,
+      "pendingDns": 0,
+      "cacheEntries": 196,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 200011,
+      "rss": 219844608,
+      "heap": 36495008,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 205011,
+      "rss": 219844608,
+      "heap": 31376272,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 210011,
+      "rss": 219844608,
+      "heap": 24818016,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 215011,
+      "rss": 219844608,
+      "heap": 45562320,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 220012,
+      "rss": 219844608,
+      "heap": 40840400,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 225011,
+      "rss": 219844608,
+      "heap": 31358472,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 230011,
+      "rss": 219844608,
+      "heap": 24474920,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 235011,
+      "rss": 219844608,
+      "heap": 39478128,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 240012,
+      "rss": 219705344,
+      "heap": 37463864,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 245011,
+      "rss": 220098560,
+      "heap": 27617640,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 250011,
+      "rss": 220098560,
+      "heap": 21793752,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 255011,
+      "rss": 220098560,
+      "heap": 37596376,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 260011,
+      "rss": 220098560,
+      "heap": 31453840,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 265012,
+      "rss": 220098560,
+      "heap": 28704976,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 270012,
+      "rss": 220229632,
+      "heap": 20149320,
+      "pendingDns": 0,
+      "cacheEntries": 250,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 275013,
+      "rss": 220229632,
+      "heap": 36356144,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 280013,
+      "rss": 220229632,
+      "heap": 31597008,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 285013,
+      "rss": 220229632,
+      "heap": 23920208,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 290013,
+      "rss": 220360704,
+      "heap": 39100456,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 295013,
+      "rss": 220360704,
+      "heap": 35288784,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 300014,
+      "rss": 220360704,
+      "heap": 34739384,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 305014,
+      "rss": 220622848,
+      "heap": 23131880,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 310016,
+      "rss": 234516480,
+      "heap": 41574792,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 315017,
+      "rss": 234647552,
+      "heap": 32807592,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 320017,
+      "rss": 234205184,
+      "heap": 27588976,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 325016,
+      "rss": 234020864,
+      "heap": 20126984,
+      "pendingDns": 0,
+      "cacheEntries": 230,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 330018,
+      "rss": 234283008,
+      "heap": 34418096,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 335019,
+      "rss": 233775104,
+      "heap": 28508392,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 340019,
+      "rss": 233775104,
+      "heap": 35049176,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 345020,
+      "rss": 233775104,
+      "heap": 39132672,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 350020,
+      "rss": 233775104,
+      "heap": 35178424,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 355021,
+      "rss": 233775104,
+      "heap": 29251744,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 360022,
+      "rss": 233775104,
+      "heap": 68679560,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 365023,
+      "rss": 233906176,
+      "heap": 37834824,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 370023,
+      "rss": 233631744,
+      "heap": 41175184,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 375023,
+      "rss": 233439232,
+      "heap": 26889192,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 380024,
+      "rss": 233570304,
+      "heap": 30408480,
+      "pendingDns": 0,
+      "cacheEntries": 210,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 385024,
+      "rss": 233701376,
+      "heap": 36571416,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 390026,
+      "rss": 233701376,
+      "heap": 31358360,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 395028,
+      "rss": 233701376,
+      "heap": 25613376,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 400029,
+      "rss": 233701376,
+      "heap": 19808344,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 405030,
+      "rss": 233701376,
+      "heap": 35431472,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 410029,
+      "rss": 233832448,
+      "heap": 29932048,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 415030,
+      "rss": 233832448,
+      "heap": 24786888,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 420029,
+      "rss": 233832448,
+      "heap": 40392512,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 425029,
+      "rss": 236699648,
+      "heap": 33364440,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 430030,
+      "rss": 236699648,
+      "heap": 28339824,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 435030,
+      "rss": 236699648,
+      "heap": 22701424,
+      "pendingDns": 0,
+      "cacheEntries": 194,
+      "queuedBytes": 88
+    },
+    {
+      "elapsedMs": 440030,
+      "rss": 236699648,
+      "heap": 37246832,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 445030,
+      "rss": 236482560,
+      "heap": 39238616,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 450030,
+      "rss": 236482560,
+      "heap": 26536288,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 455032,
+      "rss": 236482560,
+      "heap": 38968560,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 460031,
+      "rss": 236482560,
+      "heap": 35927968,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 465031,
+      "rss": 236482560,
+      "heap": 28416664,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 470031,
+      "rss": 236613632,
+      "heap": 25684352,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 475032,
+      "rss": 236613632,
+      "heap": 41725552,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 480032,
+      "rss": 236613632,
+      "heap": 60133008,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 485033,
+      "rss": 236613632,
+      "heap": 28648904,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 490033,
+      "rss": 236613632,
+      "heap": 23116504,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 495032,
+      "rss": 236613632,
+      "heap": 37747368,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 500032,
+      "rss": 236613632,
+      "heap": 33201248,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 505032,
+      "rss": 236744704,
+      "heap": 27309280,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 510032,
+      "rss": 236744704,
+      "heap": 25098896,
+      "pendingDns": 0,
+      "cacheEntries": 250,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 515032,
+      "rss": 236744704,
+      "heap": 36709840,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 520033,
+      "rss": 236744704,
+      "heap": 31316464,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 525033,
+      "rss": 237006848,
+      "heap": 25507752,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 530033,
+      "rss": 239759360,
+      "heap": 53531864,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 535034,
+      "rss": 240021504,
+      "heap": 35588256,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 540034,
+      "rss": 238546944,
+      "heap": 28761592,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 545034,
+      "rss": 237670400,
+      "heap": 23315832,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 550034,
+      "rss": 237670400,
+      "heap": 38814984,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 555035,
+      "rss": 237670400,
+      "heap": 33534056,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 560036,
+      "rss": 237670400,
+      "heap": 34160408,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 565036,
+      "rss": 237670400,
+      "heap": 22037792,
+      "pendingDns": 0,
+      "cacheEntries": 230,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 570036,
+      "rss": 237670400,
+      "heap": 37921920,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 575036,
+      "rss": 237932544,
+      "heap": 32060816,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 580036,
+      "rss": 237932544,
+      "heap": 28487464,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 585036,
+      "rss": 237932544,
+      "heap": 49897384,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 590036,
+      "rss": 237731840,
+      "heap": 21932168,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 595036,
+      "rss": 237731840,
+      "heap": 31793664,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 600036,
+      "rss": 237731840,
+      "heap": 26511464,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 605036,
+      "rss": 237731840,
+      "heap": 48353624,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 610038,
+      "rss": 237731840,
+      "heap": 36023224,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 615037,
+      "rss": 237731840,
+      "heap": 29525016,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 620037,
+      "rss": 237731840,
+      "heap": 27776624,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 625038,
+      "rss": 237731840,
+      "heap": 39080576,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 630038,
+      "rss": 237649920,
+      "heap": 33214896,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 635038,
+      "rss": 239222784,
+      "heap": 28183376,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 640038,
+      "rss": 239222784,
+      "heap": 27848224,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 645040,
+      "rss": 241057792,
+      "heap": 38022984,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 650040,
+      "rss": 241057792,
+      "heap": 34231648,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 655041,
+      "rss": 241057792,
+      "heap": 26776296,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 660042,
+      "rss": 241057792,
+      "heap": 29495000,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 665042,
+      "rss": 239755264,
+      "heap": 35273456,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 670043,
+      "rss": 239755264,
+      "heap": 29106760,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 675042,
+      "rss": 239755264,
+      "heap": 23456696,
+      "pendingDns": 0,
+      "cacheEntries": 196,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 680042,
+      "rss": 239755264,
+      "heap": 39681328,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 685042,
+      "rss": 239755264,
+      "heap": 33692632,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 690042,
+      "rss": 239755264,
+      "heap": 28297864,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 695042,
+      "rss": 239755264,
+      "heap": 21592328,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 700043,
+      "rss": 239755264,
+      "heap": 37339992,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 705042,
+      "rss": 239755264,
+      "heap": 31930008,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 710043,
+      "rss": 239755264,
+      "heap": 26498864,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 715043,
+      "rss": 239755264,
+      "heap": 26633080,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 720043,
+      "rss": 239755264,
+      "heap": 37800856,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 725043,
+      "rss": 239755264,
+      "heap": 30786728,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 730043,
+      "rss": 239755264,
+      "heap": 24580656,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 735044,
+      "rss": 239755264,
+      "heap": 39917976,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 740044,
+      "rss": 239755264,
+      "heap": 33977928,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 745044,
+      "rss": 239755264,
+      "heap": 28619152,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 750044,
+      "rss": 239755264,
+      "heap": 24339280,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 755045,
+      "rss": 239755264,
+      "heap": 40083088,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 760045,
+      "rss": 239886336,
+      "heap": 33990288,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 765045,
+      "rss": 239886336,
+      "heap": 50488144,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 770047,
+      "rss": 239886336,
+      "heap": 22127056,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 775047,
+      "rss": 239886336,
+      "heap": 38223160,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 780048,
+      "rss": 239886336,
+      "heap": 34609040,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 785047,
+      "rss": 239886336,
+      "heap": 24711448,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 790047,
+      "rss": 239886336,
+      "heap": 39766392,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 795047,
+      "rss": 240017408,
+      "heap": 34596968,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 800048,
+      "rss": 240148480,
+      "heap": 32192064,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 805048,
+      "rss": 240148480,
+      "heap": 24419184,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 810049,
+      "rss": 240279552,
+      "heap": 39660888,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 815049,
+      "rss": 240279552,
+      "heap": 33062280,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 820050,
+      "rss": 240279552,
+      "heap": 27979680,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 825050,
+      "rss": 240279552,
+      "heap": 24034816,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 830051,
+      "rss": 240279552,
+      "heap": 37785320,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 835051,
+      "rss": 240279552,
+      "heap": 32185624,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 840052,
+      "rss": 240279552,
+      "heap": 26375664,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 845053,
+      "rss": 240279552,
+      "heap": 23452352,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 850054,
+      "rss": 240279552,
+      "heap": 34294784,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 855055,
+      "rss": 240279552,
+      "heap": 28057696,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 860056,
+      "rss": 240279552,
+      "heap": 45457664,
+      "pendingDns": 0,
+      "cacheEntries": 208,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 865056,
+      "rss": 240279552,
+      "heap": 38157208,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 870056,
+      "rss": 240279552,
+      "heap": 31789472,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 875056,
+      "rss": 240279552,
+      "heap": 26474328,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 880056,
+      "rss": 240279552,
+      "heap": 41767480,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 885056,
+      "rss": 240279552,
+      "heap": 36980392,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 890057,
+      "rss": 240279552,
+      "heap": 32434080,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 895058,
+      "rss": 240279552,
+      "heap": 27695416,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 900059,
+      "rss": 240541696,
+      "heap": 37081192,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 905058,
+      "rss": 240521216,
+      "heap": 34885736,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 910058,
+      "rss": 240521216,
+      "heap": 29160000,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 915058,
+      "rss": 240521216,
+      "heap": 25056392,
+      "pendingDns": 0,
+      "cacheEntries": 194,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 920058,
+      "rss": 240521216,
+      "heap": 40051880,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 925058,
+      "rss": 240521216,
+      "heap": 38659784,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 930058,
+      "rss": 240521216,
+      "heap": 27117784,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 935058,
+      "rss": 240652288,
+      "heap": 43283920,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 940058,
+      "rss": 240652288,
+      "heap": 39746816,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 945058,
+      "rss": 240652288,
+      "heap": 31974120,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 950059,
+      "rss": 240652288,
+      "heap": 26005280,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 955059,
+      "rss": 240652288,
+      "heap": 41565464,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 960059,
+      "rss": 240652288,
+      "heap": 40267992,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 965059,
+      "rss": 240652288,
+      "heap": 28734760,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 970060,
+      "rss": 240652288,
+      "heap": 43576152,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 975060,
+      "rss": 240652288,
+      "heap": 38174136,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 980060,
+      "rss": 240652288,
+      "heap": 55048880,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 985060,
+      "rss": 240652288,
+      "heap": 27026296,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 990060,
+      "rss": 240914432,
+      "heap": 43027104,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 995061,
+      "rss": 240914432,
+      "heap": 36830248,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1000061,
+      "rss": 240914432,
+      "heap": 29356944,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1005062,
+      "rss": 240914432,
+      "heap": 25340344,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1010064,
+      "rss": 240914432,
+      "heap": 40848800,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1015064,
+      "rss": 240914432,
+      "heap": 35277408,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1020063,
+      "rss": 240914432,
+      "heap": 29064952,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1025064,
+      "rss": 240914432,
+      "heap": 42598944,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1030063,
+      "rss": 240914432,
+      "heap": 37362528,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1035065,
+      "rss": 252710912,
+      "heap": 45378280,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1040065,
+      "rss": 252563456,
+      "heap": 26541008,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1045065,
+      "rss": 252563456,
+      "heap": 41109640,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1050065,
+      "rss": 252563456,
+      "heap": 35254632,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1055066,
+      "rss": 252563456,
+      "heap": 30065376,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1060065,
+      "rss": 252563456,
+      "heap": 23843296,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1065066,
+      "rss": 252563456,
+      "heap": 39159448,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1070067,
+      "rss": 252563456,
+      "heap": 33386784,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1075067,
+      "rss": 252563456,
+      "heap": 27739736,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1080068,
+      "rss": 252563456,
+      "heap": 44027544,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1085069,
+      "rss": 252563456,
+      "heap": 35893960,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1090070,
+      "rss": 252563456,
+      "heap": 30003296,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1095070,
+      "rss": 252563456,
+      "heap": 23332344,
+      "pendingDns": 0,
+      "cacheEntries": 194,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1100070,
+      "rss": 252563456,
+      "heap": 39371272,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1105071,
+      "rss": 252563456,
+      "heap": 56478360,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1110072,
+      "rss": 252825600,
+      "heap": 29233912,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1115073,
+      "rss": 252825600,
+      "heap": 42472768,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1120073,
+      "rss": 253087744,
+      "heap": 36221472,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1125074,
+      "rss": 253087744,
+      "heap": 32690056,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1130074,
+      "rss": 253087744,
+      "heap": 31140136,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1135075,
+      "rss": 253087744,
+      "heap": 41953936,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1140076,
+      "rss": 253087744,
+      "heap": 36704376,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1145075,
+      "rss": 253087744,
+      "heap": 29810840,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1150076,
+      "rss": 253087744,
+      "heap": 58037552,
+      "pendingDns": 0,
+      "cacheEntries": 173,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1155077,
+      "rss": 253087744,
+      "heap": 38658568,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1160077,
+      "rss": 253087744,
+      "heap": 33278960,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1165078,
+      "rss": 253087744,
+      "heap": 27153856,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1170078,
+      "rss": 253087744,
+      "heap": 41039768,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1175080,
+      "rss": 253087744,
+      "heap": 36707688,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1180079,
+      "rss": 253087744,
+      "heap": 33462560,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1185080,
+      "rss": 253087744,
+      "heap": 25211008,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1190080,
+      "rss": 253087744,
+      "heap": 40531152,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1195080,
+      "rss": 253087744,
+      "heap": 35711488,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1200081,
+      "rss": 253218816,
+      "heap": 33800904,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1205081,
+      "rss": 253218816,
+      "heap": 43815792,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1210081,
+      "rss": 253218816,
+      "heap": 38203448,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1215082,
+      "rss": 253218816,
+      "heap": 32034896,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1220082,
+      "rss": 253218816,
+      "heap": 25995728,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1225082,
+      "rss": 253218816,
+      "heap": 41974256,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1230082,
+      "rss": 253349888,
+      "heap": 37018200,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1235082,
+      "rss": 253480960,
+      "heap": 30963936,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1240082,
+      "rss": 253612032,
+      "heap": 25007824,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1245082,
+      "rss": 253612032,
+      "heap": 40310528,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1250082,
+      "rss": 253612032,
+      "heap": 35209936,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1255082,
+      "rss": 253612032,
+      "heap": 29611536,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1260082,
+      "rss": 253612032,
+      "heap": 25555416,
+      "pendingDns": 0,
+      "cacheEntries": 235,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1265083,
+      "rss": 253612032,
+      "heap": 38565560,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1270083,
+      "rss": 253612032,
+      "heap": 28513800,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1275084,
+      "rss": 253612032,
+      "heap": 27942800,
+      "pendingDns": 0,
+      "cacheEntries": 196,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1280084,
+      "rss": 253612032,
+      "heap": 44548760,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1285084,
+      "rss": 253743104,
+      "heap": 37865632,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1290084,
+      "rss": 253743104,
+      "heap": 32412904,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1295083,
+      "rss": 255447040,
+      "heap": 26106392,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1300084,
+      "rss": 255447040,
+      "heap": 41504136,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1305085,
+      "rss": 255447040,
+      "heap": 35981576,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1310086,
+      "rss": 255447040,
+      "heap": 30430632,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1315087,
+      "rss": 255447040,
+      "heap": 25570600,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1320087,
+      "rss": 255447040,
+      "heap": 40805832,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1325088,
+      "rss": 255447040,
+      "heap": 33999696,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1330088,
+      "rss": 255447040,
+      "heap": 28366304,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1335088,
+      "rss": 255709184,
+      "heap": 43591176,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1340089,
+      "rss": 255709184,
+      "heap": 40961368,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1345091,
+      "rss": 255709184,
+      "heap": 33174856,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1350090,
+      "rss": 255971328,
+      "heap": 27481952,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1355090,
+      "rss": 255971328,
+      "heap": 42493192,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1360090,
+      "rss": 255971328,
+      "heap": 36239576,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1365090,
+      "rss": 255176704,
+      "heap": 31424128,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1370090,
+      "rss": 255176704,
+      "heap": 25717208,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1375091,
+      "rss": 254545920,
+      "heap": 52122488,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1380091,
+      "rss": 254545920,
+      "heap": 36221360,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1385091,
+      "rss": 254808064,
+      "heap": 29089752,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1390091,
+      "rss": 254808064,
+      "heap": 44909240,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1395092,
+      "rss": 254808064,
+      "heap": 38143864,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1400092,
+      "rss": 254808064,
+      "heap": 33636560,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1405092,
+      "rss": 254808064,
+      "heap": 50220352,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1410093,
+      "rss": 254808064,
+      "heap": 46490656,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1415092,
+      "rss": 254808064,
+      "heap": 38303496,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1420093,
+      "rss": 254808064,
+      "heap": 29465984,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1425093,
+      "rss": 254853120,
+      "heap": 26084664,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1430094,
+      "rss": 254853120,
+      "heap": 51046936,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1435095,
+      "rss": 254853120,
+      "heap": 35815448,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1440095,
+      "rss": 254853120,
+      "heap": 29972712,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1445096,
+      "rss": 254853120,
+      "heap": 44962312,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1450096,
+      "rss": 254853120,
+      "heap": 38625528,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1455097,
+      "rss": 254853120,
+      "heap": 33422208,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1460097,
+      "rss": 254853120,
+      "heap": 27873096,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1465098,
+      "rss": 254853120,
+      "heap": 23898384,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1470099,
+      "rss": 254853120,
+      "heap": 35398720,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1475099,
+      "rss": 254320640,
+      "heap": 38746160,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1480101,
+      "rss": 253927424,
+      "heap": 25943344,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1485101,
+      "rss": 253927424,
+      "heap": 40896616,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1490101,
+      "rss": 253927424,
+      "heap": 35731672,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1495102,
+      "rss": 253927424,
+      "heap": 30290112,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1500102,
+      "rss": 253927424,
+      "heap": 24457776,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1505103,
+      "rss": 254320640,
+      "heap": 24847992,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1510102,
+      "rss": 254320640,
+      "heap": 33200520,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1515103,
+      "rss": 254451712,
+      "heap": 28229488,
+      "pendingDns": 0,
+      "cacheEntries": 196,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1520103,
+      "rss": 254582784,
+      "heap": 42485368,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1525104,
+      "rss": 254582784,
+      "heap": 36875208,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1530104,
+      "rss": 254582784,
+      "heap": 31525720,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1535104,
+      "rss": 254713856,
+      "heap": 25000424,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1540104,
+      "rss": 254713856,
+      "heap": 41209944,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1545105,
+      "rss": 259825664,
+      "heap": 48924384,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1550104,
+      "rss": 259825664,
+      "heap": 30926384,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1555103,
+      "rss": 259825664,
+      "heap": 23769280,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1560104,
+      "rss": 259825664,
+      "heap": 40832088,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1565105,
+      "rss": 258387968,
+      "heap": 33749568,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1570105,
+      "rss": 258387968,
+      "heap": 50508192,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1575105,
+      "rss": 258387968,
+      "heap": 66341208,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1580106,
+      "rss": 258387968,
+      "heap": 38566584,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1585106,
+      "rss": 258387968,
+      "heap": 32783192,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1590106,
+      "rss": 258387968,
+      "heap": 27532096,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1595107,
+      "rss": 258387968,
+      "heap": 42896808,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1600107,
+      "rss": 258387968,
+      "heap": 36820856,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1605107,
+      "rss": 258387968,
+      "heap": 31954144,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1610108,
+      "rss": 258387968,
+      "heap": 32053808,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1615109,
+      "rss": 258387968,
+      "heap": 42642080,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1620109,
+      "rss": 258387968,
+      "heap": 37551296,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1625110,
+      "rss": 258244608,
+      "heap": 30126016,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1630110,
+      "rss": 258244608,
+      "heap": 45390640,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1635110,
+      "rss": 258244608,
+      "heap": 39808120,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1640110,
+      "rss": 258244608,
+      "heap": 34046536,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1645110,
+      "rss": 258244608,
+      "heap": 28169552,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1650111,
+      "rss": 258244608,
+      "heap": 42108552,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1655110,
+      "rss": 258244608,
+      "heap": 38162712,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1660111,
+      "rss": 258244608,
+      "heap": 32178096,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1665111,
+      "rss": 258244608,
+      "heap": 27310968,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1670113,
+      "rss": 258244608,
+      "heap": 43188744,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1675113,
+      "rss": 258244608,
+      "heap": 36949840,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1680113,
+      "rss": 258244608,
+      "heap": 37333264,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1685114,
+      "rss": 258244608,
+      "heap": 45360432,
+      "pendingDns": 0,
+      "cacheEntries": 152,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1690115,
+      "rss": 258375680,
+      "heap": 39866160,
+      "pendingDns": 0,
+      "cacheEntries": 172,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1695115,
+      "rss": 258375680,
+      "heap": 35104016,
+      "pendingDns": 0,
+      "cacheEntries": 192,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1700117,
+      "rss": 258375680,
+      "heap": 28749600,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1705116,
+      "rss": 258375680,
+      "heap": 43081320,
+      "pendingDns": 0,
+      "cacheEntries": 228,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1710117,
+      "rss": 258375680,
+      "heap": 38120056,
+      "pendingDns": 0,
+      "cacheEntries": 248,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1715117,
+      "rss": 258375680,
+      "heap": 32440096,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1720118,
+      "rss": 258375680,
+      "heap": 26371880,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1725118,
+      "rss": 258375680,
+      "heap": 41862216,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1730118,
+      "rss": 258375680,
+      "heap": 35918904,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1735118,
+      "rss": 258375680,
+      "heap": 53547976,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1740118,
+      "rss": 258375680,
+      "heap": 25903080,
+      "pendingDns": 1,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1745118,
+      "rss": 258506752,
+      "heap": 39420736,
+      "pendingDns": 0,
+      "cacheEntries": 156,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1750118,
+      "rss": 258637824,
+      "heap": 36934960,
+      "pendingDns": 0,
+      "cacheEntries": 176,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1755118,
+      "rss": 258637824,
+      "heap": 26684320,
+      "pendingDns": 0,
+      "cacheEntries": 196,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1760118,
+      "rss": 258637824,
+      "heap": 49126880,
+      "pendingDns": 0,
+      "cacheEntries": 212,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1765118,
+      "rss": 258637824,
+      "heap": 37965416,
+      "pendingDns": 0,
+      "cacheEntries": 232,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1770119,
+      "rss": 258478080,
+      "heap": 32004416,
+      "pendingDns": 0,
+      "cacheEntries": 252,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1775119,
+      "rss": 258478080,
+      "heap": 26359648,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1780119,
+      "rss": 258478080,
+      "heap": 42241240,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1785119,
+      "rss": 258478080,
+      "heap": 36530176,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1790120,
+      "rss": 258478080,
+      "heap": 29990048,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1795120,
+      "rss": 258478080,
+      "heap": 26600104,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1800120,
+      "rss": 258478080,
+      "heap": 39372072,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    },
+    {
+      "elapsedMs": 1800316,
+      "rss": 258478080,
+      "heap": 39469160,
+      "pendingDns": 0,
+      "cacheEntries": 268,
+      "queuedBytes": 26
+    }
+  ],
+  "passed": true,
+  "sourceNormalization": "UTF-8, CRLF to LF",
+  "sources": {
+    "adapters/http.js": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16",
+    "adapters/websocket.js": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd",
+    "cli/index.js": "c49852ea0c087a4ff117f86abeb52eedef8c3ab34046718d05842379de948b15",
+    "config/dns.js": "edf2caa29213e3a8dc8c297aba61449acd39785abb7c28ab02e9857e565c66bb",
+    "config/index.js": "5e2409ff50b46283a05bcb3b5d4c479aee046e7716feb28c0cf69f1089262648",
+    "config/policy.js": "aa0f258def277fb47e67ce9db43031d91eeda1eceebce164c492fa4956d98915",
+    "config/reality.js": "b11df41d237b8cca73d5d13e5262ba3f069a9ad8abe39fb0f7f3c69c373d4ec6",
+    "config/reverse.js": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07",
+    "config/v2ray.js": "a84d129c12aad121fb9daa80a472deed702abcbe1edb0c5592700d067febefdd",
+    "config/xhttp.js": "43df2acd0c8b4f5420201e8ad7b3407957cab454e59be1f9c408ba3e346cf26f",
+    "core/api.js": "262c75c43ee8ec12d7703cbd332eb5de451966633c3d9f3c6c2ce5747f0423fa",
+    "core/event.js": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb",
+    "core/localNetwork.js": "cdfe9c5c5137427cad03c636e6b7f57d4471e14d1fa090f1e8a7ea4c8103f77b",
+    "core/remoteNetwork.js": "cfbc6e001acce5e9e718e9f231dfd1b67a12dd23f408d6c9900c199e794c7218",
+    "core/storage.js": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d",
+    "core/utils.js": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa",
+    "dns/index.js": "7a88136942f5dfbddd5190de2a786714db67303517760e303630af377b1f13ae",
+    "dns/wire.js": "1838d09cd9da9f7bba6934d81dd8d1975613bb49f2850fe592576366a28e58e4",
+    "geodata/domains.js": "5d030d3e71c168eba4ae789b852888f657cf30fa865e7b09b91c91054cf66eb3",
+    "geodata/index.js": "00e0d349425c3fc45c213b20be0547640597f491a413c771e0cb3942d495c375",
+    "geodata/regex.js": "1e12b03d4a2a455fd4a914141f7210ab9c808e05476ad2fe5ecaa3d60e8ba9ae",
+    "index.d.ts": "a80869a53c6b4164d1d8be68e9b787756d7ef0905e49f8806aca84502eba0d80",
+    "index.js": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905",
+    "index.mjs": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a",
+    "protocols/bridge.js": "f574154c865aa5560d7193efb14ce1f79e50e451e8debf3eaacbc2992887037f",
+    "protocols/freedom.js": "4ab85357145a41eeea9c9eb02b1253148ae65f6bad7b13b40992b2634f0dca75",
+    "protocols/mux/frame.js": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99",
+    "protocols/mux/index.js": "8b6787077214288009986e0ca249aae736f94272e03aa5733b7b4717c394ef98",
+    "protocols/socks/client.js": "76482976660948dcbcd9ac2ec89d9be2c32430962120c74699efec1ce72b10b5",
+    "protocols/socks/datagram.js": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b",
+    "protocols/socks/index.js": "0e4f159c2d35b52bf71d5f3c96c8b74209b9ac639622ff531f84c89dc3a8522b",
+    "protocols/socks/server.js": "1eaa0b1cf7228bc33ce96ee9a91f10dfd9f7fbabf55413d56145122bcbbb0938",
+    "protocols/socks/stream.js": "b49c3b2a04755689202d415e00eb597960a6aa20d46d44a562b98a0684397d94",
+    "protocols/vless/index.js": "8d5ade9cba2e77b9815c10af2d806569c032b44a7941a09138ec113c054dedaa",
+    "protocols/vless/vision.js": "d539168403fdb19d1b258f3fe713aa436c99144b1f75742dea267c6f64a69c83",
+    "protocols/vmess/account.js": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79",
+    "protocols/vmess/advanced-buffer.js": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722",
+    "protocols/vmess/aead.js": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337",
+    "protocols/vmess/client.js": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954",
+    "protocols/vmess/common.js": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa",
+    "protocols/vmess/consts.js": "b8c51607b0268d5c2a1ad34b2aee6fa9753f57171b0e04c8c7b20c9393fd5f74",
+    "protocols/vmess/crypto/crc32.js": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7",
+    "protocols/vmess/crypto/hmac/_assert.js": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9",
+    "protocols/vmess/crypto/hmac/_sha2.js": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde",
+    "protocols/vmess/crypto/hmac/hmac.js": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132",
+    "protocols/vmess/crypto/hmac/sha256.js": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7",
+    "protocols/vmess/crypto/hmac/utils.js": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229",
+    "protocols/vmess/crypto/sha3.js": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9",
+    "protocols/vmess/datagram.js": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795",
+    "protocols/vmess/index.js": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf",
+    "protocols/vmess/kdf.js": "b9087ec1f5b62e71587f98dd6031def69fedbeb95142dc17784ee184badb6e8b",
+    "protocols/vmess/replayfilter.js": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0",
+    "protocols/vmess/server.js": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d",
+    "protocols/vmess/store.js": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90",
+    "protocols/vmess/validator.js": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8",
+    "reverse/index.js": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6",
+    "routing/index.js": "f2c12c32c4630158e0c205396603793216ea18ee5b184b1e6e7fa1d7fb2566d3",
+    "routing/sniff.js": "b51a42947f772006dbe7465d79b3d1ed5d41622a61825faf4f19339ac0010789",
+    "runtime/abortable.js": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2",
+    "runtime/datagram.js": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4",
+    "runtime/errors.js": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220",
+    "runtime/hooks.js": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1",
+    "runtime/index.js": "53c8c0be7d579ee1036344fdce3543abedc0786d3d622d31e012137491a5f4d1",
+    "runtime/manager.js": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7",
+    "runtime/metrics.js": "a4388ea18df0f6be8bca8b78e83b133934383f6820b71883bc5061a8e660def5",
+    "runtime/reader.js": "c0c208d8246131fc968522cd184927a593f6aeef507dd16fdd7376471dddc420",
+    "runtime/streams.js": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730",
+    "runtime/watch.js": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c",
+    "transports/inbound.js": "f66e133024629821645a8d505b0155f2c174c7dba0d1bd79d465368f5bcaf167",
+    "transports/index.js": "aefa1341981c96613380e276ac0fcceda3c552e29ba3517b6eefc4c86dd71ba5",
+    "transports/reality/certificate.js": "e425351bd885b040b175749502fc5eb1e0d0af80ef1e4873448cb06415615bc8",
+    "transports/reality/crypto.js": "58546e5551117dd871e6c1808cf1a29bcfe7466cf2d1ddf931cddfe70b9cddf1",
+    "transports/reality/handshake.js": "a53be79f2b537054a021baa6a17ecc23c3db9b2eb41b2f31afb4a92b273d6593",
+    "transports/reality/hello.js": "1b1772dcec4a5f33dc3705f016ebb1a7db51cce3955dbe3fe61da98f63bc644f",
+    "transports/reality/index.js": "f279f2d75a53e71ab9a1ae0638fa25caa103c4e686d3ae69321f651f183b9b92",
+    "transports/reality/stream.js": "9e13e6eaa5ff09d9f96086f4fc980c6839ea87f5162c2115290eb51ce43b1873",
+    "transports/reality/wire.js": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9",
+    "transports/vision-tls.js": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0",
+    "transports/xhttp/client.js": "dc12c2f0c5c63023e211dfe4bb2781251774bee8c232b0c645a1a25184d765cd",
+    "transports/xhttp/common.js": "c90048eabc1a1f1d00f931a23e0ba02be05e0b1e3a0b72c3d92aa0fa64df58a0",
+    "transports/xhttp/index.js": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3",
+    "transports/xhttp/server.js": "28bcab905fa7e0a82e86a3375a99a6ad28e9361710a6f5dd3cffefc8c4fe697e",
+    "transports/xhttp/xmux.js": "b15498d7d36fee914e7b4e947e5eb5279d247498b3ad9fff63b819daee89a9e7"
+  },
+  "sourceSha256": "0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08",
+  "dependenciesSha256": "7afc4a38b198dd8a26e007c9cea9eccb5516f7e2dc5ccf3ea992e55fc73a86f6",
+  "packageSha256": "3754bd4590eadbd73ef3257f60eee3508c5e456e4469fc8bd318581ab2faa49a",
+  "harnessSha256": "ca7f02b5f98ece09e50fb20ed39258fc76fac7ccf1486747d0c8cac5b6dac36a",
+  "elapsedMs": 1800315,
+  "configSha256": "1135f3eea25b7dfaf4ef701523ece185f7b5c49b36bf4ec558bb952436eee1a4",
+  "closed": [
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    },
+    {
+      "state": "closed",
+      "generation": 0,
+      "generations": 0,
+      "connections": 0,
+      "pendingDials": 0,
+      "listeners": 0,
+      "reverse": []
+    }
+  ],
+  "finished": "2026-10-15T19:25:58.685Z"
+}

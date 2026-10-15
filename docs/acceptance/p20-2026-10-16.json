@@ -1,0 +1,583 @@
+{
+  "phase": "P20",
+  "date": "2026-10-16",
+  "node": "24.20.0",
+  "sourceNormalization": "UTF-8, CRLF to LF",
+  "sources": {
+    "adapters/http.js": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16",
+    "adapters/websocket.js": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd",
+    "cli/index.js": "c49852ea0c087a4ff117f86abeb52eedef8c3ab34046718d05842379de948b15",
+    "config/dns.js": "edf2caa29213e3a8dc8c297aba61449acd39785abb7c28ab02e9857e565c66bb",
+    "config/index.js": "5e2409ff50b46283a05bcb3b5d4c479aee046e7716feb28c0cf69f1089262648",
+    "config/policy.js": "aa0f258def277fb47e67ce9db43031d91eeda1eceebce164c492fa4956d98915",
+    "config/reality.js": "b11df41d237b8cca73d5d13e5262ba3f069a9ad8abe39fb0f7f3c69c373d4ec6",
+    "config/reverse.js": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07",
+    "config/v2ray.js": "a84d129c12aad121fb9daa80a472deed702abcbe1edb0c5592700d067febefdd",
+    "config/xhttp.js": "43df2acd0c8b4f5420201e8ad7b3407957cab454e59be1f9c408ba3e346cf26f",
+    "core/api.js": "262c75c43ee8ec12d7703cbd332eb5de451966633c3d9f3c6c2ce5747f0423fa",
+    "core/event.js": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb",
+    "core/localNetwork.js": "cdfe9c5c5137427cad03c636e6b7f57d4471e14d1fa090f1e8a7ea4c8103f77b",
+    "core/remoteNetwork.js": "cfbc6e001acce5e9e718e9f231dfd1b67a12dd23f408d6c9900c199e794c7218",
+    "core/storage.js": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d",
+    "core/utils.js": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa",
+    "dns/index.js": "7a88136942f5dfbddd5190de2a786714db67303517760e303630af377b1f13ae",
+    "dns/wire.js": "1838d09cd9da9f7bba6934d81dd8d1975613bb49f2850fe592576366a28e58e4",
+    "geodata/domains.js": "5d030d3e71c168eba4ae789b852888f657cf30fa865e7b09b91c91054cf66eb3",
+    "geodata/index.js": "00e0d349425c3fc45c213b20be0547640597f491a413c771e0cb3942d495c375",
+    "geodata/regex.js": "1e12b03d4a2a455fd4a914141f7210ab9c808e05476ad2fe5ecaa3d60e8ba9ae",
+    "index.d.ts": "a80869a53c6b4164d1d8be68e9b787756d7ef0905e49f8806aca84502eba0d80",
+    "index.js": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905",
+    "index.mjs": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a",
+    "protocols/bridge.js": "f574154c865aa5560d7193efb14ce1f79e50e451e8debf3eaacbc2992887037f",
+    "protocols/freedom.js": "4ab85357145a41eeea9c9eb02b1253148ae65f6bad7b13b40992b2634f0dca75",
+    "protocols/mux/frame.js": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99",
+    "protocols/mux/index.js": "8b6787077214288009986e0ca249aae736f94272e03aa5733b7b4717c394ef98",
+    "protocols/socks/client.js": "76482976660948dcbcd9ac2ec89d9be2c32430962120c74699efec1ce72b10b5",
+    "protocols/socks/datagram.js": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b",
+    "protocols/socks/index.js": "0e4f159c2d35b52bf71d5f3c96c8b74209b9ac639622ff531f84c89dc3a8522b",
+    "protocols/socks/server.js": "1eaa0b1cf7228bc33ce96ee9a91f10dfd9f7fbabf55413d56145122bcbbb0938",
+    "protocols/socks/stream.js": "b49c3b2a04755689202d415e00eb597960a6aa20d46d44a562b98a0684397d94",
+    "protocols/vless/index.js": "8d5ade9cba2e77b9815c10af2d806569c032b44a7941a09138ec113c054dedaa",
+    "protocols/vless/vision.js": "d539168403fdb19d1b258f3fe713aa436c99144b1f75742dea267c6f64a69c83",
+    "protocols/vmess/account.js": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79",
+    "protocols/vmess/advanced-buffer.js": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722",
+    "protocols/vmess/aead.js": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337",
+    "protocols/vmess/client.js": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954",
+    "protocols/vmess/common.js": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa",
+    "protocols/vmess/consts.js": "b8c51607b0268d5c2a1ad34b2aee6fa9753f57171b0e04c8c7b20c9393fd5f74",
+    "protocols/vmess/crypto/crc32.js": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7",
+    "protocols/vmess/crypto/hmac/_assert.js": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9",
+    "protocols/vmess/crypto/hmac/_sha2.js": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde",
+    "protocols/vmess/crypto/hmac/hmac.js": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132",
+    "protocols/vmess/crypto/hmac/sha256.js": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7",
+    "protocols/vmess/crypto/hmac/utils.js": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229",
+    "protocols/vmess/crypto/sha3.js": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9",
+    "protocols/vmess/datagram.js": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795",
+    "protocols/vmess/index.js": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf",
+    "protocols/vmess/kdf.js": "b9087ec1f5b62e71587f98dd6031def69fedbeb95142dc17784ee184badb6e8b",
+    "protocols/vmess/replayfilter.js": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0",
+    "protocols/vmess/server.js": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d",
+    "protocols/vmess/store.js": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90",
+    "protocols/vmess/validator.js": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8",
+    "reverse/index.js": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6",
+    "routing/index.js": "f2c12c32c4630158e0c205396603793216ea18ee5b184b1e6e7fa1d7fb2566d3",
+    "routing/sniff.js": "b51a42947f772006dbe7465d79b3d1ed5d41622a61825faf4f19339ac0010789",
+    "runtime/abortable.js": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2",
+    "runtime/datagram.js": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4",
+    "runtime/errors.js": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220",
+    "runtime/hooks.js": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1",
+    "runtime/index.js": "53c8c0be7d579ee1036344fdce3543abedc0786d3d622d31e012137491a5f4d1",
+    "runtime/manager.js": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7",
+    "runtime/metrics.js": "a4388ea18df0f6be8bca8b78e83b133934383f6820b71883bc5061a8e660def5",
+    "runtime/reader.js": "c0c208d8246131fc968522cd184927a593f6aeef507dd16fdd7376471dddc420",
+    "runtime/streams.js": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730",
+    "runtime/watch.js": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c",
+    "transports/inbound.js": "f66e133024629821645a8d505b0155f2c174c7dba0d1bd79d465368f5bcaf167",
+    "transports/index.js": "aefa1341981c96613380e276ac0fcceda3c552e29ba3517b6eefc4c86dd71ba5",
+    "transports/reality/certificate.js": "e425351bd885b040b175749502fc5eb1e0d0af80ef1e4873448cb06415615bc8",
+    "transports/reality/crypto.js": "58546e5551117dd871e6c1808cf1a29bcfe7466cf2d1ddf931cddfe70b9cddf1",
+    "transports/reality/handshake.js": "a53be79f2b537054a021baa6a17ecc23c3db9b2eb41b2f31afb4a92b273d6593",
+    "transports/reality/hello.js": "1b1772dcec4a5f33dc3705f016ebb1a7db51cce3955dbe3fe61da98f63bc644f",
+    "transports/reality/index.js": "f279f2d75a53e71ab9a1ae0638fa25caa103c4e686d3ae69321f651f183b9b92",
+    "transports/reality/stream.js": "9e13e6eaa5ff09d9f96086f4fc980c6839ea87f5162c2115290eb51ce43b1873",
+    "transports/reality/wire.js": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9",
+    "transports/vision-tls.js": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0",
+    "transports/xhttp/client.js": "dc12c2f0c5c63023e211dfe4bb2781251774bee8c232b0c645a1a25184d765cd",
+    "transports/xhttp/common.js": "c90048eabc1a1f1d00f931a23e0ba02be05e0b1e3a0b72c3d92aa0fa64df58a0",
+    "transports/xhttp/index.js": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3",
+    "transports/xhttp/server.js": "28bcab905fa7e0a82e86a3375a99a6ad28e9361710a6f5dd3cffefc8c4fe697e",
+    "transports/xhttp/xmux.js": "b15498d7d36fee914e7b4e947e5eb5279d247498b3ad9fff63b819daee89a9e7"
+  },
+  "sourceSha256": "0c02ff45b132a23efb67b1edef659f6b32c65e497849b374cd8abfc047749f08",
+  "dependenciesSha256": "7afc4a38b198dd8a26e007c9cea9eccb5516f7e2dc5ccf3ea992e55fc73a86f6",
+  "packageSha256": "3754bd4590eadbd73ef3257f60eee3508c5e456e4469fc8bd318581ab2faa49a",
+  "harnessSources": {
+    "scripts/acceptance-evidence.js": "7615f19fd87842416bea498bb8217a837083dc73348d4992e78d6af778ae2bb8",
+    "scripts/policy-stability.js": "ca7f02b5f98ece09e50fb20ed39258fc76fac7ccf1486747d0c8cac5b6dac36a",
+    "scripts/transport-stability.js": "e637b32f9894342ce284cd817930aecce99eb573f44b0a0fa63553179a9b6c66",
+    "scripts/xmux-stability.js": "c68409859768c8cb8eff97eb8a42aa7e667e54d021c1bb2ec42faeeeee81883c",
+    "scripts/xhttp-split-stability.js": "0912aee8753ee935e8ae01f8f92ae611a184cf9255e4293abdd163b3e6fb28c5",
+    "test/helpers.js": "6e0ae14c28bc53dba31db25d69d156a9331475cd779533fe7b71d6f10eea15fe",
+    "test/fixtures/dns-server.js": "030866ee8da2e887c944a625807b815f4c928394962bdb5e4f7e693be8631d68",
+    "test/fixtures/xhttp-proxy.js": "7914240a083fc85799f5192e9777bc590db13839f3f2a0b6aa4a5eb56cca4f64",
+    "test/fixtures/reference-platforms.json": "9c359a38c67ea0cf7845b1b3a1b57c29c3576ba5fb0b8b21c6f65df985bcbb8d",
+    "test/fixtures/reference-cores.json": "a0fb712e63cf1f220d9c313218ee30ed524b6bec7d9c3e6f689c45d2bedac19b",
+    "test/fixtures/policy-references.json": "0bf29ffa094c24f66e4ebc3ec7c661ef9f9f573aee6eca200bc3cc05c32c74de",
+    "package-lock.json": "7afc4a38b198dd8a26e007c9cea9eccb5516f7e2dc5ccf3ea992e55fc73a86f6",
+    "package.json": "3754bd4590eadbd73ef3257f60eee3508c5e456e4469fc8bd318581ab2faa49a",
+    "scripts/install-reference-proxies.js": "21dffaf70d54746edc8bd8ee6696a9e0578c85ee57671c5c32d22048424e232b",
+    "test/fixtures/caddy.js": "d47a4639e15b103e931d64916d87711730e9e5d420a2d18ff3c240a3b2cda263",
+    "test/fixtures/reference-proxies.json": "8f8e6c25d4c54437d2961b63dd39f3de374b3b5e7c72bfc2c1df0af5769eae3a",
+    "test/fixtures/vision.js": "c5729a1661948f8f08a80e82dc910ef4f8aa7c86b3ec796b984d540f84c705eb",
+    "test/fixtures/reality.js": "02c4b2987a182cc6dd3e130d003bcb4cafb25b489ffb08566db0071102ea9570",
+    "test/fixtures/tls/cert.pem": "caa0d56d5d1ab0fd8afa541be9e448f6dc7752e0970164d2ea04800fe0dc2233",
+    "test/fixtures/tls/key.pem": "5ad431101b7fd94f3142083f19fe44e1cfeb0dfce56f557edbb3862cbe6b2850",
+    "test/interop/helpers.js": "79122b8bc20a4e84423a788cf29124df9afad67f1c97ef1b599e57ca9d095a6a"
+  },
+  "references": {
+    "xray-xhttp": {
+      "version": "25.3.6",
+      "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+      "source": "https://github.com/XTLS/Xray-core/tree/v25.3.6",
+      "platform": "windows-amd64",
+      "sha256": "a6a37bbc73a1eaa08abf0537e1d22097afa14be0d92c3ce8b8a808c16c205366"
+    },
+    "xray": {
+      "version": "24.11.5",
+      "source": "https://github.com/XTLS/Xray-core",
+      "commit": "afc7ec55062c14ae69fc67b148155faae1c31548",
+      "platform": "windows-amd64",
+      "testEnvironment": {
+        "xray.cone.disabled": "true"
+      },
+      "sha256": "ed6af84a5848bff37c691f746867d605c68ce6aa2efe25b09464905832b9b1c0"
+    },
+    "v2ray": {
+      "version": "5.14.1",
+      "source": "https://github.com/v2fly/v2ray-core",
+      "commit": "1f1ff246ddebb530d8fadeb49ffd32b8617e64ec",
+      "build": "Verified byte-for-byte against the official v5.14.1 release archive and its published .dgst SHA256; Custom is the official version banner",
+      "platform": "windows-amd64",
+      "sha256": "9204011a215d4411f5803ecf801c9c9fdfc8cf719c792508968662d26e2e2950"
+    }
+  },
+  "regression": {
+    "id": 38791828807,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38791828807",
+    "commit": "53859c5a23720b78c048f36da09bce3b2015cc6c",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 116618055857,
+        "name": "regression (windows-2022)",
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38791828807/job/116618055857",
+        "conclusion": "success",
+        "unit": {
+          "tests": 372,
+          "pass": 372,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 228,
+          "pass": 228,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "package": {
+          "files": 145,
+          "nativeRuntimeAssets": 0
+        }
+      },
+      {
+        "id": 116618056020,
+        "name": "regression (ubuntu-24.04)",
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38791828807/job/116618056020",
+        "conclusion": "success",
+        "unit": {
+          "tests": 372,
+          "pass": 372,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 228,
+          "pass": 228,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "package": {
+          "files": 145,
+          "nativeRuntimeAssets": 0
+        }
+      },
+      {
+        "id": 116618056165,
+        "name": "regression (macos-15-intel)",
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38791828807/job/116618056165",
+        "conclusion": "success",
+        "unit": {
+          "tests": 372,
+          "pass": 372,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 228,
+          "pass": 228,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "package": {
+          "files": 145,
+          "nativeRuntimeAssets": 0
+        }
+      }
+    ]
+  },
+  "policyStability": {
+    "id": 38789667879,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38789667879",
+    "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "platform": "darwin",
+        "id": 116610647326,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667879/job/116610647326",
+        "artifact": {
+          "id": 12001221875,
+          "name": "policy-stability-macOS-x64",
+          "digest": "sha256:820365bcfec9ffdb47fe650dbfd20c1f555fb02da80c76d33e50b1cf58f8c432"
+        },
+        "raw": "docs/acceptance/p20-policy-stability-darwin-2026-10-16.json",
+        "rawSha256": "da9885f8d5215716a291be8eb25ac8828611b4baddddd5599e00fa61ccff2357",
+        "elapsedMs": 1800946,
+        "iterations": 1687074,
+        "bytes": 1720729728,
+        "rotations": 29,
+        "churn": 6888,
+        "faults": 116,
+        "udpChecks": 6888,
+        "dnsChecks": 6888,
+        "peak": {
+          "rss": 248172544,
+          "heap": 75529344,
+          "pendingDns": 1,
+          "cacheEntries": 268,
+          "queuedBytes": 26
+        },
+        "closed": true
+      },
+      {
+        "platform": "win32",
+        "id": 116610647604,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667879/job/116610647604",
+        "artifact": {
+          "id": 12000564882,
+          "name": "policy-stability-Windows-x64",
+          "digest": "sha256:2ed4ae4797e8a4dcf82bb23abb4fc1f549bac7f5450b5ff963c73084b5324558"
+        },
+        "raw": "docs/acceptance/p20-policy-stability-win32-2026-10-16.json",
+        "rawSha256": "3aba6ceadb4bfd1027c7ee6221972c838f4ca12c52b772608a7f46822349da25",
+        "elapsedMs": 1800620,
+        "iterations": 1453394,
+        "bytes": 1481402928,
+        "rotations": 29,
+        "churn": 6928,
+        "faults": 116,
+        "udpChecks": 6928,
+        "dnsChecks": 6928,
+        "peak": {
+          "rss": 193396736,
+          "heap": 68119392,
+          "pendingDns": 1,
+          "cacheEntries": 268,
+          "queuedBytes": 27
+        },
+        "closed": true
+      },
+      {
+        "platform": "linux",
+        "id": 116610647595,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667879/job/116610647595",
+        "artifact": {
+          "id": 12000119652,
+          "name": "policy-stability-Linux-x64",
+          "digest": "sha256:48ef80285b7559e64fe21c0e7c9fd8b45ff1bffa0d32531bd0d39314c685f58d"
+        },
+        "raw": "docs/acceptance/p20-policy-stability-linux-2026-10-16.json",
+        "rawSha256": "b24173a4583402a345e83906878b138cdf9959d2a6e4980661121464e219c8ca",
+        "elapsedMs": 1800315,
+        "iterations": 1773714,
+        "bytes": 1809518352,
+        "rotations": 29,
+        "churn": 6816,
+        "faults": 116,
+        "udpChecks": 6816,
+        "dnsChecks": 6816,
+        "peak": {
+          "rss": 259825664,
+          "heap": 68679560,
+          "pendingDns": 1,
+          "cacheEntries": 268,
+          "queuedBytes": 88
+        },
+        "closed": true
+      }
+    ]
+  },
+  "splitStability": {
+    "id": 38789667907,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38789667907",
+    "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "platform": "linux",
+        "id": 116610647754,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667907/job/116610647754",
+        "artifact": {
+          "id": 12000956973,
+          "name": "xhttp-split-stability-Linux-x64",
+          "digest": "sha256:acf3395f025a8b8986f6504bb1ca03a80832afb6b3b3686c75a3a11457c02a8a"
+        },
+        "raw": "docs/acceptance/p20-xhttp-split-stability-linux-2026-10-16.json",
+        "rawSha256": "2b1b84e778d3b877290e5c62c37e64edb01c345fa94a215c2e939c046954085b",
+        "elapsedMs": 1800620,
+        "iterations": 1353592,
+        "bytes": 5543364648,
+        "rotations": 29,
+        "churn": 12328,
+        "proxyFaults": 232,
+        "peak": {
+          "rss": 381333504,
+          "heap": 128869936,
+          "clients": 77,
+          "sockets": 131,
+          "queueBytes": 356452
+        },
+        "closed": true
+      },
+      {
+        "platform": "win32",
+        "id": 116610647011,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667907/job/116610647011",
+        "artifact": {
+          "id": 12000917122,
+          "name": "xhttp-split-stability-Windows-x64",
+          "digest": "sha256:7497b9c1cd60ff6d50f3ebbf61db414bd3027418252e73699b357aa0b8e4a205"
+        },
+        "raw": "docs/acceptance/p20-xhttp-split-stability-win32-2026-10-16.json",
+        "rawSha256": "bbdad88f3cfdda90746ea7cc5579a210758ff1a78e0c23878f54685d61a718d6",
+        "elapsedMs": 1800634,
+        "iterations": 1101522,
+        "bytes": 4510885928,
+        "rotations": 29,
+        "churn": 12000,
+        "proxyFaults": 232,
+        "peak": {
+          "rss": 295768064,
+          "heap": 78460392,
+          "clients": 72,
+          "sockets": 133,
+          "queueBytes": 581732
+        },
+        "closed": true
+      },
+      {
+        "platform": "darwin",
+        "id": 116610647226,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667907/job/116610647226",
+        "artifact": {
+          "id": 12000644754,
+          "name": "xhttp-split-stability-macOS-x64",
+          "digest": "sha256:6c40440de566dcf7bb8006c29356b48aaa4864cd953bd71b1a56319404f7aafa"
+        },
+        "raw": "docs/acceptance/p20-xhttp-split-stability-darwin-2026-10-16.json",
+        "rawSha256": "1b7185a22789e71f0db615190dcbb52e810cc9812981d8f3cfdb785fe4576cee",
+        "elapsedMs": 1801076,
+        "iterations": 637537,
+        "bytes": 2610403368,
+        "rotations": 29,
+        "churn": 3234,
+        "proxyFaults": 232,
+        "peak": {
+          "rss": 370655232,
+          "heap": 130161616,
+          "clients": 68,
+          "sockets": 132,
+          "queueBytes": 663652
+        },
+        "closed": true
+      }
+    ]
+  },
+  "xmuxStability": {
+    "id": 38789667673,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38789667673",
+    "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "platform": "win32",
+        "id": 116610647118,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667673/job/116610647118",
+        "artifact": {
+          "id": 12000952202,
+          "name": "xmux-stability-Windows-x64",
+          "digest": "sha256:ef4417f4f398e8adcd0e73059dcafdc090a3c3e6de5cafea9b2a69dc359b69dd"
+        },
+        "raw": "docs/acceptance/p20-xmux-stability-win32-2026-10-16.json",
+        "rawSha256": "8aeecd7c1e185e43da11b44921ffca562d201c722bcb3d60ba98975362e1c03d",
+        "elapsedMs": 1800592,
+        "iterations": 1201069,
+        "bytes": 4918867486,
+        "rotations": 29,
+        "churn": 10224,
+        "proxyFaults": 0,
+        "peak": {
+          "rss": 258842624,
+          "heap": 78422736,
+          "clients": 38,
+          "sockets": 101,
+          "queueBytes": 778340
+        },
+        "closed": true
+      },
+      {
+        "platform": "darwin",
+        "id": 116610647668,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667673/job/116610647668",
+        "artifact": {
+          "id": 12000892289,
+          "name": "xmux-stability-macOS-x64",
+          "digest": "sha256:60ee7a6f055322b3488dd9a78f9925c217855a0df16930f730ce78d606f59259"
+        },
+        "raw": "docs/acceptance/p20-xmux-stability-darwin-2026-10-16.json",
+        "rawSha256": "cf14dfa439b397aab76e71977b0e8020cbc34cdb89697b6e00e374bd5cd2b198",
+        "elapsedMs": 1801354,
+        "iterations": 1261987,
+        "bytes": 5168387614,
+        "rotations": 29,
+        "churn": 9457,
+        "proxyFaults": 0,
+        "peak": {
+          "rss": 274956288,
+          "heap": 46020680,
+          "clients": 39,
+          "sockets": 98,
+          "queueBytes": 770148
+        },
+        "closed": true
+      },
+      {
+        "platform": "linux",
+        "id": 116610646679,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789667673/job/116610646679",
+        "artifact": {
+          "id": 12000737254,
+          "name": "xmux-stability-Linux-x64",
+          "digest": "sha256:d6a059bdbaae918e4921d1b0cd4aa82eb8d7512fb3e34577ea53b8f0721e7028"
+        },
+        "raw": "docs/acceptance/p20-xmux-stability-linux-2026-10-16.json",
+        "rawSha256": "5c5e4a278a50b9fb5501d11d2f31a4503029b997148d36c9eb86ac0a01f65d29",
+        "elapsedMs": 1800315,
+        "iterations": 1395939,
+        "bytes": 5717055006,
+        "rotations": 29,
+        "churn": 10290,
+        "proxyFaults": 0,
+        "peak": {
+          "rss": 298373120,
+          "heap": 52070968,
+          "clients": 41,
+          "sockets": 97,
+          "queueBytes": 245860
+        },
+        "closed": true
+      }
+    ]
+  },
+  "transportStability": {
+    "id": 38789668013,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38789668013",
+    "commit": "30056fa833a6c3fddcbc8c994d59d734ae4c941b",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "platform": "win32",
+        "id": 116610648822,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789668013/job/116610648822",
+        "artifact": {
+          "id": 12001401576,
+          "name": "transport-stability-Windows-x64",
+          "digest": "sha256:4f8f0f75ce53ed6c0039363817d17d71efa8575e254ff84f50be7887a82da5f8"
+        },
+        "raw": "docs/acceptance/p20-transport-stability-win32-2026-10-16.json",
+        "rawSha256": "52a7efc8051b6659e26602b94263e7597ab133188e15ca728f0885ffe148cb28",
+        "elapsedMs": 1800304,
+        "iterations": 1145220,
+        "bytes": 4690821120,
+        "rotations": 29,
+        "coverFaults": 29,
+        "peak": {
+          "rss": 243019776,
+          "heap": 72132144,
+          "applicationQueueBytes": 352256,
+          "transportQueueBytes": 192774,
+          "muxQueueBytes": 0,
+          "pendingInbound": 3,
+          "generations": 37
+        },
+        "closed": true
+      },
+      {
+        "platform": "linux",
+        "id": 116610648328,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789668013/job/116610648328",
+        "artifact": {
+          "id": 12001401540,
+          "name": "transport-stability-Linux-x64",
+          "digest": "sha256:941babb78ecce9a4c2da53ba2251ac519803e88e070a5786d025f4f15772af85"
+        },
+        "raw": "docs/acceptance/p20-transport-stability-linux-2026-10-16.json",
+        "rawSha256": "816e3ff34bf16e6d1886a825bb5b771ff5e89a8f332e105ef9197ba9dd40e8e4",
+        "elapsedMs": 1800262,
+        "iterations": 1377203,
+        "bytes": 5641023488,
+        "rotations": 29,
+        "coverFaults": 29,
+        "peak": {
+          "rss": 308490240,
+          "heap": 48283880,
+          "applicationQueueBytes": 118784,
+          "transportQueueBytes": 57374,
+          "muxQueueBytes": 0,
+          "pendingInbound": 1,
+          "generations": 37
+        },
+        "closed": true
+      },
+      {
+        "platform": "darwin",
+        "id": 116610648569,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38789668013/job/116610648569",
+        "artifact": {
+          "id": 12001032040,
+          "name": "transport-stability-macOS-x64",
+          "digest": "sha256:c0e71870a8bd705ca03be718085e3d6f74fd8d00a44ac98f351a788fadd5ca28"
+        },
+        "raw": "docs/acceptance/p20-transport-stability-darwin-2026-10-16.json",
+        "rawSha256": "b4d5cbc5b2ab24c8a151514cf5bfffda2430bf7caa26748ad447af91b508e280",
+        "elapsedMs": 1800270,
+        "iterations": 1278484,
+        "bytes": 5236670464,
+        "rotations": 29,
+        "coverFaults": 29,
+        "peak": {
+          "rss": 296247296,
+          "heap": 47179288,
+          "applicationQueueBytes": 344064,
+          "transportQueueBytes": 205120,
+          "muxQueueBytes": 0,
+          "pendingInbound": 3,
+          "generations": 37
+        },
+        "closed": true
+      }
+    ]
+  },
+  "privacy": {
+    "performed": true,
+    "filesChecked": 266,
+    "historyBlobsChecked": 586,
+    "matches": 0
+  }
+}
