@@ -5,6 +5,7 @@ const dgram = require('node:dgram');
 const { once } = require('node:events');
 const { createRuntime } = require('..');
 const { portalConfig, bridgeConfig, waitFor } = require('./fixtures/reverse');
+const { largeDatagramSize } = require('./helpers');
 test('reverse UDP: independent packets, concurrent targets, empty/large payloads and carrier shutdown', async (t) => {
   const socket = dgram.createSocket('udp4');
   socket.on('message', (data, peer) => socket.send(data, peer.port, peer.address));
@@ -30,7 +31,11 @@ test('reverse UDP: independent packets, concurrent targets, empty/large payloads
   );
   await Promise.all(
     sessions.map(async (session, index) => {
-      for (const data of [Buffer.alloc(0), Buffer.from([index, 255]), Buffer.alloc(60000, index)]) {
+      for (const data of [
+        Buffer.alloc(0),
+        Buffer.from([index, 255]),
+        Buffer.alloc(largeDatagramSize(), index),
+      ]) {
         await session.send(data);
         assert.deepEqual((await session.next()).value.data, data);
       }

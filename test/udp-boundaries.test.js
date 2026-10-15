@@ -9,6 +9,7 @@ const { Mux } = require('../protocols/mux');
 const { encode, decode } = require('../protocols/mux/frame');
 const { encodePacket, decodePacket } = require('../protocols/socks/datagram');
 const { id } = require('./fixtures/reverse');
+const { largeDatagramSize } = require('./helpers');
 async function echo(t, host) {
   const socket = dgram.createSocket(host === '::1' ? 'udp6' : 'udp4');
   socket.on('message', (data, peer) => socket.send(data, peer.port, peer.address));
@@ -81,7 +82,7 @@ for (const protocol of ['socks', 'vmess', 'mux', 'xudp']) {
     for (const target of [{ host: 'echo.test', port: v4.port }, v6]) {
       const abort = new AbortController();
       const session = await runtime.openDatagram({ ...target, signal: abort.signal });
-      const data = Buffer.alloc(60000, 0xaa);
+      const data = Buffer.alloc(largeDatagramSize(), 0xaa);
       await session.send(data);
       assert.deepEqual((await session.next()).value.data, data);
       const rejected = assert.rejects(session.next(), { code: 'ERR_CANCELLED' });
@@ -122,4 +123,67 @@ test('XUDP per-packet destinations stay isolated within one Mux session and queu
   limited.receive(Buffer.alloc(limited.maxBufferBytes + 1));
   assert.equal(limited.error.code, 'ERR_LIMIT');
   assert.equal(client.closed, false);
+});
+test('kernel oversized-datagram rejection stays structured and does not poison later valid packets', async (t) => {
+  const target = await echo(t, '127.0.0.1');
+  const runtime = createRuntime();
+  await runtime.start();
+  t.after(() => runtime.close());
+  const session = await runtime.openDatagram(target),
+    large = Buffer.alloc(60000);
+  if (largeDatagramSize() < large.length) {
+    await assert.rejects(session.send(large), {
+      code: 'ERR_TRANSPORT',
+      cause: { code: 'EMSGSIZE' },
+    });
+  } else {
+    await session.send(large);
+    assert.deepEqual((await session.next()).value.data, large);
+  }
+  await session.send(Buffer.from('after'));
+  assert.equal((await session.next()).value.data.toString(), 'after');
+});
+test('Mux and length-framed datagrams preserve a 65535-byte packet independently of kernel UDP limits', async () => {
+  const { DatagramSession, FramedDatagram } = require('../runtime/datagram');
+  const { PassThrough } = require('node:stream');
+  const payload = Buffer.alloc(65535, 0xab),
+    target = { host: 'wire.test', port: 53 };
+  const framed = new FramedDatagram(new PassThrough(), target, 1024 * 1024);
+  await framed.send(payload);
+  assert.deepEqual((await framed.next()).value.data, payload);
+  framed.destroy();
+  const [left, right] = duplexPair();
+  const server = new Mux(right, {
+    server: true,
+    dispatch: (destination) => {
+      const session = new DatagramSession(destination, 1024 * 1024);
+      session.send = async (data) => session.receive(data);
+      session.dispose = () => session.finish();
+      return session;
+    },
+  });
+  const client = new Mux(left);
+  try {
+    const session = client.openDatagram(target);
+    await session.send(payload);
+    assert.deepEqual((await session.next()).value.data, payload);
+  } finally {
+    client.close();
+    server.close();
+  }
+});
+test('VMess datagram reads terminate on a peer FIN without a response or TCP half-close hang', async (t) => {
+  const server = require('node:net').createServer((socket) => {
+    socket.on('error', () => {});
+    socket.once('data', () => socket.end());
+  });
+  const port = await require('./helpers').listen(server);
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const runtime = createRuntime({
+    outbounds: [{ protocol: 'vmess', users: [{ id }], networks: [{ address: '127.0.0.1', port }] }],
+  });
+  await runtime.start();
+  t.after(() => runtime.close());
+  const session = await runtime.openDatagram({ host: '127.0.0.1', port: 53 });
+  await assert.rejects(session.next(), { code: 'ERR_TRANSPORT' });
 });

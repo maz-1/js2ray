@@ -5,15 +5,19 @@ class VMessDatagram extends DatagramSession {
   constructor(client, target, limit) {
     super(target, limit);
     this.pendingBytes = 0;
+    this.connected = false;
     this.ready = new Promise((resolve, reject) => {
       this.connection = client(
         target.host,
         target.port,
         2,
-        () => resolve(this),
+        () => {
+          this.connected = true;
+          resolve(this);
+        },
         (data) => this.receive(data),
         () => {
-          if (!this.transport)
+          if (!this.connected)
             reject(failure('ERR_PROTOCOL', 'VMess UDP handshake failed.', 'protocol'));
           this.destroy();
         },
@@ -21,6 +25,15 @@ class VMessDatagram extends DatagramSession {
       this.connection.setTransportObserver((stream) => {
         this.transport = stream;
         stream.once('error', (error) => {
+          reject(error);
+          this.destroy(error);
+        });
+        stream.once('end', () => {
+          const error = failure(
+            'ERR_TRANSPORT',
+            'VMess datagram peer ended the transport.',
+            'transport',
+          );
           reject(error);
           this.destroy(error);
         });
