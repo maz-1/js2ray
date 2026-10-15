@@ -308,6 +308,39 @@ export interface UndiciConnectOptions {
   httpSocket?: Duplex;
   signal?: AbortSignal;
 }
+export interface ApplicationWebSocket extends EventEmitter {
+  readonly readyState: number;
+  readonly bufferedAmount: number;
+  readonly protocol: string;
+  send(
+    data: string | Buffer | ArrayBuffer | ArrayBufferView,
+    callback?: (error?: Error) => void,
+  ): void;
+  send(
+    data: string | Buffer | ArrayBuffer | ArrayBufferView,
+    options: { binary?: boolean; fin?: boolean; compress?: boolean },
+    callback?: (error?: Error) => void,
+  ): void;
+  ping(data?: string | Buffer, callback?: (error?: Error) => void): void;
+  pong(data?: string | Buffer, callback?: (error?: Error) => void): void;
+  close(code?: number, reason?: string | Buffer): void;
+  terminate(): void;
+  pause(): void;
+  resume(): void;
+}
+export interface WebSocketOptions extends AdapterOptions {
+  protocols?: string | string[];
+  headers?: Record<string, string>;
+  origin?: string;
+  maxPayload?: number;
+  maxBufferBytes?: number;
+  closeTimeoutMs?: number;
+}
+export function createWebSocket(
+  runtime: Runtime,
+  address: string | URL,
+  options?: WebSocketOptions,
+): ApplicationWebSocket;
 export interface UndiciConnector {
   (options: UndiciConnectOptions, callback: (...args: [null, any] | [Error, null]) => void): void;
   destroy(): void;
@@ -319,6 +352,7 @@ export function createUndiciDispatcher<T>(
   options: AdapterOptions & { undici: { Agent: new (options?: any) => T }; [key: string]: unknown },
 ): T;
 declare const api: {
+  createWebSocket: typeof createWebSocket;
   createRuntime: typeof createRuntime;
   Runtime: typeof Runtime;
   config: typeof config;

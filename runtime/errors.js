@@ -24,6 +24,10 @@ function failure(code, message, phase, cause) {
 function normalizeError(cause, phase = 'transport') {
   if (cause instanceof Js2rayError) return cause;
   const code = cause?.code;
+  if (code === 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH')
+    return failure('ERR_LIMIT', 'WebSocket message exceeded its limit.', 'websocket', cause);
+  if (code?.startsWith('WS_ERR_'))
+    return failure('ERR_PROTOCOL', 'Invalid WebSocket frame.', 'websocket', cause);
   if (code === 'ABORT_ERR')
     return failure('ERR_CANCELLED', 'Operation was cancelled.', phase, cause);
   if (code === 'ETIMEDOUT') return failure('ERR_TIMEOUT', 'Operation timed out.', phase, cause);
@@ -41,13 +45,13 @@ function normalizeError(cause, phase = 'transport') {
 // Preserve the native Socket/Datagram object and its half-close contract. Error
 // normalization occurs before any subscriber observes the error event.
 const normalized = Symbol('normalizedErrors');
-function normalizeEmitter(stream, report) {
+function normalizeEmitter(stream, report, transform = normalizeError) {
   if (stream[normalized]) return stream;
   stream[normalized] = true;
   const emit = stream.emit;
   stream.emit = function (event, ...args) {
     if (event === 'error') {
-      args[0] = normalizeError(args[0]);
+      args[0] = transform(args[0]);
       report(args[0]);
     }
     return emit.call(this, event, ...args);

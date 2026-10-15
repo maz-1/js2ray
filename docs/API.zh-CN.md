@@ -67,3 +67,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 ## 运行指标（P9）
 
 `runtime.metrics` 返回独立快照，生命周期内累计，不跨实例共享。包含逻辑拨号成功/失败、错误码计数、拨号/DNS/传输耗时汇总、DNS 缓存与服务器计数、普通与 reverse Mux 当前队列及会话数、reverse 状态事件计数。TCP 字节在返回的逻辑拨号流 push/write 边界统计（写入表示提交，不表示对端确认）；UDP 在接收和成功发送边界统计。内部 DNS、reverse 控制与嵌套逻辑拨号也计入，不能解释为网卡线速字节。没有安装 data 监听器启动流动，也不保存目标、凭据或原始错误文本。
+
+## 应用 WebSocket（P10）
+
+`createWebSocket(runtime, url, options)` 同步返回基于 ws 的事件客户端；监听 open 后发送消息，message 提供 Buffer 和 isBinary。支持 WS/WSS、protocols、headers、origin、signal、timeoutMs、targetTls、outboundTag/inboundTag、maxPayload/maxBufferBytes/closeTimeoutMs；不自动跟随重定向。目标 TLS 独立验证，默认关闭压缩，默认 1 MiB 消息/发送队列、5 秒关闭预算。大消息按 8 KiB WebSocket 分片发送，接收方仍取得完整消息。取消覆盖拨号、Upgrade 和已建立连接；运行时关闭释放升级后的流。用 ping/pong 和 close/terminate 管理心跳与关闭，应用自行实施认证。
