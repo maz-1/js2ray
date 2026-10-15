@@ -20,6 +20,14 @@ class Resolver {
     this.system = lookup;
     this.cache = new Map();
     this.pending = 0;
+    this.counts = {
+      queries: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      hostsHits: 0,
+      serverQueries: 0,
+      serverFailures: 0,
+    };
     this.hosts = Object.entries(config.hosts ?? {}).map(([pattern, addresses]) => ({
       match: domainMatcher(pattern, data, 'full'),
       addresses: Array.isArray(addresses) ? addresses : [addresses],
@@ -39,6 +47,9 @@ class Resolver {
     return this.hosts
       .filter((entry) => entry.match(host))
       .sort((a, b) => a.match.priority(host) - b.match.priority(host))[0]?.addresses;
+  }
+  get stats() {
+    return { ...this.counts, pending: this.pending, cacheEntries: this.cache.size };
   }
   async systemLookup(host, family, signal) {
     return new Promise((resolve, reject) => {
@@ -108,6 +119,7 @@ class Resolver {
     }, callback);
   }
   async resolve(host, { family = 0, signal, seen = new Set() } = {}) {
+    this.counts.queries++;
     host = net.isIP(host) ? host : domainToASCII(host).toLowerCase().replace(/\.$/, '');
     if (!host || ![0, 4, 6].includes(family)) throw failure('ERR_DNS', 'Invalid DNS query.', 'dns');
     if (net.isIP(host)) return this.bootstrap(host, family, signal);
@@ -130,6 +142,7 @@ class Resolver {
       seen.add(host);
       const hosts = this.hostValue(host);
       if (hosts) {
+        this.counts.hostsHits++;
         const alias = hosts.find((value) => !net.isIP(value));
         if (alias) return await this.resolve(alias, { family, signal: active, seen });
         const result = hosts
@@ -142,11 +155,13 @@ class Resolver {
       const key = `${host}|${family}`,
         cached = this.cache.get(key);
       if (cached && cached.expires > Date.now()) {
+        this.counts.cacheHits++;
         this.cache.delete(key);
         this.cache.set(key, cached);
         return cached.records.map((entry) => ({ ...entry }));
       }
       this.cache.delete(key);
+      this.counts.cacheMisses++;
       if (this.pending >= (this.config.maxConcurrent ?? 64))
         throw failure('ERR_LIMIT', 'DNS concurrency limit reached.', 'dns');
       this.pending++;
@@ -218,6 +233,7 @@ class Resolver {
     }
   }
   async query(server, host, family, signal) {
+    this.counts.serverQueries++;
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(failure('ERR_TIMEOUT', 'DNS server timed out.', 'dns')),
@@ -231,6 +247,7 @@ class Resolver {
         AbortSignal.any([controller.signal, signal]),
       );
     } catch (error) {
+      this.counts.serverFailures++;
       if (controller.signal.aborted) throw controller.signal.reason;
       throw error;
     } finally {

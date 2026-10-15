@@ -10,7 +10,8 @@ const socks = require('../protocols/socks/stream');
 const vless = require('../protocols/vless');
 const { connect, createListener } = require('../transports');
 const { relay, legacyDuplex } = require('./streams');
-const { Js2rayError, failure } = require('./errors');
+const { Js2rayError, failure, normalizeError, normalizeEmitter } = require('./errors');
+const { Metrics } = require('./metrics');
 const { FramedDatagram, directDatagram } = require('./datagram');
 const { Router } = require('../routing');
 const { Resolver } = require('../dns');
@@ -37,6 +38,7 @@ class Runtime extends EventEmitter {
   #muxes = new Set();
   #muxClients = new Map();
   #reverse;
+  #metrics = new Metrics();
 
   constructor(config, options = {}) {
     super();
@@ -59,7 +61,10 @@ class Runtime extends EventEmitter {
       dial: (target) => this.dial(target),
       signal: this.#lifetime.signal,
       limits: this.#config.limits,
-      event: (event) => this.emit('reverse', event),
+      event: (event) => {
+        this.#metrics.reverse[event.state] = (this.#metrics.reverse[event.state] ?? 0) + 1;
+        this.emit('reverse', event);
+      },
     });
     this.#storage = createStorage(this.#config.storage);
     this.#storage.on('storageError', (error) => this.#report(error));
@@ -83,12 +88,29 @@ class Runtime extends EventEmitter {
   get protocols() {
     return this.#vmess ? { vmess: this.#vmess } : {};
   }
+  get metrics() {
+    const muxes = [...this.#muxes, ...this.#reverse.muxes];
+    return {
+      ...this.#metrics.snapshot(),
+      dns: this.#resolver.stats,
+      mux: {
+        transports: muxes.length,
+        sessions: muxes.reduce((n, mux) => n + mux.sessions.size, 0),
+        queuedBytes: muxes.reduce(
+          (n, mux) => n + mux.pendingBytes + mux.receivedBytes + mux.buffer.length,
+          0,
+        ),
+      },
+    };
+  }
 
   #setState(state) {
     this.#state = state;
     this.emit('state', state);
   }
   #report(error) {
+    error = normalizeError(error);
+    if (!this.#metrics.error(error)) return;
     const logger = this.#options.logger ?? this.#config.debug;
     try {
       if (typeof logger === 'function')
@@ -105,6 +127,7 @@ class Runtime extends EventEmitter {
   #track(stream) {
     if (this.#streams.has(stream)) return stream;
     this.#streams.add(stream);
+    normalizeEmitter(stream, (error) => this.#report(error));
     stream.on('error', () => {});
     stream.once('close', () => {
       this.#streams.delete(stream);
@@ -428,7 +451,7 @@ class Runtime extends EventEmitter {
           socket?.destroy();
         },
       };
-      connect(network, {
+      this.#connect(network, {
         ...this.#config.limits,
         signal: AbortSignal.any([pending.signal, this.#lifetime.signal]),
         lookup: this.#resolver.bootstrapLookup,
@@ -462,7 +485,10 @@ class Runtime extends EventEmitter {
   }
 
   dial(target) {
-    return this.#dial(target, false);
+    return this.#operation(target, false);
+  }
+  #connect(network, options) {
+    return this.#metrics.measure('transport', () => connect(network, options));
   }
   #trackMux(mux) {
     this.#muxes.add(mux);
@@ -475,7 +501,7 @@ class Runtime extends EventEmitter {
         let stream;
         try {
           stream = this.#track(
-            await connect(bound.networks[0], {
+            await this.#connect(bound.networks[0], {
               ...this.#config.limits,
               signal: this.#lifetime.signal,
               lookup: this.#resolver.bootstrapLookup,
@@ -511,14 +537,36 @@ class Runtime extends EventEmitter {
     return this.#muxClients.get(bound.tag);
   }
   openDatagram(target) {
-    return this.#dial(target, true);
+    return this.#operation(target, true);
+  }
+  async #operation(target, datagram) {
+    this.#metrics.counters.dials++;
+    return this.#metrics.measure('dial', async () => {
+      try {
+        const socket = await this.#dial(target, datagram);
+        this.#metrics.counters.succeeded++;
+        this.#metrics.observe(socket, datagram);
+        return socket;
+      } catch (cause) {
+        const error = normalizeError(cause);
+        this.#metrics.counters.failed++;
+        this.#report(error);
+        throw error;
+      }
+    });
   }
   resolve(host, options) {
     if (this.#state !== 'running')
       return Promise.reject(
         failure('ERR_STATE', 'Runtime must be running before resolving.', 'runtime'),
       );
-    return this.#resolver.resolve(host, options);
+    return this.#metrics
+      .measure('dns', () => this.#resolver.resolve(host, options))
+      .catch((cause) => {
+        const error = normalizeError(cause, 'dns');
+        this.#report(error);
+        throw error;
+      });
   }
 
   async #dial(target, datagram) {
@@ -591,7 +639,9 @@ class Runtime extends EventEmitter {
       ) {
         const family =
           bound.domainStrategy === 'UseIPv4' ? 4 : bound.domainStrategy === 'UseIPv6' ? 6 : 0;
-        const records = await this.#resolver.resolve(target.host, { family, signal });
+        const records = await this.#metrics.measure('dns', () =>
+          this.#resolver.resolve(target.host, { family, signal }),
+        );
         if (!records.length) throw failure('ERR_DNS', 'No target address.', 'dns');
         target = { ...target, host: records[0].address };
       }
@@ -666,8 +716,11 @@ class Runtime extends EventEmitter {
           bound.protocol === 'freedom'
             ? { address: target.host, port: target.port }
             : bound.networks[Math.floor(Math.random() * bound.networks.length)];
-        socket = this.#track(await connect(network, options));
-        if (bound.protocol === 'socks') await socks.client(socket, bound, target, options);
+        socket = this.#track(await this.#connect(network, options));
+        if (bound.protocol === 'socks')
+          await this.#metrics.measure('protocol', () =>
+            socks.client(socket, bound, target, options),
+          );
         if (bound.protocol === 'vless') {
           const raw = socket;
           socket = this.#track(await vless.client(raw, bound, target, options, datagram ? 2 : 1));

@@ -50,6 +50,9 @@ class Reverse {
       })),
     ];
   }
+  get muxes() {
+    return [...this.bridges, ...this.portals.values()].flatMap((item) => [...item.workers]);
+  }
   start() {
     for (const bridge of this.bridges) this.schedule(bridge, 0);
   }

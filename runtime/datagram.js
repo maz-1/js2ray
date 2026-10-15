@@ -3,7 +3,7 @@ const dgram = require('node:dgram');
 const dns = require('node:dns');
 const net = require('node:net');
 const { EventEmitter } = require('node:events');
-const { failure } = require('./errors');
+const { failure, normalizeError } = require('./errors');
 const { write } = require('./streams');
 
 class DatagramSession extends EventEmitter {
@@ -77,6 +77,7 @@ class DatagramSession extends EventEmitter {
     if (this.destroyed) return;
     this.destroyed = true;
     clearTimeout(this.timer);
+    if (error) error = normalizeError(error);
     this.error = error;
     this.queue = [];
     this.bytes = 0;

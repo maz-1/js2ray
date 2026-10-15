@@ -211,6 +211,7 @@ export interface DatagramSession extends EventEmitter, AsyncIterableIterator<Dat
 export class Runtime extends EventEmitter {
   constructor(config?: NativeConfig | TraditionalConfig, options?: RuntimeOptions);
   readonly state: RuntimeState;
+  readonly metrics: RuntimeMetrics;
   readonly stats: {
     state: RuntimeState;
     connections: number;
@@ -234,6 +235,29 @@ export class Runtime extends EventEmitter {
   ): Promise<Array<{ address: string; family: number; ttl: number }>>;
   openDatagram(target: DatagramTarget): Promise<DatagramSession>;
   close(options?: { drainTimeoutMs?: number }): Promise<void>;
+}
+export interface RuntimeMetrics {
+  dials: number;
+  succeeded: number;
+  failed: number;
+  bytesRead: number;
+  bytesWritten: number;
+  datagramsRead: number;
+  datagramsWritten: number;
+  errors: Record<string, number>;
+  timings: Record<string, { count: number; totalMs: number; minMs: number; maxMs: number }>;
+  reverseEvents: Record<string, number>;
+  dns: {
+    queries: number;
+    cacheHits: number;
+    cacheMisses: number;
+    hostsHits: number;
+    serverQueries: number;
+    serverFailures: number;
+    pending: number;
+    cacheEntries: number;
+  };
+  mux: { transports: number; sessions: number; queuedBytes: number };
 }
 export function createRuntime(
   config?: NativeConfig | TraditionalConfig,

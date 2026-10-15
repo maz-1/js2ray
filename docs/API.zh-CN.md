@@ -30,7 +30,7 @@
 
 `Js2rayError` 提供稳定的 `code`、`phase`、`cause` 和 `context`。`toJSON()` 不输出原始 cause。常见代码为 `ERR_CONFIG`、`ERR_TARGET`、`ERR_STATE`、`ERR_CLOSED`、`ERR_LISTEN`、`ERR_DNS`、`ERR_TRANSPORT`、`ERR_TLS`、`ERR_AUTH`、`ERR_PROTOCOL`、`ERR_CANCELLED`、`ERR_TIMEOUT`、`ERR_LIMIT` 和 `ERR_ROUTING`。
 
-上述结构覆盖拨号、配置和库产生的错误。已建立的原生 Socket 仍可能发出 Node.js 标准网络错误；这部分错误的统一包装仍待完成，调用方应保留标准 `error` 处理。
+上述结构覆盖拨号、配置和库产生的错误。已建立流的 error 事件、写回调与数据报迭代错误也统一为 Js2rayError；原始异常仅保留在 cause，序列化与日志不输出 cause。调用方仍须处理流的 error 事件。
 
 注入的日志可以是函数，或提供 `error(record)` 的对象；旧 `debug` 回调映射为该函数。日志接收脱敏结构，不依赖 `global.log`。`diagnostic` 事件保留结构化错误供宿主检查。事件、VMess 用户账户和校验器各实例独立。
 
@@ -63,3 +63,7 @@ Bridge 默认最多 4 条承载、每条最多 129 会话（含控制）。建�
 本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
 
 `examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、非 AsIs 路由策略、HTTP Blackhole 响应、Mux UDP/XUDP、Vision/Reality、透明 TCP、API 管理入站均显式不支持。
+
+## 运行指标（P9）
+
+`runtime.metrics` 返回独立快照，生命周期内累计，不跨实例共享。包含逻辑拨号成功/失败、错误码计数、拨号/DNS/传输耗时汇总、DNS 缓存与服务器计数、普通与 reverse Mux 当前队列及会话数、reverse 状态事件计数。TCP 字节在返回的逻辑拨号流 push/write 边界统计（写入表示提交，不表示对端确认）；UDP 在接收和成功发送边界统计。内部 DNS、reverse 控制与嵌套逻辑拨号也计入，不能解释为网卡线速字节。没有安装 data 监听器启动流动，也不保存目标、凭据或原始错误文本。
