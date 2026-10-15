@@ -15,6 +15,7 @@ function tlsOptions(options = {}) {
   }
   if (options.serverName !== undefined)
     out.servername = net.isIP(options.serverName) ? '' : options.serverName;
+  if (options.alpn) out.ALPNProtocols = options.alpn;
   return out;
 }
 function ready(emitter, event, { signal, timeoutMs, phase, close }) {
@@ -127,6 +128,7 @@ function wsStream(
   return stream;
 }
 async function connect(network, options = {}) {
+  if (network.type === 'xhttp') return require('./xhttp').connect(network, options, connect);
   const { signal, lookup, connectTimeoutMs = 10000, handshakeTimeoutMs = 10000 } = options;
   if (signal?.aborted)
     throw failure('ERR_CANCELLED', 'Dial was cancelled.', 'transport', signal.reason);
@@ -201,6 +203,8 @@ async function connect(network, options = {}) {
   }
 }
 function createListener(network, onConnection, options = {}) {
+  if (network.type === 'xhttp')
+    return require('./xhttp').createListener(network, onConnection, options, tlsOptions);
   let option = network.option ?? {};
   let currentTLS = option.tls ? tlsOptions(option.tls) : undefined;
   let server;

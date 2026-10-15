@@ -40,10 +40,23 @@ export interface TlsOptions {
   keyFile?: string;
 }
 export interface Network {
-  type?: 'tcp' | 'ws';
+  type?: 'tcp' | 'ws' | 'xhttp';
   address?: string;
   port: number;
-  option?: { path?: string; headers?: Record<string, string>; tls?: TlsOptions };
+  option?: {
+    path?: string;
+    headers?: Record<string, string>;
+    tls?: TlsOptions;
+    host?: string;
+    mode?: 'auto' | 'packet-up' | 'stream-up' | 'stream-one';
+    httpVersion?: 'auto' | '1.1' | '2';
+    xPaddingBytes?: number | string;
+    noGRPCHeader?: boolean;
+    noSSEHeader?: boolean;
+    scMaxEachPostBytes?: number;
+    scMaxBufferedPosts?: number;
+    scStreamUpServerSecs?: number;
+  };
 }
 export interface VmessUser {
   id: string;

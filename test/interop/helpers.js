@@ -45,24 +45,24 @@ async function freePort(udp = false) {
   await new Promise((resolve) => server.close(resolve));
   return port;
 }
-async function runCore(t, kind, config, port, { cone = false } = {}) {
+async function runCore(t, kind, config, port, { cone = false, profile = kind } = {}) {
   const executable =
-    process.env[`JS2RAY_${kind.toUpperCase()}_BIN`] ??
+    process.env[`JS2RAY_${profile.toUpperCase().replaceAll('-', '_')}_BIN`] ??
     path.resolve(
       __dirname,
-      `../../.test-tools/${kind}${process.platform === 'win32' ? '.exe' : ''}`,
+      `../../.test-tools/${profile}${process.platform === 'win32' ? '.exe' : ''}`,
     );
   if (!fs.existsSync(executable))
     throw new Error(
       `Missing required ${kind} reference core. Set JS2RAY_${kind.toUpperCase()}_BIN. Interoperability checks cannot be skipped.`,
     );
   const sha = crypto.createHash('sha256').update(fs.readFileSync(executable)).digest('hex');
-  if (sha !== platforms[`${process.platform}-${process.arch}`]?.[kind]?.sha256)
+  if (sha !== platforms[`${process.platform}-${process.arch}`]?.[profile]?.sha256)
     throw new Error(
       `Reference core checksum mismatch: ${kind}. Update the explicit platform lock before testing a new build.`,
     );
   const version = spawnSync(executable, ['version'], { encoding: 'utf8' });
-  if (version.error || !version.stdout.includes(references[kind].version))
+  if (version.error || !version.stdout.includes(references[profile].version))
     throw new Error(`Reference core version check failed: ${kind}.`);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'js2ray-interop-'));
   const filename = path.join(directory, 'config.json');
@@ -107,7 +107,9 @@ async function runCore(t, kind, config, port, { cone = false } = {}) {
     if (child.exitCode !== null || child.signalCode !== null)
       throw new Error(`Reference core exited: ${log}`);
     if (port === undefined) {
-      if (log.includes(`${kind === 'xray' ? 'Xray' : 'V2Ray'} ${references[kind].version} started`))
+      if (
+        log.includes(`${kind === 'xray' ? 'Xray' : 'V2Ray'} ${references[profile].version} started`)
+      )
         return child;
       await new Promise((resolve) => setTimeout(resolve, 25));
       continue;

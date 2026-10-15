@@ -26,7 +26,10 @@ async function main() {
     if (process.platform === 'win32')
       execFileSync('tar.exe', ['-xf', archive, '-C', unpacked], { windowsHide: true });
     else execFileSync('unzip', ['-q', '-o', archive, '-d', unpacked]);
-    const binary = path.join(unpacked, path.basename(filename));
+    const binary = path.join(
+      unpacked,
+      (kind === 'xray-xhttp' ? 'xray' : kind) + (process.platform === 'win32' ? '.exe' : ''),
+    );
     if (sha(fs.readFileSync(binary)) !== item.sha256)
       throw Error(`Reference binary checksum mismatch: ${kind}`);
     fs.copyFileSync(binary, filename);

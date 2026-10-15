@@ -12,13 +12,54 @@ function adaptV2ray(input, add) {
       add(prefix, 'Expected stream settings.');
       stream = {};
     }
-    checkKeys(stream, ['network', 'security', 'tlsSettings', 'wsSettings', 'tcpSettings'], prefix);
+    checkKeys(
+      stream,
+      ['network', 'security', 'tlsSettings', 'wsSettings', 'tcpSettings', 'xhttpSettings'],
+      prefix,
+    );
     const network = stream.network ?? 'tcp';
-    if (!['tcp', 'ws'].includes(network)) add(`${prefix}.network`, 'Transport is not implemented.');
+    if (!['tcp', 'ws', 'xhttp'].includes(network))
+      add(`${prefix}.network`, 'Transport is not implemented.');
     const security = stream.security ?? 'none';
     if (!['none', 'tls'].includes(security))
       add(`${prefix}.security`, 'Only none and TLS transport security are implemented.');
     const option = {};
+    if (stream.xhttpSettings !== undefined) {
+      const xhttp = stream.xhttpSettings;
+      if (network !== 'xhttp')
+        add(prefix + '.xhttpSettings', 'XHTTP settings require network xhttp.');
+      if (!xhttp || typeof xhttp !== 'object' || Array.isArray(xhttp))
+        add(prefix + '.xhttpSettings', 'Expected XHTTP settings.');
+      else {
+        const fields = require('./xhttp').fields.filter((field) => field !== 'httpVersion');
+        checkKeys(xhttp, ['path', 'headers', 'extra', ...fields], prefix + '.xhttpSettings');
+        let extra = xhttp;
+        if (xhttp.extra !== undefined) {
+          if (!xhttp.extra || typeof xhttp.extra !== 'object' || Array.isArray(xhttp.extra))
+            add(prefix + '.xhttpSettings.extra', 'Expected XHTTP extra settings.');
+          else {
+            checkKeys(
+              xhttp.extra,
+              ['headers', ...fields.filter((field) => !['host', 'mode'].includes(field))],
+              prefix + '.xhttpSettings.extra',
+            );
+            if (
+              Object.keys(xhttp).some((field) => !['host', 'path', 'mode', 'extra'].includes(field))
+            )
+              add(
+                prefix + '.xhttpSettings',
+                'Use host/path/mode/extra without overlapping fields.',
+              );
+            extra = xhttp.extra;
+          }
+        }
+        Object.assign(option, extra);
+        delete option.extra;
+        option.host = xhttp.host;
+        option.path = xhttp.path ?? '/';
+        option.mode = xhttp.mode ?? 'auto';
+      }
+    }
     if (stream.tcpSettings && Object.keys(stream.tcpSettings).length)
       add(`${prefix}.tcpSettings`, 'TCP camouflage is not accepted by this runtime.');
     if (stream.wsSettings) {
@@ -46,7 +87,22 @@ function adaptV2ray(input, add) {
       const tls = stream.tlsSettings ?? {};
       if (tls.allowInsecure !== undefined && typeof tls.allowInsecure !== 'boolean')
         add(`${prefix}.tlsSettings.allowInsecure`, 'Expected a boolean.');
-      checkKeys(tls, ['serverName', 'allowInsecure', 'certificates'], `${prefix}.tlsSettings`);
+      checkKeys(
+        tls,
+        ['serverName', 'allowInsecure', 'certificates', ...(network === 'xhttp' ? ['alpn'] : [])],
+        `${prefix}.tlsSettings`,
+      );
+      if (tls.alpn !== undefined && network === 'xhttp') {
+        if (
+          !Array.isArray(tls.alpn) ||
+          !tls.alpn.length ||
+          tls.alpn.some((value) => !['h2', 'http/1.1'].includes(value))
+        )
+          add(prefix + '.tlsSettings.alpn', 'XHTTP supports HTTP/1.1 and HTTP/2 ALPN only.');
+        else
+          option.httpVersion =
+            tls.alpn.length === 1 ? (tls.alpn[0] === 'h2' ? '2' : '1.1') : 'auto';
+      }
       option.tls = { serverName: tls.serverName, rejectUnauthorized: !tls.allowInsecure };
       if (tls.certificates) {
         if (!Array.isArray(tls.certificates) || tls.certificates.length !== 1)

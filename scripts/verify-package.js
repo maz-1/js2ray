@@ -67,6 +67,22 @@ try {
     await manager.start();
     const rotation = await manager.rotate({}); await rotation.drained;
     await manager.close();
+    const net = require('node:net');
+    const target = net.createServer(socket => socket.pipe(socket));
+    await new Promise(resolve => target.listen(0, '127.0.0.1', resolve));
+    const id = '5945fc2c-45b7-48cc-a19c-4cd28dbd6237';
+    const server = api.createRuntime({inbounds:[{protocol:'vless',users:[{id}],networks:[{type:'xhttp',port:0,option:{mode:'stream-one',httpVersion:'2'}}]}]});
+    await server.start();
+    const client = api.createRuntime({outbounds:[{protocol:'vless',users:[{id,encryption:'none'}],networks:[{type:'xhttp',address:'127.0.0.1',port:server.listenersInfo[0].address.port,option:{mode:'stream-one',httpVersion:'2'}}]}]});
+    await client.start();
+    const stream = await client.dial({host:'127.0.0.1',port:target.address().port});
+    stream.write('packed-xhttp');
+    const chunks = []; let received = 0;
+    for await (const chunk of stream) { chunks.push(chunk); received += chunk.length; if (received >= 12) break; }
+    assert.equal(Buffer.concat(chunks).toString(), 'packed-xhttp');
+    assert.equal(client.listenersInfo.length, 0);
+    await client.close(); await server.close();
+    await new Promise(resolve => target.close(resolve));
     console.log('package-ok');
   })().catch(error => { console.error(error); process.exitCode = 1; });`,
     ],

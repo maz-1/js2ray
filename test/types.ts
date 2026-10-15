@@ -1,6 +1,28 @@
 import api, { createRuntime, DatagramMessage, checkConfig } from '..';
 import { Agent, fetch } from 'undici';
 const runtime = createRuntime({ inbounds: [], outbounds: [{ protocol: 'freedom' }] });
+const xhttp = createRuntime({
+  outbounds: [
+    {
+      protocol: 'vless',
+      users: [{ id: '5945fc2c-45b7-48cc-a19c-4cd28dbd6237', encryption: 'none' }],
+      networks: [
+        {
+          type: 'xhttp',
+          address: '127.0.0.1',
+          port: 10080,
+          option: {
+            mode: 'stream-up',
+            httpVersion: '2',
+            host: 'synthetic.test',
+            xPaddingBytes: '100-200',
+          },
+        },
+      ],
+    },
+  ],
+});
+void xhttp;
 async function example() {
   await runtime.start();
   const stream = await runtime.dial({ host: 'example.test', port: 443 });

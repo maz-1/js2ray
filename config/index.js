@@ -217,10 +217,10 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         }
         keys(network, ['type', 'address', 'port', 'option'], np);
         const type = network.type ?? 'tcp';
-        if (!['tcp', 'ws'].includes(type))
+        if (!['tcp', 'ws', 'xhttp'].includes(type))
           add(
             `${np}.type`,
-            'Only TCP and WebSocket are supported; TLS is configured independently.',
+            'Only TCP, WebSocket and XHTTP are supported; TLS is configured independently.',
           );
         const address = network.address ?? (kind === 'inbound' ? '127.0.0.1' : undefined);
         if (!host(address)) add(`${np}.address`, 'Expected a valid IP address or domain.');
@@ -231,7 +231,13 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
           add(np + '.option', 'Expected transport options.');
           option = {};
         }
-        keys(option, ['path', 'headers', 'tls'], np + '.option');
+        keys(
+          option,
+          ['path', 'headers', 'tls', ...(type === 'xhttp' ? require('./xhttp').fields : [])],
+          np + '.option',
+        );
+        if (type === 'xhttp')
+          require('./xhttp').validate(option, add, np + '.option', kind === 'inbound');
         if (type === 'tcp' && (option.path !== undefined || option.headers !== undefined))
           add(np + '.option', 'WebSocket path and headers require type ws.');
         if (
@@ -244,14 +250,21 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             np + '.option.path',
             'Expected an absolute WebSocket request path without fragments.',
           );
-        if (option.headers && (typeof option.headers !== 'object' || Array.isArray(option.headers)))
+        if (
+          option.headers !== undefined &&
+          (!option.headers || typeof option.headers !== 'object' || Array.isArray(option.headers))
+        )
           add(np + '.option.headers', 'Expected an HTTP headers object.');
         for (const [name, value] of Object.entries(option.headers ?? {})) {
           if (
             typeof value !== 'string' ||
             /[\r\n]/.test(name + value) ||
             !/^[!#$%&'*+.^_`|~0-9a-z-]+$/i.test(name) ||
-            /^(connection|upgrade|sec-websocket-)/i.test(name)
+            (type === 'xhttp'
+              ? /^(?:host|referer|content-length|transfer-encoding|connection|keep-alive|upgrade|te|trailer|proxy-connection|http2-settings|accept-encoding)$|^sec-websocket-/i.test(
+                  name,
+                )
+              : /^(connection|upgrade|sec-websocket-)/i.test(name))
           )
             add(np + '.option.headers', 'Invalid or reserved WebSocket header.');
         }
@@ -457,7 +470,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
     config,
     capabilities: {
       protocols: { inbound: [...supported.inbound], outbound: [...supported.outbound] },
-      transports: ['tcp', 'tls', 'ws', 'wss'],
+      transports: ['tcp', 'tls', 'ws', 'wss', 'xhttp'],
       udp: ['vless', 'freedom', 'socks', 'vmess', 'mux', 'xudp', 'reverse'],
       reverse: true,
       mux: true,

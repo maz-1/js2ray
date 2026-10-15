@@ -29,7 +29,7 @@
 
 首轮运行时基线采用 Node.js 24，其他 Node.js 主版本在 CI 验证后再列入正式支持矩阵。
 
-后续独立扩展项包括 REALITY、XTLS Vision、完整 XHTTP、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展，范围见 API 文档。已有 HTTP 伪装及 XHTTP 代码应保留为待验证能力，只有完成对应版本互通测试后，才能在新接口中声明支持。首个完整版本对这些未完成能力返回明确诊断。
+后续独立扩展项包括 REALITY、XTLS Vision、XHTTP 的 HTTP/3/完整 XMUX/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
 ## 2 当前实现与优先修复项
 
@@ -323,7 +323,22 @@ P9–P13 五项实现、专项及发布验收全部通过：三平台各 148 项
 
 新增验收继续使用合成凭据及固定参考内核，真实配置仅在本地审计或授权的单请求回归中读取，不进入日志、Git 或发布包。普通回归、类型/格式/配置检查、参考互通、实际 tarball 安装和三平台 CI 均已执行通过。
 
-## 10 参考资料
+## 10 XHTTP 扩展 P14（2026-10-15）
+
+本阶段实现 HTTP/1.1、HTTP/2 的 `packet-up`、`stream-up`、`stream-one`，客户端与服务端均接入现有 Runtime。固定参考内核采用 Xray 25.3.6，独立于既有 Xray 24.11.5 回归基线；工具归档、二进制及源码提交均锁定校验值。
+
+- [x] 原生配置、V2Ray/Xray JSON 子集、类型声明、示例与支持矩阵。
+- [x] 三种模式、独立连接地址/SNI/Host/path、严格 TLS、取消、超时和背压。
+- [x] 分包排序、重复/非法序号、会话与请求上限、未配对会话回收和关闭清理。
+- [x] HTTP/1.1、TLS HTTP/1.1、HTTP/2（TLS 与显式 h2c）本机测试。
+- [x] 与固定 Xray 25.3.6 的客户端/服务端双向互通；三种模式均不得跳过。
+- [ ] Windows、Linux、macOS 全量回归、互通、类型/格式/配置及 tarball 安装验收。
+
+验收命令：`node --test test/xhttp.test.js`、`node --test test/interop/xhttp.test.js`、`npm test`、`npm run test:interop` 及现有三平台 CI。HTTP/3、REALITY、浏览器指纹、跨节点上下行分离和完整 XMUX 参数不属于本阶段；配置必须明确拒绝尚未支持的行为字段。实现和测试通过后在本节记录实际数量及证据。
+
+本机 Windows：XHTTP 专项 35/35、Xray 25.3.6 互通 21/21，完整普通回归 183/183、参考互通 127/127；100 条并发 TLS 连接涵盖三模式且关闭后资源归零。实际 tarball 已安装并通过包内 XHTTP 拨号，运行依赖仍仅 ws，无原生运行资产。详见 [P14 验收记录](docs/P14_XHTTP_ACCEPTANCE.zh-CN.md)。三平台 CI 继续执行中。
+
+## 11 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
 - [js2ray MIT 许可证](https://github.com/seezaara/js2ray/blob/f316d558839da35fb1efae9979492a5d1f0c81a8/LICENSE)

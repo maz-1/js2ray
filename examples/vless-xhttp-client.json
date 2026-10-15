@@ -1,0 +1,28 @@
+{
+  "inbounds": [],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "proxy.example.net",
+            "port": 443,
+            "users": [{ "id": "5945fc2c-45b7-48cc-a19c-4cd28dbd6237", "encryption": "none" }]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": { "serverName": "proxy.example.net", "alpn": ["h2"] },
+        "xhttpSettings": {
+          "host": "cdn.example.net",
+          "path": "/synthetic-xhttp",
+          "mode": "stream-up"
+        }
+      }
+    }
+  ]
+}

@@ -47,7 +47,7 @@
 - `config(data)` 返回运行时，必须 `await config(data).start()` / `await runtime.stop()`；`stop` 是 `close` 的兼容别名。
 - 模块级 `on` 和共享 `protocols` 被实例事件替代。启动后可通过 `runtime.protocols.vmess.api` 使用实例的用户管理接口；它与原来的自定义 HTTP 管理 API 不等价。
 - 不再创建 Linux systemd 文件，不注册宿主异常或退出处理。部署服务由操作者显式配置。
-- 原 HTTP 伪装、XHTTP、自定义管理 API、`security: "zero"` 等未验收能力在新入口中明确拒绝。旧实现源码保留，但不列为新接口正式支持能力。
+- 原 HTTP 伪装、自定义管理 API、`security: "zero"` 等未验收能力在新入口中明确拒绝。旧 XHTTP 源码保留，正式支持范围见 P14。
 - `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network。支持 AsIs、IPIfNonMatch 和 IPOnDemand。域名可用 full/domain/keyword/geosite，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
 
 ## DNS 与 reverse
@@ -107,3 +107,17 @@ await result.drained;
 agent.destroy();
 await manager.close();
 ```
+
+## XHTTP（P14）
+
+传输使用 `{ type: 'xhttp', address, port, option }`。`option` 接受 `host`、`path`、`mode`、`httpVersion`、`headers`、`tls`、`xPaddingBytes`、`noGRPCHeader`、`noSSEHeader`、`scMaxEachPostBytes`、`scMaxBufferedPosts`、`scStreamUpServerSecs`。地址、TLS 证书名和 HTTP Host 独立；证书默认严格验证。自定义请求头仅用于出站，Host、Referer、长度、连接及 HTTP/2 保留头由传输管理。
+
+`httpVersion` 为 `1.1`、`2` 或 `auto`（默认）。出站 auto 在 TLS 上按 ALPN 选择 HTTP/2 或 HTTP/1.1，明文使用 HTTP/1.1；显式 2 配合无 TLS 即为 prior-knowledge h2c。TLS 入站 auto 同时接受两种 HTTP 版本，明文入站 auto 使用 HTTP/1.1；h2c 需显式设置 2。`mode` 为 `packet-up`、`stream-up`、`stream-one` 或 auto；出站 auto 在 HTTP/2 使用 stream-up、HTTP/1.1 使用 packet-up；入站 auto 接受三种模式，stream-up 入站也接受 stream-one。
+
+path 自动补末尾 `/`，查询串保留。随机 UUID 关联 packet-up/stream-up 上下行；分包序号排序并拒绝重复、非法序号和超出窗口的包。缺包、未配对会话、单包上传、响应头和分包确认的等待受 handshakeTimeoutMs 限制。xPaddingBytes 默认 100-1000，支持 1–4096 内整数或范围；入站同时接受 Referer 和旧查询参数 padding。scMaxEachPostBytes 默认 1000000，实际还受 maxBufferBytes 限制；scMaxBufferedPosts 默认 30、上限 128。stream-up 响应定期发送 padding 保活，scStreamUpServerSecs 默认 30 秒，-1 关闭；该响应不进入业务流。
+
+每条逻辑出站独占 HTTP/1 连接池或 HTTP/2 会话，关闭时释放请求、物理连接和计时器，不跨实例或配置代复用。HTTP/2 入站可在一条物理连接上承载多个逻辑会话，单个 RST_STREAM 只终止对应会话。可读端暂停会传递到 HTTP body/HTTP2 流控；顺序 packet-up 确认等待可读队列空间。队列超限返回结构化错误，不自动重试或重放业务数据。
+
+XHTTP 按整个逻辑连接关闭，不能承诺任意 TCP 半关闭协议；packet-up 的 end 结束整个连接，流式模式在对端结束后关闭。故障、GOAWAY 或运行时关闭终止受影响会话。Manager 同端口轮换支持路径、凭据、TLS 材料和资源限制切换，已配对会话保留原路径及参数；同端口 HTTP 版本或 TLS 开关变更会拒绝并回滚。
+
+传统 JSON 接受 `streamSettings.network: 'xhttp'`、`xhttpSettings` 和 TLS `alpn`（h2/http/1.1）。xhttpSettings.extra 存在时仅保留外层 host/path/mode/extra，不允许重叠参数；未知行为参数报错。HTTP/3、REALITY、完整 XMUX、跨节点 downloadSettings、浏览器指纹未实现；完整能力不能由同名旧代码推断。固定 Xray 25.3.6 的 VLESS TCP 互通覆盖 HTTP/1.1（含 TLS）及 TLS HTTP/2 的三模式两个方向；另测 js2ray h2c 客户端到 Xray 服务端。该版本 Xray 无 TLS 出站固定选择 HTTP/1.1，因此反方向 HTTP/2 使用严格 TLS 验收。

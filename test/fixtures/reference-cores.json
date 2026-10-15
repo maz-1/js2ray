@@ -1,4 +1,11 @@
 {
+  "xray-xhttp": {
+    "version": "25.3.6",
+    "commit": "2cba2c4d59e48a04aa5d09b8e4c2b2d26f8608a4",
+    "source": "https://github.com/XTLS/Xray-core/tree/v25.3.6",
+    "platform": "windows-amd64",
+    "sha256": "a6a37bbc73a1eaa08abf0537e1d22097afa14be0d92c3ce8b8a808c16c205366"
+  },
   "xray": {
     "version": "24.11.5",
     "source": "https://github.com/XTLS/Xray-core",
