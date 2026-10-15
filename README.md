@@ -33,6 +33,8 @@ Use the traditional JSON outbound in [examples/vless-wss-client.json](examples/v
 
 [examples/vless-reality-client.json](examples/vless-reality-client.json) configures REALITY with Vision using synthetic credentials. REALITY uses public Node.js crypto and stream APIs, mandatory server authentication, a pinned non-PQ Chrome 120 ClientHello, and a fixed TLS 1.3 cover destination on the server. See the [REALITY scope and validation](docs/P16_REALITY_ACCEPTANCE.zh-CN.md).
 
+`js2ray check-cover server-config.json` checks the configured REALITY cover's TLS flight without opening an inbound listener. Inbound handshake metrics, bounded diagnostics, negative authentication tests, and transport soak acceptance are documented in [P17](docs/P17_ACCEPTANCE.zh-CN.md).
+
 ```js
 const runtime = createRuntime({ inbounds: [], outbounds: [yourVlessOutbound] });
 await runtime.start();

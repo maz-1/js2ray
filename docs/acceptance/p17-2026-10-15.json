@@ -1,0 +1,554 @@
+{
+  "phase": "P17",
+  "date": "2026-10-15",
+  "node": "24.20.0",
+  "commit": "7f79809f41c0d247450db11c8e7554f68ab89e77",
+  "regression": {
+    "id": 38733773509,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38733773509",
+    "commit": "7f79809f41c0d247450db11c8e7554f68ab89e77",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "regression (windows-2022)",
+        "id": 116417773916,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733773509/job/116417773916",
+        "conclusion": "success",
+        "unit": {
+          "tests": 275,
+          "pass": 275,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 158,
+          "pass": 158,
+          "skipped": 0
+        },
+        "package": {
+          "files": 111,
+          "nativeRuntimeAssets": 0
+        },
+        "requiredSteps": [
+          "Run npm run check",
+          "Run npm run check:types",
+          "Run npm run format:check",
+          "Run npm run check:config",
+          "Run npm test",
+          "Run npm run test:tools",
+          "Run npm run test:interop",
+          "Run npm run test:package"
+        ]
+      },
+      {
+        "name": "regression (ubuntu-24.04)",
+        "id": 116417774328,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733773509/job/116417774328",
+        "conclusion": "success",
+        "unit": {
+          "tests": 275,
+          "pass": 275,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 158,
+          "pass": 158,
+          "skipped": 0
+        },
+        "package": {
+          "files": 111,
+          "nativeRuntimeAssets": 0
+        },
+        "requiredSteps": [
+          "Run npm run check",
+          "Run npm run check:types",
+          "Run npm run format:check",
+          "Run npm run check:config",
+          "Run npm test",
+          "Run npm run test:tools",
+          "Run npm run test:interop",
+          "Run npm run test:package"
+        ]
+      },
+      {
+        "name": "regression (macos-15-intel)",
+        "id": 116417774390,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733773509/job/116417774390",
+        "conclusion": "success",
+        "unit": {
+          "tests": 275,
+          "pass": 275,
+          "skipped": 0
+        },
+        "interoperability": {
+          "tests": 158,
+          "pass": 158,
+          "skipped": 0
+        },
+        "package": {
+          "files": 111,
+          "nativeRuntimeAssets": 0
+        },
+        "requiredSteps": [
+          "Run npm run check",
+          "Run npm run check:types",
+          "Run npm run format:check",
+          "Run npm run check:config",
+          "Run npm test",
+          "Run npm run test:tools",
+          "Run npm run test:interop",
+          "Run npm run test:package"
+        ]
+      }
+    ]
+  },
+  "stability": {
+    "id": 38733509036,
+    "url": "https://github.com/maz-1/js2ray/actions/runs/38733509036",
+    "commit": "80c5908d4b5216f135044179ca51ca1551382de9",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "platform": "linux",
+        "arch": "x64",
+        "name": "stability (ubuntu-24.04)",
+        "id": 116416873390,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733509036/job/116416873390",
+        "artifact": {
+          "id": 11974757340,
+          "name": "transport-stability-Linux-x64",
+          "digest": "sha256:703a257f98e517e96ad81ef08f4fcd6b3a9db0afa525008548b45aacfac7a612"
+        },
+        "raw": "docs/acceptance/p17-stability-linux-2026-10-15.json",
+        "rawSha256": "7e88ef65b76d851520157ce925cbebb6d46cb026e5a8e2246b2b1f2356b82408",
+        "elapsedMs": 1800300,
+        "rotations": 29,
+        "coverFaults": 29,
+        "iterations": 1377202,
+        "bytes": 5641019392,
+        "latency": {
+          "count": 1377202,
+          "totalMs": 14604496.86632179,
+          "maxMs": 222.16949699999986,
+          "histogram": [172481, 1083512, 62266, 2799, 41, 56103, 0, 0],
+          "boundsMs": [1, 5, 10, 50, 100, 500, 1000, null]
+        },
+        "peak": {
+          "rss": 314957824,
+          "heap": 49736160,
+          "applicationQueueBytes": 118784,
+          "transportQueueBytes": 77854,
+          "muxQueueBytes": 0,
+          "pendingInbound": 1,
+          "generations": 37
+        },
+        "closed": true
+      },
+      {
+        "platform": "darwin",
+        "arch": "x64",
+        "name": "stability (macos-15-intel)",
+        "id": 116416873962,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733509036/job/116416873962",
+        "artifact": {
+          "id": 11974232692,
+          "name": "transport-stability-macOS-x64",
+          "digest": "sha256:1e046d11ece2e96b3412da0ce86f8f93b2fc60e912c527686e7eacc99ab6039e"
+        },
+        "raw": "docs/acceptance/p17-stability-darwin-2026-10-15.json",
+        "rawSha256": "f197acef0ff808ed882c97766121af92ed83a80a37ef0bde8c7a99263dfb6180",
+        "elapsedMs": 1800137,
+        "rotations": 29,
+        "coverFaults": 29,
+        "iterations": 1304761,
+        "bytes": 5344301056,
+        "latency": {
+          "count": 1304761,
+          "totalMs": 21607252.116107453,
+          "maxMs": 737.5711550000124,
+          "histogram": [10257, 599065, 447345, 172473, 12010, 63395, 216, 0],
+          "boundsMs": [1, 5, 10, 50, 100, 500, 1000, null]
+        },
+        "peak": {
+          "rss": 308690944,
+          "heap": 50196704,
+          "applicationQueueBytes": 352256,
+          "transportQueueBytes": 196928,
+          "muxQueueBytes": 0,
+          "pendingInbound": 1,
+          "generations": 37
+        },
+        "closed": true
+      },
+      {
+        "platform": "win32",
+        "arch": "x64",
+        "name": "stability (windows-2022)",
+        "id": 116416874055,
+        "url": "https://github.com/maz-1/js2ray/actions/runs/38733509036/job/116416874055",
+        "artifact": {
+          "id": 11973967853,
+          "name": "transport-stability-Windows-x64",
+          "digest": "sha256:cf387f28f46a093978e9b47401f06e074d960f21246d72de69f92f451fe524fb"
+        },
+        "raw": "docs/acceptance/p17-stability-win32-2026-10-15.json",
+        "rawSha256": "c513a5c0bd6405d11c453077ddb2277d774861acc294078944b8dac098932c38",
+        "elapsedMs": 1800310,
+        "rotations": 29,
+        "coverFaults": 29,
+        "iterations": 1192456,
+        "bytes": 4884299776,
+        "latency": {
+          "count": 1192456,
+          "totalMs": 26306702.790800173,
+          "maxMs": 265.7290000000503,
+          "histogram": [1441, 3880, 224659, 907817, 252, 54407, 0, 0],
+          "boundsMs": [1, 5, 10, 50, 100, 500, 1000, null]
+        },
+        "peak": {
+          "rss": 188018688,
+          "heap": 47646968,
+          "applicationQueueBytes": 352256,
+          "transportQueueBytes": 196928,
+          "muxQueueBytes": 0,
+          "pendingInbound": 1,
+          "generations": 36
+        },
+        "closed": true
+      }
+    ]
+  },
+  "newTests": {
+    "inbound": 10,
+    "timeoutHandoff": 4,
+    "securityNegative": 11,
+    "cover": 12,
+    "privacy": 2,
+    "referenceGoCover": 2
+  },
+  "sourceNormalization": "UTF-8, CRLF to LF",
+  "sourceSha256": "b3b869f731b9696b650d143abf23b3a025b55ee4a551c16203c1b7aed527cc99",
+  "sourceFiles": [
+    {
+      "path": "adapters/http.js",
+      "sha256": "9307dc617c5aab089ad6431fccc4d8a1255e861d86df51bb1ff5c3576bc3cb16"
+    },
+    {
+      "path": "adapters/websocket.js",
+      "sha256": "09ac9b2acbe29cc4e990ffa471e7202b9bebdbbbbe46a0579a370e121fb1b1bd"
+    },
+    {
+      "path": "cli/index.js",
+      "sha256": "c49852ea0c087a4ff117f86abeb52eedef8c3ab34046718d05842379de948b15"
+    },
+    {
+      "path": "config/index.js",
+      "sha256": "15998da701ae7bb6f0cbe88fd1954901735f46704a92ba423e28905ceb794f07"
+    },
+    {
+      "path": "config/policy.js",
+      "sha256": "b8e42ea74d1cf0bb7c7da38a0138c19d6024e025febae58a4371e69de925ffac"
+    },
+    {
+      "path": "config/reality.js",
+      "sha256": "b11df41d237b8cca73d5d13e5262ba3f069a9ad8abe39fb0f7f3c69c373d4ec6"
+    },
+    {
+      "path": "config/reverse.js",
+      "sha256": "7eb4fe341dc3914f4c19d7380132e807bde63b93c832c5310c84195dd7a2fb07"
+    },
+    {
+      "path": "config/v2ray.js",
+      "sha256": "8ba43031901137bbdfa05f77f0fd4f0bfb411cccc75cadd8fa772e563d712f4f"
+    },
+    {
+      "path": "config/xhttp.js",
+      "sha256": "df9de57c93a40273fd09c93a9d3eb30029c81fc3e56da05c3c9c82f7c43a05e4"
+    },
+    {
+      "path": "core/api.js",
+      "sha256": "262c75c43ee8ec12d7703cbd332eb5de451966633c3d9f3c6c2ce5747f0423fa"
+    },
+    {
+      "path": "core/event.js",
+      "sha256": "4a94144c4252ed479b1c9bd2bf337c7977e19418d0cb71cd592b2737e1d184fb"
+    },
+    {
+      "path": "core/localNetwork.js",
+      "sha256": "cdfe9c5c5137427cad03c636e6b7f57d4471e14d1fa090f1e8a7ea4c8103f77b"
+    },
+    {
+      "path": "core/remoteNetwork.js",
+      "sha256": "cfbc6e001acce5e9e718e9f231dfd1b67a12dd23f408d6c9900c199e794c7218"
+    },
+    {
+      "path": "core/storage.js",
+      "sha256": "0a40093a0e2d921c385d9ad3f5dca2631c3809cc20a8c4498b2445088b66323d"
+    },
+    {
+      "path": "core/utils.js",
+      "sha256": "b62142a6e3fcd687b77fd00d9d4c42d2f9bb9ec0175cbc14388db62bbe1e72aa"
+    },
+    {
+      "path": "dns/index.js",
+      "sha256": "f8d9fb0e49b4e0938600c4cdaa0d89018e3694260879fed22d8402947254a08b"
+    },
+    {
+      "path": "dns/wire.js",
+      "sha256": "30ec3958e1166d1bc1b01eccb7455f575a48ef030ff982ae2a33c468ce8ef2a2"
+    },
+    {
+      "path": "geodata/index.js",
+      "sha256": "582437ea38c198496f761c9377b4d18a47fd4c65ab4d5905a5b57910dfacb832"
+    },
+    {
+      "path": "index.d.ts",
+      "sha256": "9a7e235cb4ca32a00de23f9b99da2561e79b3883732cbaaa897b82aec1ae67da"
+    },
+    {
+      "path": "index.js",
+      "sha256": "355e4c14db386fed0031c15c0a54da1d4bebd756e964d105cb7ca2ff067b7905"
+    },
+    {
+      "path": "index.mjs",
+      "sha256": "b33f1e74348955515e05c07335003fed0d3c7fa6e8074f1f295bbf99eb1d833a"
+    },
+    {
+      "path": "protocols/bridge.js",
+      "sha256": "f574154c865aa5560d7193efb14ce1f79e50e451e8debf3eaacbc2992887037f"
+    },
+    {
+      "path": "protocols/freedom.js",
+      "sha256": "4ab85357145a41eeea9c9eb02b1253148ae65f6bad7b13b40992b2634f0dca75"
+    },
+    {
+      "path": "protocols/mux/frame.js",
+      "sha256": "8844db8d8ac9e2d38313494c828db0e46b8f2175641c5fdb90f796bd55b05d99"
+    },
+    {
+      "path": "protocols/mux/index.js",
+      "sha256": "30aaf8486213aa0a6af39c47f82ce7abeab2e934aaf43e1afdfb0ad0f84214d2"
+    },
+    {
+      "path": "protocols/socks/client.js",
+      "sha256": "76482976660948dcbcd9ac2ec89d9be2c32430962120c74699efec1ce72b10b5"
+    },
+    {
+      "path": "protocols/socks/datagram.js",
+      "sha256": "196f1da995dbe7b7c6f00465bef2e5620c12c8e2fcca611a48dec16bbaee5a5b"
+    },
+    {
+      "path": "protocols/socks/index.js",
+      "sha256": "0e4f159c2d35b52bf71d5f3c96c8b74209b9ac639622ff531f84c89dc3a8522b"
+    },
+    {
+      "path": "protocols/socks/server.js",
+      "sha256": "1eaa0b1cf7228bc33ce96ee9a91f10dfd9f7fbabf55413d56145122bcbbb0938"
+    },
+    {
+      "path": "protocols/socks/stream.js",
+      "sha256": "89907a833669c58e8f66c397ff50fc72484ad16d921a2169bbf73646004710db"
+    },
+    {
+      "path": "protocols/vless/index.js",
+      "sha256": "8d5ade9cba2e77b9815c10af2d806569c032b44a7941a09138ec113c054dedaa"
+    },
+    {
+      "path": "protocols/vless/vision.js",
+      "sha256": "d539168403fdb19d1b258f3fe713aa436c99144b1f75742dea267c6f64a69c83"
+    },
+    {
+      "path": "protocols/vmess/account.js",
+      "sha256": "fa67664cf41f29d834a1a48e25172286e7f9edf0736328f68370d36371834d79"
+    },
+    {
+      "path": "protocols/vmess/advanced-buffer.js",
+      "sha256": "45657f3828348fb14e7adfbd023bb7bc4a7108ea792b66ddccc87d7dfac9a722"
+    },
+    {
+      "path": "protocols/vmess/aead.js",
+      "sha256": "5839be537ad0caac313b037fa290bc997ff7897fa657255c0cb6944fcf2f0337"
+    },
+    {
+      "path": "protocols/vmess/client.js",
+      "sha256": "692e65f6150cb3f439f0c4273616ae0fb58a80a9dea5f01534abaf98af81c954"
+    },
+    {
+      "path": "protocols/vmess/common.js",
+      "sha256": "5cb5d6b512032101cbb9cc9600ae69518a304d5bbf92b8c6d1aae669b94573fa"
+    },
+    {
+      "path": "protocols/vmess/consts.js",
+      "sha256": "b8c51607b0268d5c2a1ad34b2aee6fa9753f57171b0e04c8c7b20c9393fd5f74"
+    },
+    {
+      "path": "protocols/vmess/crypto/crc32.js",
+      "sha256": "7f3ca627758c900cb95eee276a9bb6489d12eb43073e2b5c97fd060f8d32a4e7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_assert.js",
+      "sha256": "8555bcca4abd91f5928863f34e379af6373890fa44e2fda08aed4e30608687c9"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/_sha2.js",
+      "sha256": "a48b359b7e911023a1c8b54663c65cd2769c76db0088069fb6a29120f1e0acde"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/hmac.js",
+      "sha256": "bc93802322c80fd8cca55192093fd1969011f4ffd03de176638580c1d4d73132"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/sha256.js",
+      "sha256": "d0f4b9c6f902147137c6a2343045d5e0bea8b0ee7709ad96453cdfe25f81b7a7"
+    },
+    {
+      "path": "protocols/vmess/crypto/hmac/utils.js",
+      "sha256": "4e90361d50d4cb5aafd03c232b6ea343e65a0fce9c4fe459be2f91c79450e229"
+    },
+    {
+      "path": "protocols/vmess/crypto/sha3.js",
+      "sha256": "13590a201b2199f00b74ee711edc1bdf744705dca12f43cc6ef64c32b5767fa9"
+    },
+    {
+      "path": "protocols/vmess/datagram.js",
+      "sha256": "b32294b3ba15aed4f26f667014127ee714449727069c193db2596c5074e28795"
+    },
+    {
+      "path": "protocols/vmess/index.js",
+      "sha256": "3ccbdf720885c6758771ac77c1b168d0be923928ceb4e7e2b246580af5826cdf"
+    },
+    {
+      "path": "protocols/vmess/kdf.js",
+      "sha256": "b9087ec1f5b62e71587f98dd6031def69fedbeb95142dc17784ee184badb6e8b"
+    },
+    {
+      "path": "protocols/vmess/replayfilter.js",
+      "sha256": "f4136e8dd2a32aa34c1e4bea2dfd6e3e3bdefe63b26cf278b7a856489e48faf0"
+    },
+    {
+      "path": "protocols/vmess/server.js",
+      "sha256": "c5bc30d686ea2f959eaf8476e178dc6fa79d731ae2fb0e830972297e3d914b1d"
+    },
+    {
+      "path": "protocols/vmess/store.js",
+      "sha256": "e0365e412e7744ade24a26c384efcf964c14d54ecac02c9351b1299e94f32e90"
+    },
+    {
+      "path": "protocols/vmess/validator.js",
+      "sha256": "d9c6a432d4db06311adc23de396de53b57c84dd37e90803b8e0a6624c7ea3ee8"
+    },
+    {
+      "path": "reverse/index.js",
+      "sha256": "4311a37051dacf51096b731f56f0bf60f9e9e7a6f3820f808b9dda53e5e19ba6"
+    },
+    {
+      "path": "routing/index.js",
+      "sha256": "668baf3b1effe13e28304fee18fb02699903f0d9350ebdddeb1e238f8896268b"
+    },
+    {
+      "path": "routing/sniff.js",
+      "sha256": "704d54e744f43f4f7a1e450f615afc5c76a21db35f69e4aceee669a715b4dfa3"
+    },
+    {
+      "path": "runtime/abortable.js",
+      "sha256": "5d3f3c8681802c89e29c1d8d78f5bcf32829801e3116ae265959091a5ac40ac2"
+    },
+    {
+      "path": "runtime/datagram.js",
+      "sha256": "6de69b79858be6b291c34d48bf19a5db7d4487e9a72bfb512dc4387eaba904a4"
+    },
+    {
+      "path": "runtime/errors.js",
+      "sha256": "64900ba80b499605bfcdd1f8fc974b1ead57a9002215eaf3a756084c639e2220"
+    },
+    {
+      "path": "runtime/hooks.js",
+      "sha256": "34bf4edafec98633ad43c78ca3d2e6c55a99ad1b9d50de1f6da4bc35b61bfde1"
+    },
+    {
+      "path": "runtime/index.js",
+      "sha256": "f96cc7d4427cf3631f9b875f91e950a952c0ca4bd860b7b10ad26c3c946a29f8"
+    },
+    {
+      "path": "runtime/manager.js",
+      "sha256": "affbfb14a882746716377b759b690c6189fdcf25868c3e90ec16498070faded7"
+    },
+    {
+      "path": "runtime/metrics.js",
+      "sha256": "a4388ea18df0f6be8bca8b78e83b133934383f6820b71883bc5061a8e660def5"
+    },
+    {
+      "path": "runtime/reader.js",
+      "sha256": "c0c208d8246131fc968522cd184927a593f6aeef507dd16fdd7376471dddc420"
+    },
+    {
+      "path": "runtime/streams.js",
+      "sha256": "bc061bf793b661a06789254f53edd98dae4c3cd6d1edb1d5d23f656b8d027730"
+    },
+    {
+      "path": "runtime/watch.js",
+      "sha256": "7fad5bf95969e38d5b9d1a796f55b72b68618f36844dd43a80badfcf78891d7c"
+    },
+    {
+      "path": "transports/inbound.js",
+      "sha256": "f66e133024629821645a8d505b0155f2c174c7dba0d1bd79d465368f5bcaf167"
+    },
+    {
+      "path": "transports/index.js",
+      "sha256": "e6e0c6e3d3010cff0a99b7de9b991c580c87b56be91fbd30b90f69bca35822f7"
+    },
+    {
+      "path": "transports/reality/certificate.js",
+      "sha256": "e425351bd885b040b175749502fc5eb1e0d0af80ef1e4873448cb06415615bc8"
+    },
+    {
+      "path": "transports/reality/crypto.js",
+      "sha256": "58546e5551117dd871e6c1808cf1a29bcfe7466cf2d1ddf931cddfe70b9cddf1"
+    },
+    {
+      "path": "transports/reality/handshake.js",
+      "sha256": "a53be79f2b537054a021baa6a17ecc23c3db9b2eb41b2f31afb4a92b273d6593"
+    },
+    {
+      "path": "transports/reality/hello.js",
+      "sha256": "1b1772dcec4a5f33dc3705f016ebb1a7db51cce3955dbe3fe61da98f63bc644f"
+    },
+    {
+      "path": "transports/reality/index.js",
+      "sha256": "f279f2d75a53e71ab9a1ae0638fa25caa103c4e686d3ae69321f651f183b9b92"
+    },
+    {
+      "path": "transports/reality/stream.js",
+      "sha256": "1adab5abdea9215cff2dbc4f376ea8e459bccfd55f5ccd494d7f88bc7f581768"
+    },
+    {
+      "path": "transports/reality/wire.js",
+      "sha256": "c682203173bc0d93d2b4988be1bd0aa65ba0c214845e41630b1ff4bdd644dff9"
+    },
+    {
+      "path": "transports/vision-tls.js",
+      "sha256": "f03e2b89ed9d390c687e215f4654f47854be576b378a38b026a5173363fcd5f0"
+    },
+    {
+      "path": "transports/xhttp/client.js",
+      "sha256": "bfb2ecbb33a0467883835a6ec0e056c6c1b5e6afe70cfa0c7e564b91194ce027"
+    },
+    {
+      "path": "transports/xhttp/common.js",
+      "sha256": "97a64066a2178e94634f9937021702fb64350a60cb8bf6840cc5e3f7f575ee8c"
+    },
+    {
+      "path": "transports/xhttp/index.js",
+      "sha256": "012ef28a4a87bca9181a10e3c5d75470ddefac1b02c1bd9da62f68d6edcfe5f3"
+    },
+    {
+      "path": "transports/xhttp/server.js",
+      "sha256": "39fd4a40d4729c3e4b677b8f73ffe2c073991f3cff2115da1039ebb086edf0d3"
+    }
+  ],
+  "harnessSha256": "b7fec837ddd872eb3ab75840685222f2fe515dfb072669d52512f86c00fff08b",
+  "privacy": {
+    "filesChecked": 197,
+    "historyBlobsChecked": 390,
+    "matches": 0
+  }
+}

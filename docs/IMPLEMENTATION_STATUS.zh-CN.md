@@ -75,6 +75,10 @@ P14 XHTTP 已通过 [三平台 CI](https://github.com/maz-1/js2ray/actions/runs/
 - VMess 嗅探、HTTP Blackhole、透明转发、自定义 HTTP 管理 API、zero 模式仍不在支持矩阵。连接 error 事件与写回调已统一为 Js2rayError，宿主仍需处理 error。
 - 不做隐式直连回退，不重放已发业务字节；reverse 传输恢复和 HTTP 上层重定向由各自机制处理。
 
+## P17 验收加固
+
+P17 加固已补充入站握手指标、诊断采样、REALITY 安全负向、两种 cover 布局/三套件及固定 Go TLS cover 对照、部署前 check-cover、原生配置/密钥及已删除历史秘密审计；短负载发现并修复 WSS/XHTTP 的 TCP/TLS/HTTP2 超时移交问题。[三平台完整回归](https://github.com/maz-1/js2ray/actions/runs/38733773509) 各 275 项普通测试、158 项参考互通与实际安装包检查均通过；[三平台长时验收](https://github.com/maz-1/js2ray/actions/runs/38733509036) 分别完成 100 会话/30 分钟、29 次全端点轮换与 cover 故障恢复，关闭后资源归零。39 项新增普通专项、2 项新增参考对照、逐平台原始 JSON 和 79 个产品源码摘要见 [P17](P17_ACCEPTANCE.zh-CN.md)。
+
 ## 私有真实配置
 
 用户授权的 `node scripts/smoke-private.js v2ray-config.json` 仅提取 proxy 出站和 hosts，引导 VLESS/WSS 请求 example.com；前次结果 HTTP 200，本地代理监听器 0，严格 TLS 开启。它不证明公网服务端的内核版本或完整 reverse 部署兼容性。`scripts/check-private.js` 仅在本地检查已跟踪文件是否出现私有地址、UUID、邮箱、Host、SNI、路径，只输出文件名而不输出值。私有文件始终 gitignored，未进入 CI/发布包；没有修改 ChatRoom。
