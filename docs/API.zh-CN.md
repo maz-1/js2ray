@@ -4,7 +4,7 @@
 
 ## 生命周期
 
-`createRuntime(config, { logger, lookup, baseDir })` 进行配置校验并创建独立实例。构造不拨号、不监听、不读写存储、不启动定时器，也不修改进程信号处理。配置中的相对文件路径按 `baseDir` 解析，默认是当前工作目录；CLI 使用配置文件所在目录。
+`createRuntime(config, { logger, lookup, baseDir, services })` 进行配置校验并创建独立实例。构造不拨号、不监听、不读写存储、不启动定时器，也不修改进程信号处理。Geo 资源在配置校验时只读加载并校验；TLS 文件在使用时读取。配置中的相对文件路径按 `baseDir` 解析，默认是当前工作目录；CLI 使用配置文件所在目录。
 
 状态依次为 `created → starting → running → closing → closed`。`start()` 返回 Promise，只有所有显式入站成功监听才成功；失败回滚到 `closed`。启动中的并发调用共享启动结果。空入站可以正常运行。关闭后的实例不能重启，必须创建新实例。
 
@@ -18,7 +18,7 @@
 
 `AbortSignal` 取消未完成拨号，也在拨号成功后继续控制该连接，流关闭时移除订阅。TCP/TLS 保留半关闭。WS/WSS 遵循 WebSocket 关闭语义，`end()` 完成整个 WebSocket；不能以它表达仅关闭写方向。
 
-返回的虚拟流提供 `setTimeout`、`setNoDelay`、`setKeepAlive`、`ref` 和 `unref`，支持标准 Node.js HTTP Agent 接口；HTTPS 目标应通过 `tls.connect({ socket: stream, ca, servername })` 另建目标 TLS。节点 TLS 和目标 TLS 必须各自验证。当前提供接口契约测试，公共 Agent/Undici 工厂仍属于后续阶段。
+返回的虚拟流提供 `setTimeout`、`setNoDelay`、`setKeepAlive`、`ref` 和 `unref`，支持标准 Node.js HTTP Agent 接口。`createHttpAgent(runtime, options)`、`createHttpsAgent(runtime, options)` 提供公共适配，HTTPS 目标在隧道内单独建立 TLS；节点 TLS 和目标 TLS 分别验证。`createUndiciConnector`、`createUndiciDispatcher(runtime, { undici, ...options })` 支持可选 Undici 7.30.0，无核心依赖和全局 dispatcher 修改。适配器选项包括固定 `outboundTag`、`inboundTag`、`signal`、`timeoutMs`、`targetTls` 及对应客户端池选项。每个工厂拥有独立连接池，目标和 TLS 参数参与池键。请求总预算由上层 AbortSignal 控制，连接和目标 TLS 共用适配器预算。Undici 单请求取消由客户端处理，尚未完成的共享建连最多持续到连接预算或适配器销毁；传入工厂 signal 可同时取消底层拨号。销毁 Node agent 或 Undici dispatcher 并关闭 runtime。
 
 写入者必须处理 `write()` 的布尔返回值或使用 `pipeline()`。协议读队列、握手缓冲和数据报队列受 `maxBufferBytes` 限制；调用方无视标准流背压反复写入，仍可能在调用方的 Node.js Writable 队列中积压数据。
 
@@ -48,4 +48,16 @@
 - 模块级 `on` 和共享 `protocols` 被实例事件替代。启动后可通过 `runtime.protocols.vmess.api` 使用实例的用户管理接口；它与原来的自定义 HTTP 管理 API 不等价。
 - 不再创建 Linux systemd 文件，不注册宿主异常或退出处理。部署服务由操作者显式配置。
 - 原 HTTP 伪装、XHTTP、自定义管理 API、`security: "zero"` 等未验收能力在新入口中明确拒绝。旧实现源码保留，但不列为新接口正式支持能力。
-- `routing` 函数仅用于库模式。声明式路由、DNS、Geo 资源、Mux 和 reverse 仍待实现，完整参考配置目前必须报错。
+- `routing` 函数仅用于库模式；声明式 `field` 规则按顺序、字段内 OR/字段间 AND 匹配 inboundTag/domain/IP/port/network。仅支持 AsIs，不为 IP 规则额外解析域名。域名可用 full/domain/keyword/geosite，GeoIP ! 取反与 Geosite 类别中的 ! 含义不同。Geo 资源必须提供 path/version/sha256，缺失类别或错误摘要会失败。
+
+## DNS 与 reverse
+
+`runtime.resolve(host, { family: 0|4|6, signal })` 返回带 family 和 TTL 的地址数组。DNS 支持 hosts/别名、A/AAAA、普通 UDP DNS/截断转 TCP、严格 TLS 的 DoH、domains 选择、expectIPs、缓存及回退。DNS 配置的 timeoutMs 为每服务器预算；整体预算随服务器数有界增长。localhost 与 https+local 本地解析；普通 DNS 和 https DoH 经配置路由。代理节点和 DNS 引导只使用 hosts/注入系统解析器。Freedom 默认 AsIs，UseIP/UseIPv4/UseIPv6 才使用内部 DNS。
+
+`reverse.bridges` 提供虚拟入站 tag，`reverse.portals` 提供虚拟出站 tag；引用必须存在，规则顺序由配置明确决定。Bridge domain:0 规则必须先于 Bridge 本地业务规则。控制域名只用于连接识别。Bridge 主动建连，无需代理监听；Portal 业务端口需显式配置 TCP/dokodemo-door 入站。`runtime.stats.reverse` 和 `reverse` 事件分别记录角色、传输、会话及连接/活动/排空/退避状态；active 表示控制传输可用，不代表目标业务一定可达。
+
+Bridge 默认最多 4 条承载、每条最多 129 会话（含控制），断线重连从 100 ms 开始指数退避，上限 30 秒并带抖动。可配置 maxWorkers/maxSessions/reconnectMs。Portal 优先选非排空且会话数最少的承载；参考控制消息超过 256 累计会话后使其排空。传输故障会终止受影响业务，不重放应用字节。普通 outbound mux=false 不关闭 reverse 所需内部 Mux。Mux END 关闭整个会话，不能承诺等待写 EOF 后再返回响应的任意 TCP 半关闭协议；WS 同样没有 TCP 半关闭。runtime.close 会终止反代承载。
+
+本地固定服务可用 Freedom redirect；进程内处理器通过 `services: { name: target => Duplex | Promise<Duplex> }` 注册，并配置 `{ protocol: 'service', service: 'name', allow: { host, port } }`，只允许这一精确目标，缺少处理器会启动失败。
+
+`examples/combined.json` 保留脱敏参考需求，并明确修订：删除无对应入/出站的 api 规则（原失败 fixture 仍保留诊断）；添加 Bridge 本地业务规则；补齐版本化 Geo 资源。示例资源仅含合成 cn/广告/海外类别，不能当作真实国内数据库。VMess 嗅探、非 AsIs 路由策略、HTTP Blackhole 响应、Mux UDP/XUDP、Vision/Reality、透明 TCP、API 管理入站均显式不支持。

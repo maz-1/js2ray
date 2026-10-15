@@ -1,4 +1,5 @@
 import api, { createRuntime, DatagramMessage, checkConfig } from '..';
+import { Agent, fetch } from 'undici';
 const runtime = createRuntime({ inbounds: [], outbounds: [{ protocol: 'freedom' }] });
 async function example() {
   await runtime.start();
@@ -13,5 +14,13 @@ async function example() {
   await runtime.close();
   checkConfig({ outbounds: [] });
   api.config({}).stop();
+  const connector = api.createUndiciConnector(runtime);
+  const pool = new Agent({ connect: connector });
+  const dispatcher = api.createUndiciDispatcher(runtime, { undici: { Agent }, connections: 2 });
+  await fetch('http://example.test', { dispatcher });
+  await pool.close();
+  await dispatcher.close();
+  api.createHttpAgent(runtime).destroy();
+  api.createHttpsAgent(runtime, { targetTls: { ca: 'PEM' } }).destroy();
 }
 void example;

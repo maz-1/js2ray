@@ -2,7 +2,7 @@
 
 An embeddable, pure JavaScript proxy runtime for Node.js 24. Original implementation by [seezaara](https://github.com/seezaara/js2ray), MIT licensed.
 
-This working tree is **4.0.0-dev.0**. It implements the runtime, TCP/TLS/WS/WSS transports, VLESS v0 TCP/traditional UDP, and VMess/SOCKS/Freedom regressions. The complete development plan is still in progress: declarative DNS/routing, Geo resources, Mux.Cool, traditional reverse, public HTTP/Undici adapters and full release acceptance remain pending. Unsupported behavior produces configuration diagnostics.
+This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, VLESS TCP/traditional UDP, VMess/SOCKS/Freedom, DNS/DoH and ordered routing with pinned Geo resources, Mux.Cool TCP, traditional Bridge/Portal reverse, and Node HTTP/HTTPS and optional Undici adapters. Release acceptance is tracked in [the evidence record](docs/IMPLEMENTATION_STATUS.zh-CN.md); unsupported combinations fail explicitly.
 
 ## Direct library use
 
@@ -48,6 +48,23 @@ session.close();
 
 Callers must respect normal stream backpressure. TCP/TLS support half-close; WebSocket `end()` closes both directions after sending queued bytes, as required by WebSocket. Applications requiring a response after write EOF should use TCP/TLS.
 
+Mux.Cool (including reverse) uses the reference protocol's full-session END semantics. It cannot represent arbitrary TCP write-half-close protocols. Ordinary outbound Mux supports VLESS TCP only; UDP/XUDP business sessions are rejected. Reverse has its own internal Mux and works with `mux.enabled: false` on the carrier outbound.
+
+```js
+const { createHttpsAgent, createUndiciDispatcher } = require('js2ray');
+const agent = createHttpsAgent(runtime, { outboundTag: 'proxy' });
+// https.get('https://example.com/', { agent }, response => { ... });
+agent.destroy();
+
+const undici = require('undici'); // optional; tested with 7.30.0
+const dispatcher = createUndiciDispatcher(runtime, { undici, outboundTag: 'proxy' });
+const response = await undici.fetch('https://example.com/', { dispatcher });
+await response.body.cancel();
+await dispatcher.close();
+```
+
+[examples/combined.json](examples/combined.json) is a sanitized configuration check fixture for DNS, Geo routing, reverse and redirect. Its tiny bundled Geo resources contain synthetic test categories; replace them with your own versioned and SHA256-pinned resources for real deployment. [The migration guide](docs/API.zh-CN.md) records the removed dangling API rule and other corrections.
+
 ## CLI and checks
 
 ```sh
@@ -68,7 +85,7 @@ node cli/index.js run your-config.json
 npm run test:interop
 ```
 
-Interoperability checks require the exact binaries in [test/fixtures/reference-cores.json](test/fixtures/reference-cores.json); missing tools or checksum mismatches fail. Set `JS2RAY_XRAY_BIN` / `JS2RAY_V2RAY_BIN`, or place the locked Windows binaries in the ignored `.test-tools/` directory. These executables are development test peers, never product dependencies. Set `JS2RAY_INTEROP_VERBOSE=1` for synthetic reference logs.
+Run `npm run test:tools` to install the official fixed reference builds for Windows/Linux/macOS x64. Archive and executable SHA256 values are pinned in [the platform lock](test/fixtures/reference-platforms.json). Missing tools or checksum mismatches fail. Alternatively set `JS2RAY_XRAY_BIN` / `JS2RAY_V2RAY_BIN`. These executables are development test peers, never product dependencies. Set `JS2RAY_INTEROP_VERBOSE=1` for synthetic reference logs. `npm run test:stability` runs the separate 100-session, 30-minute acceptance test and writes machine/config/source/queue/memory/cleanup evidence to `test-results/stability.json`.
 
 Private remote smoke testing is opt-in: `node scripts/smoke-private.js v2ray-config.json`. It selects only the `proxy` outbound, makes one example.com request, and reports status and listener count. It does not claim that the full source configuration is supported. The private configuration is ignored by Git and excluded from the package.
 

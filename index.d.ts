@@ -1,6 +1,8 @@
 import { EventEmitter } from 'node:events';
 import { Duplex } from 'node:stream';
 import { LookupFunction, AddressInfo } from 'node:net';
+import { Agent as HttpAgent, AgentOptions as HttpAgentOptions } from 'node:http';
+import { Agent as HttpsAgent, AgentOptions as HttpsAgentOptions } from 'node:https';
 
 export type RuntimeState = 'created' | 'starting' | 'running' | 'closing' | 'closed';
 export interface Diagnostic {
@@ -78,14 +80,15 @@ export type Bound = (
   | { tag?: string; protocol: 'tcp'; networks: Network[]; target: { host: string; port: number } }
 ) & { sniffing?: Sniffing };
 export type Outbound =
-  | Bound
+  | (Bound & { mux?: { enabled: boolean; concurrency?: number } })
   | {
       tag?: string;
       protocol?: 'freedom';
       redirect?: string;
       domainStrategy?: 'AsIs' | 'UseIP' | 'UseIPv4' | 'UseIPv6';
     }
-  | { tag?: string; protocol: 'blackhole' };
+  | { tag?: string; protocol: 'blackhole' }
+  | { tag?: string; protocol: 'service'; service: string; allow: { host: string; port: number } };
 export interface RoutingRule {
   type?: 'field';
   inboundTag?: string[];
@@ -148,6 +151,7 @@ export interface NativeConfig {
       ) => string | boolean | null);
   dns?: DnsConfig;
   geodata?: { geoip?: GeoResource; geosite?: GeoResource };
+  reverse?: { bridges?: ReverseEndpoint[]; portals?: ReverseEndpoint[] };
   storage?: string;
   debug?: (event: ErrorRecord) => void;
   limits?: Limits;
@@ -163,6 +167,14 @@ export interface RuntimeOptions {
   baseDir?: string;
   logger?: ((event: ErrorRecord) => void) | { error(event: ErrorRecord): void };
   lookup?: LookupFunction;
+  services?: Record<string, (target: DialTarget) => Duplex | Promise<Duplex>>;
+}
+export interface ReverseEndpoint {
+  tag: string;
+  domain: string;
+  maxWorkers?: number;
+  maxSessions?: number;
+  reconnectMs?: number;
 }
 export interface DialTarget {
   host: string;
@@ -204,6 +216,14 @@ export class Runtime extends EventEmitter {
     connections: number;
     pendingDials: number;
     listeners: number;
+    reverse: Array<{
+      tag: string;
+      role: string;
+      transports: number;
+      active: number;
+      sessions: number;
+      connecting?: boolean;
+    }>;
   };
   readonly listenersInfo: Array<{ tag: string; address: AddressInfo | string | null }>;
   start(): Promise<this>;
@@ -239,6 +259,41 @@ export interface ConfigReport {
 export function checkConfig(config?: unknown, options?: { baseDir?: string }): ConfigReport;
 export function normalizeConfig(config?: unknown, options?: { baseDir?: string }): NativeConfig;
 export function redact(value: unknown): unknown;
+export interface AdapterOptions {
+  outboundTag?: string;
+  inboundTag?: string;
+  signal?: AbortSignal;
+  timeoutMs?: number;
+  targetTls?: TlsOptions;
+}
+export function createHttpAgent(
+  runtime: Runtime,
+  options?: AdapterOptions & HttpAgentOptions,
+): HttpAgent;
+export function createHttpsAgent(
+  runtime: Runtime,
+  options?: AdapterOptions & HttpsAgentOptions,
+): HttpsAgent;
+export interface UndiciConnectOptions {
+  hostname: string;
+  port: string;
+  protocol: string;
+  host?: string;
+  servername?: string;
+  localAddress?: string | null;
+  httpSocket?: Duplex;
+  signal?: AbortSignal;
+}
+export interface UndiciConnector {
+  (options: UndiciConnectOptions, callback: (...args: [null, any] | [Error, null]) => void): void;
+  destroy(): void;
+}
+/** The optional module supplies the concrete dispatcher type without a core dependency. */
+export function createUndiciConnector(runtime: Runtime, options?: AdapterOptions): UndiciConnector;
+export function createUndiciDispatcher<T>(
+  runtime: Runtime,
+  options: AdapterOptions & { undici: { Agent: new (options?: any) => T }; [key: string]: unknown },
+): T;
 declare const api: {
   createRuntime: typeof createRuntime;
   Runtime: typeof Runtime;
@@ -247,5 +302,9 @@ declare const api: {
   normalizeConfig: typeof normalizeConfig;
   redact: typeof redact;
   Js2rayError: typeof Js2rayError;
+  createHttpAgent: typeof createHttpAgent;
+  createHttpsAgent: typeof createHttpsAgent;
+  createUndiciConnector: typeof createUndiciConnector;
+  createUndiciDispatcher: typeof createUndiciDispatcher;
 };
 export default api;

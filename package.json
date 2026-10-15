@@ -21,12 +21,14 @@
     "start": "node cli/index.js",
     "test": "node --test --test-timeout=15000 test/*.test.js",
     "check": "node scripts/check.js",
-    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json",
+    "check:config": "node cli/index.js check examples/direct.json && node cli/index.js check examples/vless-wss-client.json && node cli/index.js check examples/combined.json",
     "test:interop": "node --test --test-timeout=15000 test/interop/*.test.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:types": "tsc -p tsconfig.json",
-    "test:package": "node scripts/verify-package.js"
+    "test:package": "node scripts/verify-package.js",
+    "test:stability": "node scripts/stability.js",
+    "test:tools": "node scripts/install-reference-cores.js"
   },
   "author": "seezaara",
   "license": "MIT",
@@ -57,6 +59,8 @@
     "config",
     "runtime",
     "transports",
+    "adapters",
+    "reverse",
     "routing",
     "dns",
     "geodata",
@@ -70,6 +74,7 @@
   "devDependencies": {
     "@types/node": "24.10.0",
     "prettier": "3.6.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "undici": "7.30.0"
   }
 }
