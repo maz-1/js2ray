@@ -132,9 +132,10 @@ test('kernel oversized-datagram rejection stays structured and does not poison l
   const session = await runtime.openDatagram(target),
     large = Buffer.alloc(60000);
   if (largeDatagramSize() < large.length) {
-    await assert.rejects(session.send(large), {
-      code: 'ERR_TRANSPORT',
-      cause: { code: 'EMSGSIZE' },
+    await assert.rejects(session.send(large), (error) => {
+      assert.equal(error.code, 'ERR_TRANSPORT');
+      assert.equal(error.cause.code, 'EMSGSIZE');
+      return true;
     });
   } else {
     await session.send(large);
