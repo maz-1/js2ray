@@ -69,7 +69,8 @@
     "examples",
     "docs",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "DEVELOPMENT_PLAN.zh-CN.md"
   ],
   "devDependencies": {
     "@types/node": "24.10.0",
