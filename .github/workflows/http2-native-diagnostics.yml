@@ -39,7 +39,7 @@ jobs:
             if [ "$status" -ne 0 ]; then
               for core in test-results/http2-native-cores/core.*; do
                 if [ -f "$core" ]; then
-                  gdb --batch -ex 'set pagination off' -ex 'thread apply all bt' "$(command -v node)" "$core" > "test-results/http2-native/backtrace-${attempt}.txt" 2>&1
+                  gdb --batch -ex 'set pagination off' -ex 'thread apply all bt' -ex 'thread 1' -ex 'info registers' -ex 'disassemble /r $pc-64,$pc+96' "$(command -v node)" "$core" > "test-results/http2-native/backtrace-${attempt}.txt" 2>&1
                 fi
               done
               echo "Native failure captured on attempt ${attempt}"
