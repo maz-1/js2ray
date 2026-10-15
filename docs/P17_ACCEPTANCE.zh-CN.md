@@ -6,6 +6,8 @@
 
 短负载实际发现 WSS/XHTTP 父 TCP 计时器会在传输就绪后继续生效；HTTP/2 对外 Socket 代理的 setTimeout 操作针对 session，也不能清除已设置的 TLS Socket 预算。实现按公开事件显式移交 TCP/TLS/HTTP2 超时所有权，新增 WSS、HTTP/1.1 packet-up/stream-one 与 HTTP/2 stream-one 的持续传输回归共 4 项，均超过握手预算仍正确往返。没有靠加长握手预算绕过问题。
 
+CI 的普通测试按文件串行运行，避免多个独立的 100 并发握手用例同时争用共享 CPU，仍保留用例内部 Promise.all 的真实 100 并发及默认 10 秒握手预算，短超时失败用例也不变。显式命令为 `node --test --test-concurrency=1 --test-timeout=15000 test/*.test.js`；选项位于文件参数前，追加到 npm test 文件列表之后不会生效。开发者的普通 npm test 入口仍保留默认调度。
+
 REALITY 新增负向 11 项：证书 HMAC、CertificateVerify 和双方 Finished 篡改，Brotli 解压炸弹/超限声明/长度错误/算法错误/损坏数据，认证成功的压缩证书分片，以及固定种子的 512 次 ClientHello 变异/低阶 X25519/超长记录拒绝。失败客户端在完整 ClientHello 后不发送 VLESS 或业务字节；服务端拒绝已正确加密但 Finished 内容错误的请求，真实业务目标收到的连接数为零。
 
 cover 专项 12 项分别强制单记录/四记录与三种套件组合，并验证双向 Vision Direct；记录长度逐一比较，HRR、缺少 CCS、空间不足和截断必须失败。CLI `check-cover` 使用相同的镜像兼容性解析路径，不创建入站监听、不输出目标/凭据。另有 2 项固定 Xray 25.3.6 的 Go TLS cover 双向互通，明确断言四记录布局，保留原 Node/OpenSSL cover。它们补充既有互通矩阵，不宣称任意目标或浏览器指纹都兼容。

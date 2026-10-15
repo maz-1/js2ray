@@ -18,7 +18,10 @@ jobs:
       - run: npm run check:types
       - run: npm run format:check
       - run: npm run check:config
-      - run: npm test
+      # Keep each test's real concurrency and default deadlines; avoid several
+      # independent 100-handshake stress files competing for a small CI CPU.
+      - name: Run unit tests (serial files)
+        run: node --test --test-concurrency=1 --test-timeout=15000 test/*.test.js
       - run: npm run test:tools
       - run: npm run test:interop
       - run: npm run test:package

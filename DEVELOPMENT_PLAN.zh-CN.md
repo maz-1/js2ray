@@ -383,6 +383,8 @@ P16 全部验收通过：功能提交 `0abc16233d50b3b23373fab72bd729253395b449`
 
 P17 全部验收通过：[全量三平台 CI](https://github.com/maz-1/js2ray/actions/runs/38733773509) 对应 `7f79809f41c0d247450db11c8e7554f68ab89e77`；[三平台长时验收](https://github.com/maz-1/js2ray/actions/runs/38733509036) 对应 `80c5908d4b5216f135044179ca51ca1551382de9`。两者 79 个产品源码及长时脚本摘要完全一致，仅临时测试目录修订不同。Windows/Linux/macOS 分别持续 1800310/1800300/1800137 ms，完成 1192456/1377202/1304761 次逐字节校验，29 次轮换和 cover 故障恢复，关闭后全部管理器资源归零。源码汇总 SHA256 为 `b3b869f731b9696b650d143abf23b3a025b55ee4a551c16203c1b7aed527cc99`。详见 [P17 验收](docs/P17_ACCEPTANCE.zh-CN.md)、[机器可读汇总](docs/acceptance/p17-2026-10-15.json) 及三份未改写的原始负载记录。
 
+最终文档回归另暴露共享 macOS CPU 上多个 100 并发测试文件同时争用预算的问题。CI 改为测试文件串行，保留每个用例内部的 100 真并发、默认 10 秒握手预算和全部断言；不增加产品超时。Node 测试选项必须位于文件参数之前，不能用 `npm test -- --test-concurrency=1` 冒充生效的串行设置。产品和长时负载源码不变。
+
 ## 14 参考资料
 
 - [js2ray 源码基线](https://github.com/seezaara/js2ray/tree/f316d558839da35fb1efae9979492a5d1f0c81a8)
