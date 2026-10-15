@@ -31,6 +31,8 @@
 
 后续独立扩展项包括 XHTTP 的 HTTP/3/跨节点上下行分离、gRPC、QUIC、TUN、透明代理和 V2Ray gRPC 管理 API。XUDP 数据报封装与配置轮换已在 P12/P13 扩展；P14 新增 XHTTP 的 HTTP/1.1、HTTP/2 三模式，P15 实现原始 TLS 1.3 上的 Vision，P16 扩展 REALITY 及 Vision 组合，P18 补齐 XMUX 六字段，范围见 API 文档。原 HTTP 伪装及旧 XHTTP 源码保留；正式支持以新接口和对应固定版本互通验收为准。未完成能力返回明确诊断。
 
+HTTP/3 当前状态（2026-10-15）：**暂缓实现，等待 Node.js 原生 QUIC 支持稳定后再启动**。后续优先采用 Node.js 原生实现；现阶段不启动定制 Node 构建、HTTP/3 原型或正式实现。恢复前重新核对上游 API 稳定性、目标发行包及三平台可用性，再锁定运行时版本并完成固定 Xray 双向互通和完整验收。已有能力探测仅提供信息，不代表 HTTP/3 支持。详见 [HTTP/3 可行性评估](docs/HTTP3_FEASIBILITY.zh-CN.md)。
+
 ## 2 历史源码基线与当时的优先修复项
 
 本节记录最初源码基线，不能当作 P0–P18 之后的当前能力说明。最初仓库提供了协议层与传输层的基本分离，但没有完整的 VLESS 和传统 reverse 实现，也没有测试脚本及测试目录；当前状态以各阶段验收及 API 文档为准。
@@ -395,7 +397,7 @@ P17 全部验收通过：[全量三平台 CI](https://github.com/maz-1/js2ray/ac
 - [x] 完成含空闲检测修正的最终固定 Xray 25.3.6 双向互通、全量回归、实际安装包和三平台验收：[CI](https://github.com/maz-1/js2ray/actions/runs/38749322344) 每平台 312 项普通测试、170 项参考互通，无失败/跳过/取消；实际安装包不含额外原生运行资产。
 - [x] 完成 API/类型/配置样例及本轮隐私审计，未检出真实配置敏感值。
 - [x] 完成 XMUX 100 会话/30 分钟三平台长时稳定性及 P14–P16 混合传输回归，均完成 29 次轮换，混合传输另完成 29 次 cover 故障恢复；管理器关闭后资源归零。六份原始记录与 80 个产品源码摘要一致，见 [P18 验收](docs/P18_XMUX_ACCEPTANCE.zh-CN.md) 和 [机器汇总](docs/acceptance/p18-2026-10-15.json)。
-- [x] 基于本机 Node 24.20.0 和官方源码评估 HTTP/3 实现路径、成本及原型出口，见 [HTTP/3 可行性评估](docs/HTTP3_FEASIBILITY.zh-CN.md)。当前二进制未编译 QUIC；定制 Node 实验 API 路径需独立原型，不标记 HTTP/3 支持。CI 增加三平台信息性能力探测。
+- [x] 基于本机 Node 24.20.0 和官方源码评估 HTTP/3 实现路径、成本及原型出口，见 [HTTP/3 可行性评估](docs/HTTP3_FEASIBILITY.zh-CN.md)。当前二进制未编译 QUIC，近一年主线 API 存在较大不兼容变化；HTTP/3 暂缓至 Node.js 原生 QUIC 支持稳定后再实现，不启动原型或标记支持。CI 保留三平台信息性能力探测。
 
 P18 全部验收通过：最终产品提交 `74d4529f36db80446b77305ae5f9b0b08766a8af`，[回归](https://github.com/maz-1/js2ray/actions/runs/38749322344)、[XMUX 长时](https://github.com/maz-1/js2ray/actions/runs/38749322880) 和 [混合传输长时](https://github.com/maz-1/js2ray/actions/runs/38749322553) 同源。产品汇总 SHA256 为 `fbd3e69f320246067daba12c1ec7a9d98d6e0f28fa42b87969093bc326eae939`。保活修正后的持续入站/只有出站/空闲恢复测试均通过；原始记录与最终产品一一对应，不以修正前的长时结果代替。
 
