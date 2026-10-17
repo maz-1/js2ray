@@ -9,9 +9,15 @@ function write(stream, data) {
 function relay(left, right) {
   left.once('error', (error) => right.destroy(error));
   right.once('error', (error) => left.destroy(error));
-  left.once('close', () => right.destroy());
-  right.once('close', () => left.destroy());
+  left.once('close', () => closeTransport(right));
+  right.once('close', () => closeTransport(left));
   left.pipe(right).pipe(left);
+}
+const quicGracefulClose = Symbol.for('js2ray.quicGracefulClose');
+function closeTransport(stream) {
+  if (stream?.[quicGracefulClose] && stream.readableEnded && stream.writableEnded)
+    stream[quicGracefulClose]();
+  else stream?.destroy();
 }
 function legacyDuplex(start, { maxBufferBytes }) {
   let connection;
@@ -47,12 +53,22 @@ function legacyDuplex(start, { maxBufferBytes }) {
       }
     },
     final(callback) {
+      if (transport?.[quicGracefulClose]) return void transport.end(callback);
       transport?.end();
       callback();
     },
     destroy(error, callback) {
-      connection?.close();
-      transport?.destroy();
+      if (
+        !error &&
+        stream.readableEnded &&
+        stream.writableFinished &&
+        transport?.[quicGracefulClose]
+      )
+        closeTransport(transport);
+      else {
+        connection?.close();
+        transport?.destroy();
+      }
       callback(error);
     },
   });
@@ -84,7 +100,10 @@ function legacyDuplex(start, { maxBufferBytes }) {
       },
     });
   });
-  stream.once('close', () => transport?.destroy());
+  stream.once('close', () => {
+    if (stream.readableEnded && stream.writableFinished) closeTransport(transport);
+    else transport?.destroy();
+  });
   stream.setTimeout = (milliseconds, callback) => {
     timeoutMs = milliseconds;
     if (callback) stream.once('timeout', callback);
@@ -99,4 +118,4 @@ function legacyDuplex(start, { maxBufferBytes }) {
   }
   return { stream, ready };
 }
-module.exports = { write, relay, legacyDuplex };
+module.exports = { write, relay, legacyDuplex, closeTransport };

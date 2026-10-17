@@ -36,13 +36,15 @@ function createListener(network, onConnection, limits, tlsOptions) {
     },
   };
   const server =
-    version === '1.1'
-      ? secure
-        ? https.createServer(serverOptions, handle)
-        : http.createServer(serverOptions, handle)
-      : secure
-        ? http2.createSecureServer(serverOptions, handle)
-        : http2.createServer(serverOptions, handle);
+    version === '3'
+      ? require('./h3').createServer(network, limits, handle)
+      : version === '1.1'
+        ? secure
+          ? https.createServer(serverOptions, handle)
+          : http.createServer(serverOptions, handle)
+        : secure
+          ? http2.createSecureServer(serverOptions, handle)
+          : http2.createServer(serverOptions, handle);
   server.headersTimeout = config.timeout;
   server.requestTimeout = 0; // Streaming uploads are bounded by logical idle/handshake limits instead.
   server.prependListener('connection', (socket) => {
@@ -159,7 +161,26 @@ function createListener(network, onConnection, limits, tlsOptions) {
         // HTTP/2 request and response wrappers share one stream. Dispose it once,
         // after the current nghttp2 callback, rather than resetting it reentrantly.
         setImmediate(() => {
-          for (const target of targets) target.destroy();
+          for (const target of targets) {
+            if (
+              selected.httpVersion === '3' &&
+              state.stream.readableEnded &&
+              state.stream.writableFinished &&
+              target.raw
+            ) {
+              const timer = setTimeout(() => target.destroy(), selected.timeout);
+              target.raw.closed.then(
+                () => {
+                  clearTimeout(timer);
+                  target.normalClose();
+                },
+                () => {
+                  clearTimeout(timer);
+                  target.destroy();
+                },
+              );
+            } else target.destroy();
+          }
         });
       },
     });
@@ -428,10 +449,23 @@ function createListener(network, onConnection, limits, tlsOptions) {
         requests: bodies.size,
         sockets: sockets.size,
         http2Sessions: h2sessions.size,
+        ...(version === '3' ? server.h3Stats() : {}),
       };
     },
     prepareUpdate(nextNetwork, nextLimits) {
       const next = settings(nextNetwork.option, nextLimits);
+      if (version === '3') {
+        for (const field of new Set([...Object.keys(limits), ...Object.keys(nextLimits)])) {
+          if (typeof limits[field] === 'function' || typeof nextLimits[field] === 'function')
+            continue;
+          if (JSON.stringify(limits[field]) !== JSON.stringify(nextLimits[field]))
+            throw failure(
+              'ERR_ROTATION',
+              `Shared HTTP/3 listener cannot hot-update ${field}; use a new listener.`,
+              'rotation',
+            );
+        }
+      }
       if (
         nextNetwork.type !== 'xhttp' ||
         Boolean(next.tls) !== Boolean(config.tls) ||
@@ -449,6 +483,7 @@ function createListener(network, onConnection, limits, tlsOptions) {
       } catch (cause) {
         throw failure('ERR_TLS', 'Candidate XHTTP TLS material is invalid.', 'rotation', cause);
       }
+      if (version === '3') server.validateSecureContext(nextSecure);
       const previous = { config, secure, limits };
       const apply = (value, material, nextLimits) => {
         if (material) server.setSecureContext(material);
@@ -464,6 +499,7 @@ function createListener(network, onConnection, limits, tlsOptions) {
     },
     destroy() {
       for (const stream of streams) stream.destroy();
+      if (version === '3') server.destroy();
       // Applications can close a listener from an inbound body callback too.
       // Keep native session/transport teardown out of nghttp2's receive stack.
       setImmediate(() => {

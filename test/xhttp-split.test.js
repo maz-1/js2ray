@@ -158,7 +158,7 @@ test('XHTTP split native and traditional validation rejects unsupported combinat
     (n) => (n.option.downloadSettings.type = 'tcp'),
     (n) => (n.option.downloadSettings.port = 0),
     (n) => (n.option.downloadSettings.option.downloadSettings = {}),
-    (n) => (n.option.downloadSettings.option.httpVersion = '3'),
+    (n) => (n.option.downloadSettings.option.httpVersion = '4'),
     (n) => (n.option.downloadSettings.option.headers = { authorization: 'bad\r\nheader' }),
   ]) {
     const changed = structuredClone(network);

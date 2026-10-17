@@ -97,7 +97,9 @@ function responseStream(socket, maxBufferBytes) {
         callback(error);
         return;
       }
-      socket.destroy();
+      if (!error && stream.readableEnded && stream.writableFinished)
+        require('../../runtime/streams').closeTransport(socket);
+      else socket.destroy();
     },
   });
   stream.on('error', () => {});

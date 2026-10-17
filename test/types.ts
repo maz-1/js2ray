@@ -1,6 +1,48 @@
 import api, { createRuntime, DatagramMessage, checkConfig } from '..';
 import { Agent, fetch } from 'undici';
+void checkConfig({
+  outbounds: [
+    {
+      protocol: 'vless',
+      users: [{ id: 'd342d11e-d424-4583-b36e-524ab1f0afa4', encryption: 'none' }],
+      networks: [
+        {
+          type: 'xhttp',
+          port: 443,
+          address: 'proxy.example',
+          option: {
+            httpVersion: '3',
+            mode: 'stream-up',
+            tls: { serverName: 'proxy.example' },
+            downloadSettings: {
+              type: 'xhttp',
+              port: 443,
+              address: 'download.example',
+              option: { httpVersion: '3', tls: {} },
+            },
+          },
+        },
+      ],
+    },
+  ],
+});
 const runtime = createRuntime({ inbounds: [], outbounds: [{ protocol: 'freedom' }] });
+void checkConfig({
+  outbounds: [
+    {
+      protocol: 'vless',
+      users: [{ id: 'd342d11e-d424-4583-b36e-524ab1f0afa4', encryption: 'none' }],
+      networks: [
+        {
+          type: 'quic',
+          address: '127.0.0.1',
+          port: 443,
+          option: { tls: { serverName: 'proxy.example', caFile: './ca.pem', alpn: ['h2'] } },
+        },
+      ],
+    },
+  ],
+});
 void createRuntime({
   compatibility: 'xray-25.3.6',
   routing: {

@@ -36,7 +36,10 @@ function transportError(cause) {
 // Pausing the readable side pauses the body producer, including HTTP/2 flow control.
 class XhttpStream extends Duplex {
   constructor(config, { send, finish, dispose, resume, control, remoteAddress } = {}) {
-    super({ allowHalfOpen: false, highWaterMark: Math.min(16384, config.maxBytes) });
+    super({
+      allowHalfOpen: config.httpVersion === '3',
+      highWaterMark: Math.min(16384, config.maxBytes),
+    });
     this.maxBytes = config.maxBytes;
     this.send = send;
     this.finish = finish;
@@ -45,6 +48,16 @@ class XhttpStream extends Duplex {
     this.control = control;
     this.remoteAddress = remoteAddress;
     this.on('error', () => {});
+    if (config.httpVersion === '3') {
+      // Reuse the relay's normal-completion hook: VMess must await the
+      // outstanding XHTTP writer before tearing down its byte transport.
+      const finish = () => {
+        if (this.readableEnded && this.writableFinished) this.destroy();
+      };
+      this[Symbol.for('js2ray.quicGracefulClose')] = finish;
+      this.on('end', finish);
+      this.on('finish', finish);
+    }
   }
   _read() {
     if (this.readScheduled) return;

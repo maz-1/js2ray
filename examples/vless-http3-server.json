@@ -1,0 +1,22 @@
+{
+  "inbounds": [
+    {
+      "protocol": "vless",
+      "users": [{ "id": "d342d11e-d424-4583-b36e-524ab1f0afa4" }],
+      "networks": [
+        {
+          "type": "xhttp",
+          "address": "0.0.0.0",
+          "port": 443,
+          "option": {
+            "httpVersion": "3",
+            "mode": "auto",
+            "path": "/xhttp/",
+            "tls": { "certFile": "./server-cert.pem", "keyFile": "./server-key.pem" }
+          }
+        }
+      ]
+    }
+  ],
+  "outbounds": [{ "protocol": "freedom" }]
+}

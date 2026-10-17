@@ -130,6 +130,7 @@ function wsStream(
   return stream;
 }
 async function connect(network, options = {}) {
+  if (network.type === 'quic') return require('./quic').connect(network, options);
   if (network.type === 'xhttp') return require('./xhttp').connect(network, options, connect);
   const { signal, lookup, connectTimeoutMs = 10000, handshakeTimeoutMs = 10000 } = options;
   if (signal?.aborted)
@@ -212,6 +213,8 @@ async function connect(network, options = {}) {
   }
 }
 function createListener(network, onConnection, options = {}) {
+  if (network.type === 'quic')
+    return require('./quic').createListener(network, onConnection, options);
   if (network.option?.reality)
     return require('./reality').createListener(network, onConnection, options);
   if (network.type === 'xhttp')

@@ -29,7 +29,12 @@ async function connect(network, limits, dial) {
   }
   const entry = lease.entry;
   const version = entry.version;
-  const mode = config.mode === 'auto' ? (version === '2' ? 'stream-up' : 'packet-up') : config.mode;
+  const mode =
+    config.mode === 'auto'
+      ? version === '2' || version === '3'
+        ? 'stream-up'
+        : 'packet-up'
+      : config.mode;
   const requests = new Set();
   const leases = new Set([lease, downLease]);
   const observers = new Map();
@@ -141,15 +146,30 @@ async function connect(network, limits, dial) {
       // reentrantly. Close the logical stream now and reset its requests after
       // the native receive stack has unwound (nextTick/microtasks are too early).
       const pending = [...requests];
-      setImmediate(() => {
+      const cleanup = () => {
         for (const req of pending) req.destroy(cause);
-      });
-      for (const value of leases) {
-        unobserve(value);
-        value.release();
-      }
-      leases.clear();
-      for (const value of ownedPools) value.close();
+        for (const value of leases) {
+          unobserve(value);
+          value.release();
+        }
+        leases.clear();
+        for (const value of ownedPools) value.close();
+      };
+      if (version === '3' && !cause && stream.readableEnded && stream.writableFinished) {
+        // Classic finish means writer.end accepted FIN, not that it was sent.
+        // Keep leases/native bodies alive until real native closure, bounded.
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          cleanup();
+        };
+        const deadline = setTimeout(finish, config.timeout);
+        Promise.allSettled(pending.map((req) => req.raw?.closed)).then(() => {
+          clearTimeout(deadline);
+          finish();
+        });
+      } else setImmediate(cleanup);
     },
   });
   function observe(value) {
@@ -189,14 +209,14 @@ async function connect(network, limits, dial) {
       headers.connection = 'close';
     if (length !== undefined) headers['content-length'] = String(length);
     const req =
-      owner.version === '2'
-        ? owner.session.request(
+      owner.version === '2' || owner.version === '3'
+        ? (owner.version === '3' ? owner.request : owner.session.request.bind(owner.session))(
             {
-              ...headers,
               ':method': method,
               ':path': path,
               ':scheme': tls ? 'https' : 'http',
               ':authority': authority,
+              ...headers,
             },
             { endStream: method === 'GET' },
           )
@@ -231,8 +251,8 @@ async function connect(network, limits, dial) {
         finish(failure('ERR_CLOSED', 'XHTTP request closed before response headers.', 'transport')),
       );
       req.once('response', (value) => {
-        const body = owner.version === '2' ? req : value;
-        const status = owner.version === '2' ? value[':status'] : value.statusCode;
+        const body = owner.version !== '1.1' ? req : value;
+        const status = owner.version !== '1.1' ? value[':status'] : value.statusCode;
         if (status !== 200) {
           const cause = failure('ERR_TRANSPORT', 'XHTTP peer rejected the request.', 'transport');
           cause.context.status = status;

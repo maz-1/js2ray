@@ -88,8 +88,13 @@ function validate(option, add, prefix, inbound) {
     add(prefix + '.host', 'Expected an HTTP authority without whitespace or URL components.');
   if (!['auto', 'packet-up', 'stream-up', 'stream-one'].includes(option.mode ?? 'auto'))
     add(prefix + '.mode', 'Expected auto, packet-up, stream-up or stream-one.');
-  if (!['auto', '1.1', '2'].includes(option.httpVersion ?? 'auto'))
-    add(prefix + '.httpVersion', 'Expected auto, 1.1 or 2.');
+  if (!['auto', '1.1', '2', '3'].includes(option.httpVersion ?? 'auto'))
+    add(prefix + '.httpVersion', 'Expected auto, 1.1, 2 or 3.');
+  if (option.httpVersion === '3') {
+    if (!option.tls) add(prefix + '.tls', 'HTTP/3 requires explicit integrated TLS settings.');
+    if (option.xmux?.hKeepAlivePeriod !== undefined && option.xmux.hKeepAlivePeriod !== -1)
+      add(prefix + '.xmux.hKeepAlivePeriod', 'HTTP/3 has no HTTP/2 PING policy; omit or use -1.');
+  }
   if (
     option.path !== undefined &&
     (/[\s\\]/.test(option.path) || /%(?![0-9a-f]{2})/i.test(option.path))

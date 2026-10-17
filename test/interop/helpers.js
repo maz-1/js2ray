@@ -61,7 +61,11 @@ async function runCore(t, kind, config, port, { cone = false, profile = kind } =
     throw new Error(
       `Reference core checksum mismatch: ${kind}. Update the explicit platform lock before testing a new build.`,
     );
-  const version = spawnSync(executable, ['version'], { encoding: 'utf8' });
+  const version = spawnSync(executable, ['version'], {
+    encoding: 'utf8',
+    timeout: 5000,
+    windowsHide: true,
+  });
   if (version.error || !version.stdout.includes(references[profile].version))
     throw new Error(`Reference core version check failed: ${kind}.`);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'js2ray-interop-'));

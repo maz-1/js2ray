@@ -22,17 +22,45 @@ function adaptV2ray(input, add) {
         'wsSettings',
         'tcpSettings',
         'xhttpSettings',
+        'quicSettings',
         ...(download ? ['address', 'port'] : []),
       ],
       prefix,
     );
     const network = stream.network === 'raw' ? 'tcp' : (stream.network ?? 'tcp');
-    if (!['tcp', 'ws', 'xhttp'].includes(network))
+    if (!['tcp', 'ws', 'xhttp', 'quic'].includes(network))
       add(`${prefix}.network`, 'Transport is not implemented.');
     const security = stream.security ?? 'none';
     if (!['none', 'tls', 'reality'].includes(security))
       add(`${prefix}.security`, 'Supported transport security: none, TLS and REALITY.');
     const option = {};
+    if (stream.quicSettings !== undefined) {
+      const q = stream.quicSettings;
+      if (network !== 'quic' || !q || typeof q !== 'object' || Array.isArray(q))
+        add(prefix + '.quicSettings', 'Expected QUIC settings on network quic.');
+      else {
+        checkKeys(q, ['security', 'key', 'header'], prefix + '.quicSettings');
+        if (q.security !== undefined && q.security !== 'none')
+          add(
+            prefix + '.quicSettings.security',
+            'QUIC UDP packet encryption is unsupported; use none.',
+          );
+        if (q.key !== undefined && q.key !== '')
+          add(prefix + '.quicSettings.key', 'QUIC packet encryption keys are unsupported.');
+        if (q.header !== undefined) {
+          if (!q.header || typeof q.header !== 'object' || Array.isArray(q.header))
+            add(prefix + '.quicSettings.header', 'Expected header type none.');
+          else {
+            checkKeys(q.header, ['type'], prefix + '.quicSettings.header');
+            if (q.header.type !== undefined && q.header.type !== 'none')
+              add(
+                prefix + '.quicSettings.header.type',
+                'QUIC packet disguise is unsupported; use none.',
+              );
+          }
+        }
+      }
+    }
     if (security === 'reality') {
       if (network !== 'tcp') add(prefix + '.security', 'REALITY requires raw TCP.');
       option.reality = stream.realitySettings ?? {};
@@ -103,28 +131,62 @@ function adaptV2ray(input, add) {
         add(`${prefix}.tlsSettings.allowInsecure`, 'Expected a boolean.');
       checkKeys(
         tls,
-        ['serverName', 'allowInsecure', 'certificates', ...(network === 'xhttp' ? ['alpn'] : [])],
+        [
+          'serverName',
+          'allowInsecure',
+          'certificates',
+          ...(['xhttp', 'quic'].includes(network) ? ['alpn'] : []),
+        ],
         `${prefix}.tlsSettings`,
       );
       if (tls.alpn !== undefined && network === 'xhttp') {
         if (
           !Array.isArray(tls.alpn) ||
           !tls.alpn.length ||
-          tls.alpn.some((value) => !['h2', 'http/1.1'].includes(value))
+          tls.alpn.some((value) => !['h3', 'h2', 'http/1.1'].includes(value)) ||
+          (tls.alpn.includes('h3') && tls.alpn.length !== 1)
         )
-          add(prefix + '.tlsSettings.alpn', 'XHTTP supports HTTP/1.1 and HTTP/2 ALPN only.');
+          add(
+            prefix + '.tlsSettings.alpn',
+            'XHTTP h3 ALPN must appear alone; mixed HTTP/3 fallback is unsupported.',
+          );
         else
           option.httpVersion =
-            tls.alpn.length === 1 ? (tls.alpn[0] === 'h2' ? '2' : '1.1') : 'auto';
+            tls.alpn.length === 1
+              ? tls.alpn[0] === 'h3'
+                ? '3'
+                : tls.alpn[0] === 'h2'
+                  ? '2'
+                  : '1.1'
+              : 'auto';
       }
       option.tls = { serverName: tls.serverName, rejectUnauthorized: !tls.allowInsecure };
+      if (network === 'quic' && tls.alpn !== undefined) option.tls.alpn = tls.alpn;
       if (tls.certificates) {
         if (!Array.isArray(tls.certificates) || tls.certificates.length !== 1)
           add(`${prefix}.tlsSettings.certificates`, 'Exactly one certificate pair is supported.');
         const pair = tls.certificates[0] ?? {};
-        checkKeys(pair, ['certificateFile', 'keyFile'], `${prefix}.tlsSettings.certificates[0]`);
-        option.tls.certFile = pair.certificateFile;
-        option.tls.keyFile = pair.keyFile;
+        checkKeys(
+          pair,
+          ['certificateFile', 'keyFile', ...(['quic', 'xhttp'].includes(network) ? ['usage'] : [])],
+          `${prefix}.tlsSettings.certificates[0]`,
+        );
+        if (['quic', 'xhttp'].includes(network) && pair.usage === 'verify') {
+          option.tls.caFile = pair.certificateFile;
+          if (pair.keyFile !== undefined)
+            add(
+              prefix + '.tlsSettings.certificates[0].keyFile',
+              'CA verification does not accept a private key.',
+            );
+        } else {
+          if (pair.usage !== undefined && pair.usage !== 'encipherment')
+            add(
+              prefix + '.tlsSettings.certificates[0].usage',
+              'Supported QUIC certificate usage: encipherment or verify.',
+            );
+          option.tls.certFile = pair.certificateFile;
+          option.tls.keyFile = pair.keyFile;
+        }
       }
     } else if (stream.tlsSettings)
       add(`${prefix}.tlsSettings`, 'TLS settings require security tls.');

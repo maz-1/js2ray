@@ -51,6 +51,7 @@ class Runtime extends EventEmitter {
     if (options.lookup !== undefined && typeof options.lookup !== 'function')
       throw failure('ERR_CONFIG', 'Expected a DNS lookup function.', 'config');
     this.#config = normalizeConfig(config, options);
+    require('../transports/quic').guard(this.#config);
     this.#options = { ...options };
     this.#router =
       typeof this.#config.routing === 'object'
@@ -506,7 +507,7 @@ class Runtime extends EventEmitter {
       if (!writable) socket.app?.remote?.pause?.();
       return writable;
     };
-    socket.localClose = () => socket.destroy();
+    socket.localClose = () => require('./streams').closeTransport(socket);
     socket.on('drain', () => socket.app?.remote?.resume?.());
     const connection = handler(socket, socket.remoteAddress);
     const timer = setTimeout(() => {

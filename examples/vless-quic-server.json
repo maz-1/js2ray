@@ -1,0 +1,23 @@
+{
+  "inbounds": [
+    {
+      "protocol": "vless",
+      "users": [{ "id": "d342d11e-d424-4583-b36e-524ab1f0afa4" }],
+      "networks": [
+        {
+          "type": "quic",
+          "address": "127.0.0.1",
+          "port": 443,
+          "option": {
+            "tls": {
+              "certFile": "./server-cert.pem",
+              "keyFile": "./server-key.pem",
+              "alpn": ["h2", "http/1.1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outbounds": [{ "protocol": "freedom" }]
+}

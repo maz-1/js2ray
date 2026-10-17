@@ -119,6 +119,7 @@ class XmuxPool {
         const value = this.refCount > 0;
         for (const socket of this.sockets) socket[value ? 'ref' : 'unref']();
         this.session?.[value ? 'ref' : 'unref']();
+        this.endpoint?.[value ? 'ref' : 'unref']?.();
       },
       reusable() {
         return !this.closed && !this.retired && this.leftUsage !== 0 && this.packetReusable();
@@ -145,7 +146,7 @@ class XmuxPool {
         }
         if (!this.users) this.destroy();
       },
-      destroy(cause) {
+      destroy(cause, force = false) {
         if (this.closed) return;
         this.closed = true;
         if (cause) pool.counters.failures++;
@@ -158,6 +159,7 @@ class XmuxPool {
         const dispose = () => {
           for (const req of this.requests) req.destroy(cause);
           this.agent?.destroy();
+          this.disposeH3?.(force);
           // The HTTP/2 session owns its socket. Avoid destroying the same raw
           // transport while the native session is still using it.
           if (this.session) this.session.destroy(cause);
@@ -185,6 +187,16 @@ class XmuxPool {
       expire();
     }
     entry.ready = (async () => {
+      if (config.httpVersion === '3') {
+        await require('./h3').connect(
+          this.network,
+          { ...this.limits, signal: controller.signal },
+          entry,
+        );
+        entry.initialized = true;
+        entry.updateRef();
+        return;
+      }
       const tls = config.tls;
       const alpn =
         config.httpVersion === '1.1'
@@ -374,7 +386,7 @@ class XmuxPool {
   }
   close() {
     this.closed = true;
-    for (const entry of this.entries) entry.destroy();
+    for (const entry of this.entries) entry.destroy(undefined, true);
   }
 }
 module.exports = { XmuxPool };

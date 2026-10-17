@@ -30,6 +30,8 @@ export class Js2rayError extends Error {
   toJSON(): ErrorRecord;
 }
 export interface TlsOptions {
+  /** Raw QUIC ALPN. HTTP/3 identifiers are unsupported. Outbound accepts one. */
+  alpn?: string[];
   serverName?: string;
   rejectUnauthorized?: boolean;
   ca?: string;
@@ -40,7 +42,7 @@ export interface TlsOptions {
   keyFile?: string;
 }
 export interface Network {
-  type?: 'tcp' | 'ws' | 'xhttp';
+  type?: 'tcp' | 'ws' | 'xhttp' | 'quic';
   address?: string;
   port: number;
   option?: {
@@ -50,7 +52,7 @@ export interface Network {
     reality?: RealityClientOptions | RealityServerOptions;
     host?: string;
     mode?: 'auto' | 'packet-up' | 'stream-up' | 'stream-one';
-    httpVersion?: 'auto' | '1.1' | '2';
+    httpVersion?: 'auto' | '1.1' | '2' | '3';
     xPaddingBytes?: number | string;
     noGRPCHeader?: boolean;
     noSSEHeader?: boolean;

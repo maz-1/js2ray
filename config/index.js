@@ -225,11 +225,8 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
         keys(network, ['type', 'address', 'port', 'option'], np);
         const type = network.type ?? 'tcp';
         if (download && type !== 'xhttp') add(np + '.type', 'Download transport must be xhttp.');
-        if (!['tcp', 'ws', 'xhttp'].includes(type))
-          add(
-            `${np}.type`,
-            'Only TCP, WebSocket and XHTTP are supported; TLS is configured independently.',
-          );
+        if (!['tcp', 'ws', 'xhttp', 'quic'].includes(type))
+          add(`${np}.type`, 'Only TCP, WebSocket, XHTTP and QUIC are supported.');
         const address = network.address ?? (kind === 'inbound' ? '127.0.0.1' : undefined);
         if (!host(address)) add(`${np}.address`, 'Expected a valid IP address or domain.');
         if (!port(network.port, kind === 'inbound'))
@@ -294,6 +291,16 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             add(np + '.option.headers', 'Invalid or reserved WebSocket header.');
         }
         const tls = option.tls;
+        if (type === 'quic') {
+          if (!tls)
+            add(np + '.option.tls', 'QUIC requires explicit TLS settings (integrated TLS 1.3).');
+          if (
+            option.path !== undefined ||
+            option.headers !== undefined ||
+            option.reality !== undefined
+          )
+            add(np + '.option', 'QUIC does not support HTTP path/headers or REALITY.');
+        }
         let reality;
         if (option.reality !== undefined) {
           if (type !== 'tcp' || protocol !== 'vless')
@@ -330,6 +337,7 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
                 'caFile',
                 'certFile',
                 'keyFile',
+                ...(type === 'quic' ? ['alpn'] : []),
               ],
               np + '.option.tls',
             );
@@ -338,6 +346,25 @@ function checkConfig(input = {}, { baseDir = process.cwd() } = {}) {
             if (tls.rejectUnauthorized !== undefined && typeof tls.rejectUnauthorized !== 'boolean')
               add(np + '.option.tls.rejectUnauthorized', 'Expected a boolean.');
             normalizedTls = { ...tls };
+            if (
+              type === 'quic' &&
+              tls.alpn !== undefined &&
+              (!Array.isArray(tls.alpn) ||
+                !tls.alpn.length ||
+                (kind === 'outbound' && tls.alpn.length !== 1) ||
+                tls.alpn.some(
+                  (value) =>
+                    typeof value !== 'string' ||
+                    !value.length ||
+                    Buffer.byteLength(value) > 255 ||
+                    value === 'h3' ||
+                    value.startsWith('h3-'),
+                ))
+            )
+              add(
+                np + '.option.tls.alpn',
+                'QUIC requires non-HTTP/3 ALPN; outbound accepts one protocol.',
+              );
             for (const field of ['ca', 'cert', 'key'])
               if (tls[field] !== undefined && typeof tls[field] !== 'string')
                 add(np + '.option.tls.' + field, 'Expected PEM text.');

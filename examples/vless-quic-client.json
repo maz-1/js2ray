@@ -1,0 +1,18 @@
+{
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "users": [{ "id": "d342d11e-d424-4583-b36e-524ab1f0afa4", "encryption": "none" }],
+      "networks": [
+        {
+          "type": "quic",
+          "address": "192.0.2.1",
+          "port": 443,
+          "option": {
+            "tls": { "serverName": "proxy.example", "caFile": "./ca.pem", "alpn": ["h2"] }
+          }
+        }
+      ]
+    }
+  ]
+}

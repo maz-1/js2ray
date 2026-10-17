@@ -6,6 +6,8 @@ This working tree is **4.0.0-dev.0**. It includes TCP/TLS/WS/WSS, XHTTP over HTT
 
 ## Direct library use
 
+Experimental [native QUIC](docs/QUIC.md) implements VLESS/VMess streams and V2Ray's unencrypted, undisguised QUIC packet subset using the public native writer. It requires a QUIC-enabled Node build and `--experimental-quic`; existing Node 24 configurations without QUIC retain their behavior. **Full QUIC acceptance has not passed:** native FIN defects, an earlier intermittent EOF stall, and a final concurrent 2 MiB VMess half-close `ERR_CLOSED` failure remain unresolved. The final failure's cause is unassigned; see the linked limitations.
+
 ```js
 const { createRuntime } = require('js2ray');
 
@@ -31,7 +33,7 @@ Use the traditional JSON outbound in [examples/vless-wss-client.json](examples/v
 
 XHTTP XMUX supports all six fields in the pinned Xray 25.3.6 configuration: concurrency, client count, reuse count, HTTP request budget, reusable lifetime, and HTTP/2 idle PING. Pools belong to one Runtime and configuration generation; retiring clients drain accepted streams. See [XMUX acceptance](docs/P18_XMUX_ACCEPTANCE.zh-CN.md).
 
-XHTTP split uplink/downlink supports independent HTTP/1.1 or HTTP/2 endpoints, TLS identities, paths, and XMUX pools through `downloadSettings`. Both entrances must reach the same backend session. See [split transport acceptance](docs/P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md). HTTP/3 is deferred until Node.js native QUIC support stabilizes.
+XHTTP split uplink/downlink supports independent endpoints, TLS identities, paths, and XMUX pools through `downloadSettings`. Both entrances must reach the same backend session. See [split transport acceptance](docs/P19_XHTTP_SPLIT_ACCEPTANCE.zh-CN.md). Experimental native HTTP/3 is selected only by explicit `httpVersion: '3'` (traditional ALPN `['h3']`); `auto` retains HTTP/1.1 and HTTP/2 selection. See [HTTP/3 requirements and boundaries](docs/HTTP3.md).
 
 [examples/vless-vision-client.json](examples/vless-vision-client.json) configures `xtls-rprx-vision` over raw TCP/TLS 1.3. The pure Node.js implementation preserves buffered bytes when switching each direction to Direct; eligible inner TLS 1.3 traffic uses that path. Vision UDP uses XUDP and blocks UDP/443 unless the outbound explicitly selects `xtls-rprx-vision-udp443`. See the [Vision scope and validation](docs/P15_VISION_ACCEPTANCE.zh-CN.md).
 
@@ -107,4 +109,4 @@ Configuration and credential rotation uses `createRuntimeManager`. Its HTTP/Undi
 
 `npm run test:stability:extensions` runs a separate 100-session, 30-minute mix of TCP, UDP and application WS/WSS, with credential rotation every minute. [The P9–P13 acceptance record](docs/P9-P13_ACCEPTANCE.zh-CN.md) links the three-platform results, original load records and source hashes.
 
-Common routing and DNS compatibility targets pinned V2Ray 5.14.1 and Xray 25.3.6 with explicit semantic profiles, RE2 matching, source/user/HTTP conditions, ECS, TCP/local DNS and per-server controls. See [the field matrix and acceptance](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) and [the sanitized example](examples/policy-compat.json). HTTP/3 and DoQ remain deferred.
+Common routing and DNS compatibility targets pinned V2Ray 5.14.1 and Xray 25.3.6 with explicit semantic profiles, RE2 matching, source/user/HTTP conditions, ECS, TCP/local DNS and per-server controls. See [the field matrix and acceptance](docs/P20_POLICY_COMPATIBILITY.zh-CN.md) and [the sanitized example](examples/policy-compat.json). DoQ remains deferred; experimental XHTTP HTTP/3 is described separately above.
