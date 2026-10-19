@@ -276,15 +276,22 @@ class Mux extends EventEmitter {
         serveDatagrams(local, this.dispatch).catch((error) => session.destroy(error));
       } else {
         const pending = new AbortController();
-        session.once('close', () => pending.abort());
+        const cancelPending = () => pending.abort(session.errored ?? undefined);
+        session.once('close', cancelPending);
         Promise.resolve()
           .then(() => this.dispatch({ ...frame.target, signal: pending.signal }, session))
           .then(
             (remote) => {
+              // Once dialing completes, relay owns both streams' lifetimes.
+              // Aborting the dial signal here turns clean END into an error.
+              session.removeListener('close', cancelPending);
               if (session.destroyed) remote.destroy();
               else relay(session, remote);
             },
-            (error) => session.destroy(error),
+            (error) => {
+              session.removeListener('close', cancelPending);
+              session.destroy(error);
+            },
           );
       }
     }

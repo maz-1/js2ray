@@ -6,6 +6,109 @@ const { Mux } = require('../protocols/mux');
 const net = require('node:net');
 const { once } = require('node:events');
 const { listen, echo, readBytes } = require('./helpers');
+const { duplexPair } = require('node:stream');
+const { createRuntime, Js2rayError } = require('..');
+
+test('closing established Mux sessions does not report transport cancellation', async (t) => {
+  const destination = await echo(t);
+  const diagnostics = [];
+  const runtime = createRuntime(
+    { outbounds: [{ protocol: 'freedom' }] },
+    {
+      logger: (record) => diagnostics.push(record),
+    },
+  );
+  await runtime.start();
+  const [left, right] = duplexPair();
+  let target;
+  const server = new Mux(right, {
+    server: true,
+    dispatch: async (settings) => {
+      target = await runtime.dial(settings);
+      return target;
+    },
+  });
+  const client = new Mux(left);
+  t.after(async () => {
+    client.close();
+    server.close();
+    await runtime.close();
+  });
+  for (const mode of ['end', 'destroy']) {
+    const session = client.open(destination);
+    session.write('completed');
+    assert.equal((await readBytes(session, 9)).toString(), 'completed');
+    const closed = new Promise((resolve) => target.once('close', resolve));
+    session[mode]();
+    await closed;
+  }
+  assert.deepEqual(
+    diagnostics,
+    [],
+    'A successful session must not produce cancellation diagnostics',
+  );
+});
+
+test('Mux still cancels pending dials and reports faults on established targets', async (t) => {
+  const destination = await echo(t);
+  const diagnostics = [];
+  const runtime = createRuntime(
+    { outbounds: [{ protocol: 'freedom' }] },
+    {
+      logger: (record) => diagnostics.push(record),
+    },
+  );
+  await runtime.start();
+  const [left, right] = duplexPair();
+  const pending = Promise.withResolvers();
+  let target;
+  const server = new Mux(right, {
+    server: true,
+    dispatch: async (settings) => {
+      if (settings.host === 'pending.test') {
+        pending.resolve(settings.signal);
+        return new Promise((_resolve, reject) => {
+          settings.signal.addEventListener('abort', () => reject(settings.signal.reason), {
+            once: true,
+          });
+        });
+      }
+      target = await runtime.dial(settings);
+      return target;
+    },
+  });
+  const client = new Mux(left);
+  t.after(async () => {
+    client.close();
+    server.close();
+    await runtime.close();
+  });
+  const cancelled = client.open({ host: 'pending.test', port: 80 });
+  const signal = await pending.promise;
+  const aborted = new Promise((resolve) =>
+    signal.addEventListener('abort', resolve, { once: true }),
+  );
+  server.sessions.get(cancelled.id).destroy();
+  cancelled.destroy();
+  await aborted;
+  assert.equal(signal.aborted, true);
+
+  for (const code of ['ERR_TIMEOUT', 'ERR_TRANSPORT']) {
+    const session = client.open(destination);
+    session.write('fault');
+    assert.equal((await readBytes(session, 5)).toString(), 'fault');
+    const closed = new Promise((resolve) => target.once('close', resolve));
+    const serverSession = server.sessions.get(session.id);
+    serverSession.destroy(
+      new Js2rayError(code, 'Synthetic session failure', { phase: 'transport' }),
+    );
+    await closed;
+    assert.ok(
+      diagnostics.some((record) => record.code === code),
+      `${code} must remain visible`,
+    );
+  }
+});
 test('Mux fixed frame vector and every truncated prefix', () => {
   const frame = encode({
     id: 1,
